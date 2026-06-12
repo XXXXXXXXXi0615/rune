@@ -1,0 +1,162 @@
+/* ================================================================
+   TOKENS — Lunartide Design System · Claude Editorial Palette
+   ================================================================ */
+
+/* --- Theme: Light (default, cream canvas) --- */
+:root,
+[data-theme="light"] {
+  /* Canvas & surfaces — warm paper */
+  --bg: #f2ede4;                /* Warm paper base */
+  --bg-2: #ede7db;              /* Section dividers */
+  --surface: #ede7db;           /* Card surface */
+  --surface-2: #e5dfd2;         /* Card hover / emphasized */
+  --surface-3: #f5f0e8;         /* Modal / drawer bg */
+  --border: rgba(90,70,50,0.12); /* Warm hairline */
+  --border-hi: rgba(90,70,50,0.18);
+
+  /* Text */
+  --text: #2a1f14;              /* Primary — warm dark brown */
+  --text-2: #6b5a48;            /* Secondary */
+  --text-3: #9a8878;            /* Muted */
+
+  /* Shadows — minimal */
+  --shadow: 0 1px 3px rgba(90,70,50,0.05);
+  --nav-bg: #f2ede4;
+  --modal-bg: #f2ede4;
+
+  /* Chat bubbles — light mode (warm paper) */
+  --chat-bubble-user-bg: rgba(255,250,242,0.72);
+  --chat-bubble-user-border: rgba(90,70,50,0.10);
+  --chat-bubble-luna-bg: rgba(237,231,219,0.86);
+  --chat-bubble-luna-border: rgba(200,145,42,0.18);
+
+  /* Accent — warm amber for light mode */
+  --coral: #c8912a;
+  --accent: var(--coral);
+}
+
+/* --- Theme: Dark (navy surfaces) --- */
+[data-theme="dark"] {
+  --bg: #181715;                /* Surface Dark */
+  --bg-2: #1f1e1b;              /* Surface Dark Soft */
+  --surface: #252320;           /* Surface Dark Elevated */
+  --surface-2: rgba(250,249,245,0.07); /* Subtle dark card */
+  --surface-3: rgba(24,23,21,0.96);    /* Modal bg */
+  --border: rgba(230,223,216,0.09);    /* Hairline on dark */
+  --border-hi: rgba(230,223,216,0.16);
+
+  --text: #faf9f5;              /* On Dark */
+  --text-2: #a09d96;            /* On Dark Soft */
+  --text-3: #6c6a64;            /* Muted */
+
+  --shadow: 0 1px 3px rgba(0,0,0,0.12);
+  --nav-bg: #1f1e1b;            /* Solid dark surface */
+  --modal-bg: #181715;          /* Solid dark */
+
+  /* Chat bubbles — dark mode (soft card) */
+  --chat-bubble-user-bg: rgba(255,255,255,0.07);
+  --chat-bubble-user-border: rgba(255,255,255,0.09);
+  --chat-bubble-luna-bg: rgba(167,139,250,0.09);
+  --chat-bubble-luna-border: rgba(167,139,250,0.15);
+}
+
+/* --- Global Tokens --- */
+:root {
+  /* === BRAND ACCENT (coral trinity) === */
+  --coral: #cc785c;
+  --coral-active: #a9583e;
+  --teal: #5db8a6;
+  --amber: #e8a55a;
+  --success: #5db872;
+  --warning: #d4a017;
+  --error: #c64545;
+  --on-primary: #ffffff;
+
+  /* === SEMANTIC ACCENT (phase system, functional) === */
+  --period: #c64545;            /* error red — menstrual */
+  --ovulation: #5db8a6;         /* teal — fertile, fresh */
+  --pms: #a28fb8;               /* muted purple — somber */
+  --normal: #e8a55a;            /* amber — warm, neutral */
+  --water: #5db8a6;             /* teal — hydration */
+  --journal: #cc785c;           /* coral — creative expression */
+  --adhd: #e8a55a;              /* amber — warm alert */
+  --cream: #faf9f5;             /* canvas */
+  --peach: #efe9de;             /* surface card */
+  --rose: #cc785c;              /* coral — romantic */
+  --accent: var(--coral);       /* primary CTA accent */
+  --danger: var(--error);       /* destructive */
+  --glow: 0 0 0 0.05;           /* minimal elevation shadow */
+
+  /* === SPACING SCALE (4px base) === */
+  --sp-4: 4px;
+  --sp-8: 8px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-20: 20px;
+  --sp-24: 24px;
+  --sp-32: 32px;
+  --sp-48: 48px;
+  --sp-96: 96px;
+
+  /* === RADIUS SCALE (hierarchical, per Claude spec) === */
+  --r-xs: 4px;      /* badge accents, tiny dropdowns */
+  --r-sm: 6px;      /* small inline buttons */
+  --r-md: 8px;      /* buttons, inputs, cards */
+  --r-lg: 12px;     /* feature cards, panels */
+  --r-xl: 16px;     /* hero containers */
+  --r-card: 8px;    /* cards */
+  --r-input: 8px;   /* form inputs */
+  --r-btn: 8px;     /* buttons */
+  --r-full: 9999px; /* pills, avatars */
+
+  /* === SHADOWS (color-block first, shadow rare) === */
+  --shadow-card: 0 1px 2px rgba(20,20,19,0.04);
+  --shadow-drawer: 0 -2px 16px rgba(0,0,0,0.08);
+  --shadow-modal: 0 4px 24px rgba(0,0,0,0.1);
+
+  /* === TYPOGRAPHY SCALE (editorial, serif display + humanist sans body) === */
+  --fs-h1: 48px;       /* display-lg — page hero */
+  --fs-h2: 28px;       /* display-sm — section title */
+  --fs-body: 16px;     /* body-md — running text */
+  --fs-caption: 13px;  /* caption — secondary info */
+  --fs-label: 12px;    /* caption-uppercase — labels, overlines */
+  --fs-tiny: 11px;     /* nav, badges */
+
+  /* === FONTS === */
+  --f-d: 'Cormorant Garamond', serif;   /* display — Copernicus fallback */
+  --f-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* === ANIMATION === */
+  --ease-drawer: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: ease;
+  --dur-instant: 0.1s;
+  --dur-fast: 0.15s;
+  --dur-normal: 0.2s;
+  --dur-slow: 0.35s;
+  --dur-drawer: 0.38s;
+  --press-scale: 0.97;
+
+  /* === MISC === */
+  --card-pad: 24px;
+  --card-gap: 12px;
+}
+
+/* --- Phase modifier overrides (preserves cycle tracking utility) --- */
+body.ph-period {
+  --accent: var(--period);
+  --glow: 0 0 0 0.06;
+}
+body.ph-ovulation {
+  --accent: var(--ovulation);
+  --glow: 0 0 0 0.06;
+}
+body.ph-pms {
+  --accent: var(--pms);
+  --glow: 0 0 0 0.06;
+}
+body.ph-normal {
+  --accent: var(--normal);
+  --glow: 0 0 0 0.06;
+}

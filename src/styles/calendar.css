@@ -1,0 +1,443 @@
+/* ================================================================
+   CALENDAR — Lunartide Design System
+   ================================================================ */
+
+/* --- Month Grid --- */
+.cal-month-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: var(--sp-12);
+}
+.cal-month-label {
+  font-family: var(--f-d);
+  font-size: var(--fs-h2);
+  font-weight: 400;
+  color: var(--text);
+}
+.cal-month-nav { display: flex; gap: var(--sp-4); }
+.cal-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  text-align: center; margin-bottom: var(--sp-4);
+}
+.cal-weekdays span {
+  font-size: var(--fs-label);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 6px 0;
+}
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  width: 100%;
+}
+.cal-day {
+  min-height: 44px;
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 13px;
+  color: var(--text-2);
+  position: relative; cursor: pointer;
+  background: transparent; border: 1px solid transparent;
+  font-family: var(--f-ui);
+  transition: all var(--dur-fast);
+}
+.cal-day:hover { background: var(--surface-2); }
+.cal-day.today {
+  color: var(--accent); font-weight: 600;
+  border: 1.5px solid var(--accent);
+}
+.cal-day.selected {
+  background: var(--accent); color: var(--on-primary); font-weight: 600;
+}
+.cal-day.today.selected {
+  background: var(--accent); color: var(--on-primary);
+  border-color: var(--accent);
+}
+.cal-day.other-month { opacity: 0.3; }
+.cal-day.has-high-priority:not(.selected) {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger) 60%, transparent);
+}
+.cal-day.all-completed:not(.selected) {
+  color: var(--success);
+}
+.cal-day-dots {
+  position: absolute; bottom: 3px;
+  display: flex; gap: 2px; justify-content: center; align-items: center;
+}
+.cal-day-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.cal-day-dot.high {
+  width: 6px; height: 6px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--danger) 70%, transparent);
+}
+.cal-day-count {
+  font-size: 7px;
+  line-height: 1;
+  color: var(--text-3);
+}
+.cal-day.selected .cal-day-count { color: rgba(255,255,255,0.8); }
+.cal-day-emoji {
+  font-size: 8px; line-height: 1;
+  flex-shrink: 0;
+}
+
+/* --- Today Summary --- */
+.today-summary {
+  display: flex; align-items: center; gap: var(--sp-12);
+  padding: 6px 0 2px;
+}
+.today-summary-date {
+  font-family: var(--f-d);
+  font-size: var(--fs-h2);
+  font-weight: 400;
+  color: var(--text);
+}
+.today-summary-weekday {
+  font-size: var(--sp-12);
+  color: var(--text-2);
+  letter-spacing: 0.5px;
+}
+.today-summary-stats {
+  margin-left: auto;
+  display: flex; gap: var(--sp-12);
+  font-size: var(--fs-caption);
+  color: var(--text-3);
+}
+
+/* --- Section Header --- */
+.calendar-section { margin-bottom: 6px; }
+.calendar-section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.calendar-section-title {
+  font-size: 13px; font-weight: 500; color: var(--text);
+}
+.calendar-section-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; margin-left: 7px; padding: 0 6px;
+  border-radius: 999px; background: var(--surface-2);
+  color: var(--text-2); font-size: 11px;
+}
+.calendar-section-add {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-2);
+  font-size: var(--sp-16); line-height: 1;
+  transition: all var(--dur-normal);
+}
+.calendar-section-add:active { transform: scale(var(--press-scale)); }
+
+/* Priority mood icon buttons */
+.mood-icon-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid transparent; background: transparent;
+  color: var(--text-3); cursor: pointer;
+  transition: all var(--dur-fast); padding: 0;
+}
+.mood-icon-btn:hover { color: var(--mood-color, var(--accent)); }
+.mood-icon-btn.active {
+  color: var(--mood-color, var(--accent));
+  border-color: var(--mood-color, var(--accent));
+  background: color-mix(in srgb, var(--mood-color, var(--accent)) 10%, transparent);
+}
+
+/* --- Todo List --- */
+.todo-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.todo-row {
+  display: flex; align-items: center; gap: 8px;
+  min-width: 0;
+  padding: 10px 8px 10px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--r-lg);
+}
+.todo-row.priority-high { border-left-color: var(--danger); }
+.todo-row.priority-low { border-left-color: var(--teal); }
+.todo-row.overdue {
+  background: color-mix(in srgb, var(--danger) 6%, var(--surface-2));
+}
+.todo-row.completed {
+  opacity: 0.72;
+}
+.todo-check {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: all var(--dur-normal);
+  background: transparent; padding: 0;
+}
+.todo-check.done { background: var(--accent); border-color: var(--accent); }
+.todo-check svg { width: 10px; height: 10px; stroke: #fff; stroke-width: 3; }
+.todo-body {
+  flex: 1; min-width: 0;
+  border: 0; background: transparent; padding: 4px 0;
+  color: inherit; text-align: left; cursor: pointer;
+  font-family: var(--f-ui);
+}
+.todo-title {
+  font-size: var(--fs-body); color: var(--text); line-height: 1.4;
+}
+.todo-title.done { text-decoration: line-through; opacity: 0.45; }
+.todo-meta {
+  font-size: var(--fs-label); color: var(--text-3);
+  letter-spacing: 0.3px; margin-top: 2px;
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+}
+.todo-priority-icon {
+  display: flex; align-items: center; flex-shrink: 0;
+}
+.todo-category-badge {
+  display: inline-flex; align-items: center;
+  min-height: 20px; padding: 2px 7px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--text-2); font-size: 10px;
+}
+.todo-category-badge.category-work { background: rgba(204,120,92,0.12); color: var(--coral); }
+.todo-category-badge.category-study { background: rgba(162,143,184,0.16); color: var(--pms); }
+.todo-category-badge.category-health { background: rgba(93,184,166,0.14); color: var(--teal); }
+.todo-category-badge.category-lunartide { background: rgba(200,145,42,0.14); color: var(--amber); }
+.todo-overdue-label { color: var(--danger); font-weight: 600; }
+.todo-notes {
+  color: var(--text-3); font-size: var(--fs-caption);
+  line-height: 1.4; margin-top: 5px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.todo-actions {
+  display: flex; align-items: center; flex-shrink: 0;
+}
+.todo-action {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: none; background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-3); padding: 0;
+  transition: color var(--dur-fast), background var(--dur-fast);
+}
+.todo-action svg { width: 16px; height: 16px; }
+.todo-action:hover { color: var(--accent); background: var(--surface-3); }
+.todo-action.danger:hover,
+.todo-action.danger:active { color: var(--danger); }
+
+/* --- Countdown List --- */
+.countdown-list {
+  display: flex; flex-direction: column; gap: var(--sp-8);
+}
+.countdown-card {
+  display: flex; align-items: center; gap: var(--sp-12);
+  padding: var(--sp-12) 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-input);
+  transition: all var(--dur-normal);
+}
+.countdown-badge {
+  width: 44px; height: 44px; border-radius: var(--r-sm);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.countdown-badge-num {
+  font-size: 18px; font-weight: 500; line-height: 1;
+  font-family: var(--f-d);
+}
+.countdown-badge-label {
+  font-size: 7px; letter-spacing: 1px;
+  text-transform: uppercase; opacity: 0.7; margin-top: 1px;
+}
+.countdown-info { flex: 1; min-width: 0; }
+.countdown-title {
+  font-size: var(--fs-body); font-weight: 500; color: var(--text);
+}
+.countdown-date {
+  font-size: var(--fs-caption); color: var(--text-3); margin-top: 2px;
+}
+.countdown-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.countdown-pin {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: none; background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-3); padding: 0;
+  transition: color var(--dur-normal);
+}
+.countdown-pin.pinned { color: var(--accent); }
+
+/* --- Water Section --- */
+.water-progress { margin-bottom: 14px; }
+.water-bar-outer {
+  height: 10px; border-radius: 5px;
+  background: var(--surface-2); overflow: hidden;
+  margin-bottom: 6px;
+}
+.water-bar-inner {
+  height: 100%; border-radius: 5px;
+  background: linear-gradient(90deg, #5db8a6, #4aaf99);
+  transition: width 0.3s;
+}
+.water-stats {
+  display: flex; justify-content: space-between;
+  font-size: var(--fs-caption); color: var(--text-2);
+}
+.water-stats strong { color: var(--text); font-weight: 500; }
+.water-buttons { display: flex; gap: var(--sp-8); flex-wrap: wrap; }
+.water-btn {
+  flex: 1; min-width: 60px;
+  padding: 10px var(--sp-8);
+  border-radius: var(--r-input);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text); font-size: 13px;
+  cursor: pointer;
+  transition: all var(--dur-normal);
+  font-family: var(--f-ui); text-align: center;
+}
+.water-btn:active { background: var(--surface-3); transform: scale(var(--press-scale)); }
+.water-btn.cup {
+  background: rgba(93,184,166,0.12);
+  border-color: rgba(93,184,166,0.25);
+  color: var(--teal);
+}
+
+/* --- Calendar Empty --- */
+.calendar-empty {
+  font-size: var(--sp-12); color: var(--text-3);
+  text-align: center; padding: 14px 0;
+}
+
+/* --- Todo 2.0 fixed sheet --- */
+.todo-sheet-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(0,0,0,0.36);
+}
+.todo-sheet {
+  width: 100%; max-width: 430px;
+  max-height: min(88dvh, calc(100dvh - 16px));
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  border-radius: 24px 24px 0 0;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  background: var(--surface-3);
+  box-shadow: var(--shadow-drawer);
+  animation: todo-sheet-in var(--dur-drawer) var(--ease-drawer);
+}
+.todo-sheet-handle {
+  flex: 0 0 auto;
+  width: 38px; height: 5px; margin: 10px auto 6px;
+  border-radius: 999px; background: var(--border-hi);
+}
+.todo-sheet-header {
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 8px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.todo-sheet-eyebrow {
+  color: var(--text-3); font-size: var(--fs-label);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.todo-sheet-header h2 {
+  color: var(--text); font-family: var(--f-d);
+  font-size: 24px; font-weight: 600; line-height: 1.1;
+}
+.todo-sheet-close {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text-2); font-size: 24px; cursor: pointer;
+}
+.todo-sheet-body {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 16px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-hi) transparent;
+}
+.todo-sheet-body::-webkit-scrollbar { width: 4px; }
+.todo-sheet-body::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 999px; }
+.todo-field {
+  display: flex; flex-direction: column; gap: 7px;
+  min-width: 0; border: 0;
+}
+.todo-field > span,
+.todo-field legend {
+  color: var(--text-2); font-size: var(--fs-caption); font-weight: 600;
+}
+.todo-field input,
+.todo-field select,
+.todo-field textarea {
+  width: 100%; min-height: 44px;
+  border: 1px solid var(--border); border-radius: var(--r-input);
+  background: var(--surface-2); color: var(--text);
+  padding: 10px 12px; outline: none;
+  font: inherit;
+}
+.todo-field textarea { min-height: 92px; resize: vertical; }
+.todo-field input:focus,
+.todo-field select:focus,
+.todo-field textarea:focus { border-color: var(--accent); }
+.todo-field-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.todo-field-error { color: var(--danger); font-size: var(--fs-caption); }
+.todo-priority-picker {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.todo-priority-option {
+  min-height: 52px; border-radius: var(--r-input);
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text-3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 11px;
+}
+.todo-priority-option.active {
+  color: var(--priority-color);
+  border-color: var(--priority-color);
+  background: color-mix(in srgb, var(--priority-color) 10%, var(--surface-2));
+}
+.todo-sheet-footer {
+  flex: 0 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--surface-3);
+}
+.todo-sheet-footer button { min-height: 44px; }
+
+@keyframes todo-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@media (max-width: 390px) {
+  .today-summary { flex-wrap: wrap; }
+  .today-summary-stats { width: 100%; margin-left: 0; }
+  .todo-row { align-items: flex-start; }
+  .todo-actions { flex-direction: column; }
+  .todo-field-grid { grid-template-columns: 1fr; }
+  .todo-priority-option { flex-direction: column; gap: 3px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-sheet,
+  .cal-day,
+  .todo-row,
+  .todo-check,
+  .calendar-section-add {
+    animation: none !important;
+    transition: none !important;
+  }
+}

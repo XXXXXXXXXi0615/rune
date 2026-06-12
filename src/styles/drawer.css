@@ -1,0 +1,70 @@
+/* ================================================================
+   BOTTOM DRAWER SYSTEM — solid surfaces, color-block elevation
+   ================================================================ */
+
+.drawer-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.4);
+  display: none; opacity: 0;
+  pointer-events: none; visibility: hidden;
+  transition: opacity var(--dur-slow);
+}
+.drawer-backdrop.active {
+  display: block; opacity: 1;
+  pointer-events: auto; visibility: visible;
+}
+
+.bottom-drawer {
+  position: fixed; bottom: 0; left: 50%; z-index: 1001;
+  width: min(100%, 520px); max-height: 88dvh;
+  background: var(--bg);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  transform: translate(-50%, 100%);
+  transition: transform var(--dur-drawer) var(--ease-drawer);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--sp-16) + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-drawer);
+  border-top: 1px solid var(--border);
+  pointer-events: none; visibility: hidden;
+}
+.bottom-drawer.active {
+  transform: translate(-50%, 0);
+  pointer-events: auto; visibility: visible;
+}
+
+.drawer-handle {
+  width: 36px; height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  margin: var(--sp-12) auto 10px;
+  flex-shrink: 0;
+}
+
+.drawer-head {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+  position: sticky; top: 0; z-index: 5;
+  background: var(--bg);
+  padding: var(--sp-8) var(--sp-20) 10px;
+  border-bottom: 1px solid var(--border);
+}
+.drawer-head-title {
+  font-size: 18px; font-weight: 500;
+}
+.drawer-close {
+  padding: var(--sp-8); cursor: pointer;
+  color: var(--text-2);
+  border-radius: var(--r-xs);
+  line-height: 1;
+}
+
+.drawer-body {
+  flex: 1; overflow-y: auto;
+  padding: var(--sp-16) var(--sp-20) var(--sp-8);
+}
+
+.drawer-actions {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--sp-12) var(--sp-20);
+}

@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pomo Bunny 🐰🍓</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#f3e2ea;--bg-end:#e8d4e4;
+  --shadow-d:#dcc3cf;--shadow-l:#ffffff;
+  --pink:#f4a8c0;--pink-deep:#ec85a8;--pink-soft:#fbd6e3;
+  --lav:#cdb8e8;--mint:#aee0d3;--mint-deep:#6abfaa;
+  --text:#8a5a6e;--text-soft:#a87d92;
+  --font:'Quicksand',sans-serif;--font-display:'Comfortaa',cursive;
+  --glass-bg:rgba(255,255,255,0.35);
+  --glass-border:rgba(255,255,255,0.5);
+  --glass-shadow:rgba(180,120,150,0.15);
+  --glass-inset-bg:rgba(255,255,255,0.2);
+  --glass-inset-border:rgba(255,255,255,0.35);
+  --glass-inset-shadow:rgba(180,120,150,0.08);
+  --deep-accent:var(--pink-deep);
+  transition:background 0.4s,color 0.4s;
+}
+
+/* ─── Theme: Mint & Lavender ─── */
+html[data-theme="mint"]{
+  --bg:#e4eef0;--bg-end:#d6e4e8;
+  --shadow-d:#c4d5d8;--shadow-l:#ffffff;
+  --pink:#a8c8e0;--pink-deep:#7ea8c8;--pink-soft:#d4e6f0;
+  --lav:#b8a8d8;--mint:#8cd8c4;--mint-deep:#5cb8a0;
+  --text:#5a7080;--text-soft:#7e96a4;
+  --glass-shadow:rgba(100,140,160,0.12);
+  --glass-inset-shadow:rgba(100,140,160,0.06);
+  --deep-accent:var(--mint-deep);
+}
+html[data-theme="peach"]{
+  --bg:#f5ebe0;--bg-end:#ece0d2;
+  --shadow-d:#ddd0c3;--shadow-l:#ffffff;
+  --pink:#f0b89c;--pink-deep:#e09878;--pink-soft:#fbdcc8;
+  --lav:#d8c0a8;--mint:#c8d8a8;--mint-deep:#a8b888;
+  --text:#8a6e5a;--text-soft:#a08e7e;
+  --glass-shadow:rgba(160,120,90,0.12);
+  --glass-inset-shadow:rgba(160,120,90,0.06);
+  --deep-accent:var(--pink-deep);
+}
+
+html,body{
+  width:100%;min-height:100vh;
+  background:linear-gradient(160deg,var(--bg),var(--bg-end));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font);color:var(--text);
+  overflow-x:hidden;overflow-y:auto;
+  -webkit-font-smoothing:antialiased;
+  transition:background 0.4s;
+}
+
+/* ─── Background blobs (vivid, large, blurred for glass to blur) ─── */
+.blob{
+  position:fixed;border-radius:50%;
+  opacity:0.5;
+  filter:blur(40px);
+  animation:float var(--dur,18s) ease-in-out infinite;
+  z-index:0;
+  transition:opacity 0.6s;
+  will-change:transform;
+}
+@keyframes float{
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(var(--mx,30px),var(--my,-30px)) scale(1.08)}
+}
+
+/* sparkle particles */
+.sparkle{position:fixed;font-size:14px;opacity:0;animation:sparkle var(--d,5s) ease-in-out var(--delay,0s) infinite;z-index:0;pointer-events:none;transition:opacity 0.6s}
+@keyframes sparkle{0%,100%{opacity:0;transform:translateY(0) scale(0.6) rotate(0deg)}50%{opacity:0.7;transform:translateY(-18px) scale(1) rotate(90deg)}}
+
+/* ─── Focus mode: soften backgrounds (not kill them) ─── */
+body.focus-dim .blob{opacity:0.15 !important}
+body.focus-dim .sparkle{opacity:0 !important;animation:none !important}
+
+/* ═══════════════════════════════════════════════════
+   GLASS MATERIAL SYSTEM
+   ═══════════════════════════════════════════════════ */
+
+/* Glass (replaces .neu-out — floating elements) */
+.glass{
+  background:var(--glass-bg);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid var(--glass-border);
+  box-shadow:0 8px 32px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+/* Glass-inset (replaces .neu-in — recessed/container elements) */
+.glass-inset{
+  background:var(--glass-inset-bg);
+  backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  border:1px solid var(--glass-inset-border);
+  box-shadow:inset 0 2px 8px var(--glass-inset-shadow);
+}
+
+/* Glass press feedback */
+.glass:active,.glass-btn:active{
+  background:rgba(255,255,255,0.5);
+  transform:scale(0.97);
+  transition:all 0.1s;
+}
+
+/* ─── Card ─── */
+.card{
+  position:relative;z-index:1;
+  width:310px;max-width:94vw;
+  background:var(--glass-bg);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid var(--glass-border);
+  border-radius:32px;
+  padding:24px 20px 18px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  box-shadow:0 12px 40px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.6);
+  margin:16px 0;
+  overflow:hidden;
+  transition:background 0.4s;
+}
+/* Top highlight for glass refraction */
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.25),transparent);
+  border-radius:32px 32px 0 0;pointer-events:none;z-index:0;
+}
+
+/* ─── SVG icon utility ─── */
+.ico{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.ico svg{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ─── Focus-visible ─── */
+button:focus,label:focus-within{outline:none}
+button:focus-visible,label:focus-visible{
+  outline:2px solid var(--deep-accent);
+  outline-offset:2px;
+  border-radius:inherit;
+}
+.mute-btn:focus-visible,.theme-dot:focus-visible{outline-offset:3px}
+
+/* ─── Mute button ─── */
+.mute-btn{
+  position:absolute;top:14px;right:14px;
+  background:var(--glass-bg);
+  backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  border:1px solid var(--glass-border);
+  box-shadow:0 4px 16px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.5);
+  cursor:pointer;
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-soft);
+  transition:all 0.2s;z-index:5;font-size:13px;
+}
+.mute-btn:active{background:rgba(255,255,255,0.5);transform:scale(0.97)}
+.mute-btn.muted{opacity:0.5}
+
+/* ─── Badge ─── */
+.badge{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--font-display);font-weight:700;
+  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  padding:7px 16px;border-radius:99px;
+  color:var(--pink-deep);
+  background:var(--glass-bg);
+  backdrop-filter:blur(16px) saturate(170%);
+  -webkit-backdrop-filter:blur(16px) saturate(170%);
+  border:1px solid var(--glass-border);
+  box-shadow:0 4px 16px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.badge.brk{color:#5fae9c}
+.badge-icon{display:inline-flex;font-size:14px;animation:wobble 2s ease-in-out infinite}
+@keyframes wobble{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+
+/* ─── Round overview ─── */
+.round-overview{
+  display:flex;align-items:center;gap:2px;
+  justify-content:center;padding:2px 0;min-height:24px;
+}
+.round-dot{
+  font-size:12px;
+  width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+  opacity:0.35;
+  transition:all 0.35s cubic-bezier(.34,1.56,.64,1);
+}
+.round-dot.current{
+  opacity:1;
+  background:var(--glass-bg);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--glass-border);
+  box-shadow:0 3px 12px var(--glass-shadow);
+  transform:scale(1.25);
+}
+.round-arrow{font-size:8px;color:var(--text-soft);opacity:0.35;margin:0 1px}
+
+/* ─── Ring ─── */
+.ring-wrap{
+  position:relative;width:185px;height:185px;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;
+  background:var(--glass-bg);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid var(--glass-border);
+  box-shadow:0 8px 32px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.6);
+  padding:0;
+}
+.ring-svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:var(--shadow-d);stroke-width:4;opacity:0.4}
+.ring-prog{
+  fill:none;stroke:url(#gradPink);stroke-width:5.5;stroke-linecap:round;
+  stroke-dasharray:534;stroke-dashoffset:0;
+  transition:stroke-dashoffset 1s linear;
+  filter:drop-shadow(0 0 6px rgba(244,168,192,0.6));
+}
+.ring-prog.brk{stroke:url(#gradMint);filter:drop-shadow(0 0 6px rgba(174,224,211,0.6))}
+
+.ring-inner{
+  position:relative;z-index:1;
+  width:145px;height:145px;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:var(--glass-inset-bg);
+  backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  border:1px solid var(--glass-inset-border);
+  box-shadow:inset 0 2px 8px var(--glass-inset-shadow);
+}
+.time-big{font-family:var(--font-display);font-size:34px;font-weight:700;letter-spacing:-0.02em;line-height:1;color:var(--text);text-shadow:0 1px 2px rgba(255,255,255,0.5)}
+.time-sub{font-size:9px;color:var(--text-soft);letter-spacing:0.18em;text-transform:uppercase;margin-top:3px}
+
+/* ─── Bunny ─── */
+.bunny-wrap{position:relative;margin-top:-6px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+#bunny-state{transform-box:fill-box;transform-origin:50% 50%}
+#ear-l,#ear-r{transform-box:fill-box;transform-origin:50% 100%}
+#paw-l,#paw-r{transform-box:fill-box;transform-origin:50% 0%}
+#bunny-body{transform-box:fill-box;transform-origin:50% 50%}
+#bunny-all{transform-box:fill-box;transform-origin:50% 50%}
+
+@keyframes b-sway{0%,100%{transform:rotate(-1.2deg) translateY(0)}50%{transform:rotate(1.2deg) translateY(-3px)}}
+@keyframes ear-wiggle-l{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(6deg)}}
+@keyframes ear-wiggle-r{0%,100%{transform:rotate(4deg)}50%{transform:rotate(-6deg)}}
+@keyframes paw-type-l{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(8deg)}}
+@keyframes paw-type-r{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-8deg)}}
+@keyframes droop{0%,60%,100%{transform:rotate(0deg)}80%{transform:rotate(40deg)}}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(0.1)}}
+@keyframes bounce-y{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes cheek-pulse{0%,100%{opacity:0.55}50%{opacity:0.95}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes gentle-wave{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
+
+.s-idle #bunny-body{animation:b-sway 5s ease-in-out infinite}
+.s-idle .eye{animation:blink 4.5s ease-in-out infinite}
+.s-work #ear-l{animation:ear-wiggle-l 0.5s ease-in-out infinite}
+.s-work #ear-r{animation:ear-wiggle-r 0.5s ease-in-out infinite}
+.s-work #paw-l{animation:paw-type-l 0.22s ease-in-out infinite alternate}
+.s-work #paw-r{animation:paw-type-r 0.22s ease-in-out infinite alternate}
+.s-work #bunny-body{animation:breathe 1.8s ease-in-out infinite}
+.s-work .cheek{animation:cheek-pulse 1.6s ease-in-out infinite}
+.s-break #ear-l{animation:droop 5s ease-in-out infinite}
+.s-break #ear-r{animation:droop 5s ease-in-out infinite 0.3s}
+.s-break #bunny-body{animation:b-sway 6s ease-in-out infinite}
+.s-break .eye{transform-box:fill-box;transform-origin:50% 50%;animation:blink 2.5s ease-in-out infinite}
+.s-done #bunny-all{animation:bounce-y 0.45s ease-in-out infinite}
+.s-done .cheek{animation:cheek-pulse 0.5s ease-in-out infinite}
+.s-farewell #bunny-body{animation:b-sway 8s ease-in-out infinite}
+.s-farewell #paw-r{animation:gentle-wave 2s ease-in-out infinite}
+.s-farewell .eye{animation:blink 5s ease-in-out infinite}
+
+/* ─── Bunny bubble ─── */
+.bunny-bubble{
+  position:absolute;top:-26px;left:50%;
+  transform:translateX(-50%) scale(0.8);
+  background:var(--glass-bg);
+  backdrop-filter:blur(16px) saturate(170%);
+  -webkit-backdrop-filter:blur(16px) saturate(170%);
+  border:1px solid var(--glass-border);
+  border-radius:10px;
+  padding:4px 10px;font-size:9px;font-weight:500;
+  color:var(--text);white-space:nowrap;
+  text-shadow:0 1px 2px rgba(255,255,255,0.4);
+  opacity:0;pointer-events:none;
+  transition:all 0.35s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 4px 16px var(--glass-shadow);
+  z-index:2;
+}
+.bunny-bubble.show{opacity:1;transform:translateX(-50%) scale(1)}
+.bunny-bubble::after{
+  content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);
+  border-left:5px solid transparent;border-right:5px solid transparent;
+  border-top:5px solid rgba(255,255,255,0.35);
+}
+
+/* ─── Controls ─── */
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;justify-content:center}
+.btn{
+  border:1px solid var(--glass-border);cursor:pointer;font-family:var(--font-display);font-weight:700;
+  border-radius:16px;transition:all 0.15s ease;user-select:none;
+}
+.btn-main{
+  height:42px;font-size:12px;letter-spacing:0.04em;
+  color:var(--pink-deep);padding:0 14px;
+  display:flex;align-items:center;gap:5px;
+  background:var(--glass-bg);
+  backdrop-filter:blur(16px) saturate(170%);
+  -webkit-backdrop-filter:blur(16px) saturate(170%);
+  box-shadow:0 4px 16px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.btn-main .ico{font-size:12px}
+.btn-main.brk{color:#5fae9c}
+.btn-main:active{background:rgba(255,255,255,0.5);transform:scale(0.97) !important}
+
+.btn-sm{
+  width:38px;height:38px;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-soft);
+  background:var(--glass-bg);
+  backdrop-filter:blur(16px) saturate(170%);
+  -webkit-backdrop-filter:blur(16px) saturate(170%);
+  box-shadow:0 4px 16px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.btn-sm:active{background:rgba(255,255,255,0.5);transform:scale(0.97) !important}
+
+/* ─── Farewell pill button ─── */
+.btn-farewell{
+  border:1px solid var(--glass-border);cursor:pointer;
+  font-family:var(--font);font-size:11px;font-weight:500;
+  color:var(--text-soft);
+  background:var(--glass-bg);
+  backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  display:flex;align-items:center;gap:5px;
+  padding:0 14px;height:36px;
+  border-radius:99px;
+  box-shadow:0 3px 12px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.4);
+  transition:all 0.2s;letter-spacing:0.02em;
+  margin-top:2px;
+}
+.btn-farewell .ico{font-size:14px;opacity:0.7}
+.btn-farewell:hover{box-shadow:0 4px 14px var(--glass-shadow)}
+.btn-farewell:active{background:rgba(255,255,255,0.5);transform:scale(0.97)}
+
+/* ─── Farewell overlay ─── */
+.farewell-overlay{
+  position:absolute;inset:0;z-index:20;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.08);border-radius:32px;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.farewell-overlay.show{display:flex}
+.farewell-card{
+  background:var(--glass-bg);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid var(--glass-border);
+  border-radius:20px;
+  padding:22px 18px 16px;max-width:260px;text-align:center;
+  box-shadow:0 12px 40px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.6);
+  animation:fadeScaleIn 0.3s ease;
+}
+@keyframes fadeScaleIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.farewell-text{font-size:12px;line-height:1.7;color:var(--text);margin-bottom:14px;text-shadow:0 1px 2px rgba(255,255,255,0.5)}
+.farewell-btns{display:flex;gap:10px;justify-content:center}
+.farewell-btn{
+  border:none;cursor:pointer;
+  font-family:var(--font-display);font-weight:700;
+  font-size:10px;letter-spacing:0.03em;
+  padding:9px 16px;border-radius:12px;transition:all 0.15s;
+}
+.farewell-btn.yes{background:var(--pink);color:#fff;box-shadow:0 4px 12px var(--glass-shadow)}
+.farewell-btn.yes:active{transform:scale(0.97)}
+.farewell-btn.no{
+  background:var(--glass-bg);color:var(--text-soft);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--glass-border);
+  box-shadow:0 3px 10px var(--glass-shadow);
+}
+.farewell-btn.no:active{transform:scale(0.97)}
+
+/* ─── Sessions ─── */
+.sessions{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%}
+.sess-label{font-size:9px;color:var(--text-soft);letter-spacing:0.18em;text-transform:uppercase;font-weight:600;text-shadow:0 1px 2px rgba(255,255,255,0.4)}
+.straws{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;min-height:22px;align-items:center}
+.straw{font-size:16px;animation:popin 0.4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popin{from{transform:scale(0) rotate(-25deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.empty-hint{font-size:10px;color:var(--text-soft);font-style:italic}
+
+/* ─── Message ─── */
+.msg-wrap{
+  width:100%;border-radius:16px;padding:10px 14px;
+  display:flex;align-items:center;justify-content:center;min-height:18px;
+  background:var(--glass-inset-bg);
+  backdrop-filter:blur(12px) saturate(150%);
+  -webkit-backdrop-filter:blur(12px) saturate(150%);
+  border:1px solid var(--glass-inset-border);
+  box-shadow:inset 0 2px 8px var(--glass-inset-shadow);
+}
+.msg{font-size:11px;color:var(--text-soft);text-align:center;line-height:1.6;letter-spacing:0.01em;font-weight:500;transition:opacity 0.4s ease;text-shadow:0 1px 2px rgba(255,255,255,0.4)}
+.msg b{color:var(--pink-deep);font-weight:700}
+.msg.brk b{color:#5fae9c}
+
+/* ─── Settings drawer ─── */
+.drawer-trigger{
+  width:100%;border:1px solid var(--glass-border);cursor:pointer;
+  background:var(--glass-bg);
+  backdrop-filter:blur(16px) saturate(170%);
+  -webkit-backdrop-filter:blur(16px) saturate(170%);
+  display:flex;align-items:center;gap:7px;
+  padding:9px 14px;border-radius:14px;
+  font-family:var(--font);font-size:10px;font-weight:600;
+  color:var(--text-soft);letter-spacing:0.04em;
+  box-shadow:0 4px 16px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,0.5);
+  transition:all 0.2s;
+}
+.drawer-trigger:hover{color:var(--text)}
+.drawer-trigger:active{background:rgba(255,255,255,0.5);transform:scale(0.99)}
+.drawer-trigger .ico{font-size:14px}
+.drawer-trigger .arrow{
+  margin-left:auto;
+  transition:transform 0.35s;
+  font-size:13px;
+  display:inline-flex;
+}
+.drawer-trigger.open .arrow{transform:rotate(180deg)}
+
+.drawer-body{
+  display:grid;
+  grid-template-rows:0fr;
+  transition:grid-template-rows 0.35s ease;
+  width:100%;
+}
+.drawer-body.open{grid-template-rows:1fr}
+.drawer-inner{overflow:hidden}
+.drawer-content{
+  padding:10px 0 0;
+  display:flex;flex-direction:column;gap:12px;
+}
+
+/* Duration settings inside drawer */
+.dur-settings{width:100%;display:flex;flex-direction:column;gap:10px}
+.dur-group{width:100%;display:flex;flex-direction:column;gap:5px;position:relative;transition:opacity 0.3s}
+.dur-group.dimmed{opacity:0.4}
+.dur-top{display:flex;align-items:center;gap:7px}
+.dur-label{font-size:10px;font-weight:600;color:var(--text);letter-spacing:0.04em;min-width:52px;text-shadow:0 1px 2px rgba(255,255,255,0.4)}
+.dur-num{
+  width:42px;
+  background:var(--glass-inset-bg);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--glass-inset-border);
+  box-shadow:inset 0 2px 6px var(--glass-inset-shadow);
+  border-radius:9px;padding:3px;
+  font-family:var(--font);font-size:12px;font-weight:600;
+  color:var(--text);text-align:center;outline:none;-moz-appearance:textfield;
+}
+.dur-num::-webkit-inner-spin-button,.dur-num::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.dur-unit{font-size:10px;color:var(--text-soft)}
+.dur-slider{
+  -webkit-appearance:none;appearance:none;width:100%;height:7px;
+  background:var(--glass-inset-bg);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--glass-inset-border);
+  box-shadow:inset 0 2px 6px var(--glass-inset-shadow);
+  border-radius:4px;outline:none;cursor:pointer;
+}
+.dur-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:20px;height:20px;border-radius:50%;background:var(--pink);
+  box-shadow:0 2px 8px var(--glass-shadow);
+  cursor:pointer;transition:transform 0.15s;
+}
+.dur-slider::-webkit-slider-thumb:hover{transform:scale(1.12)}
+.dur-slider::-moz-range-thumb{
+  width:20px;height:20px;border-radius:50%;background:var(--pink);border:none;
+  box-shadow:0 2px 8px var(--glass-shadow);cursor:pointer;
+}
+.dur-slider.brk::-webkit-slider-thumb{background:var(--mint)}
+.dur-slider.brk::-moz-range-thumb{background:var(--mint)}
+.next-hint{font-size:8px;color:var(--text-soft);text-align:right;height:12px;opacity:0;transition:opacity 0.3s}
+.next-hint.show{opacity:1}
+
+/* Settings rows */
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:3px 0;
+}
+.setting-label{
+  display:flex;align-items:center;gap:7px;
+  font-size:10px;font-weight:600;color:var(--text);letter-spacing:0.04em;
+  text-shadow:0 1px 2px rgba(255,255,255,0.4);
+}
+.setting-label .ico{font-size:14px;color:var(--text-soft)}
+
+/* ─── iOS-style switch ─── */
+.ios-switch{position:relative;display:inline-block;width:48px;height:28px;flex-shrink:0}
+.ios-switch input{position:absolute;opacity:0;width:0;height:0}
+.switch-track{
+  position:absolute;inset:0;border-radius:99px;
+  background:rgba(255,255,255,0.4);
+  border:1px solid rgba(255,255,255,0.5);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  transition:background 0.25s ease,border-color 0.25s ease;
+  cursor:pointer;
+}
+.switch-thumb{
+  position:absolute;top:3px;left:3px;
+  width:22px;height:22px;border-radius:50%;
+  background:#fff;
+  box-shadow:0 2px 6px rgba(180,120,150,0.25);
+  transition:transform 0.25s cubic-bezier(.4,0,.2,1);
+}
+.ios-switch input:checked + .switch-track{
+  background:var(--pink-deep);
+  border-color:var(--pink-deep);
+}
+.ios-switch input:checked + .switch-track .switch-thumb{
+  transform:translateX(20px);
+}
+.ios-switch input:focus-visible + .switch-track{
+  outline:2px solid var(--deep-accent);outline-offset:2px;
+}
+/* Theme overrides for switch checked color */
+html[data-theme="mint"] .ios-switch input:checked + .switch-track{background:var(--mint-deep);border-color:var(--mint-deep)}
+html[data-theme="peach"] .ios-switch input:checked + .switch-track{background:var(--pink-deep);border-color:var(--pink-deep)}
+
+/* ─── Theme switcher ─── */
+.theme-row{display:flex;align-items:center;gap:9px;justify-content:center}
+.theme-label{font-size:8px;color:var(--text-soft);letter-spacing:0.1em;font-weight:600}
+.theme-dot{
+  width:18px;height:18px;border-radius:50%;
+  border:1px solid var(--glass-border);cursor:pointer;
+  box-shadow:0 2px 8px var(--glass-shadow);
+  transition:all 0.25s;position:relative;
+}
+.theme-dot:hover{transform:scale(1.15)}
+.theme-dot.active{
+  box-shadow:0 0 0 3px rgba(255,255,255,0.4),0 0 0 5px var(--pink-deep);
+  transform:scale(1.1);
+}
+.theme-dot[data-t="pink"]{background:linear-gradient(135deg,#fbd6e3,#f4a8c0)}
+.theme-dot[data-t="mint"]{background:linear-gradient(135deg,#aee0d3,#cdb8e8)}
+.theme-dot[data-t="peach"]{background:linear-gradient(135deg,#fbdcc8,#f0b89c)}
+html[data-theme="mint"] .theme-dot.active{box-shadow:0 0 0 3px rgba(255,255,255,0.4),0 0 0 5px var(--mint-deep)}
+html[data-theme="peach"] .theme-dot.active{box-shadow:0 0 0 3px rgba(255,255,255,0.4),0 0 0 5px var(--pink-deep)}
+
+/* ─── Ring theme overrides ─── */
+html[data-theme="mint"] .ring-prog{stroke:url(#gradMint)}
+html[data-theme="mint"] .ring-prog.brk{stroke:url(#gradLav)}
+html[data-theme="mint"] .badge{color:var(--mint-deep)}
+html[data-theme="mint"] .badge.brk{color:var(--lav)}
+html[data-theme="mint"] .btn-main{color:var(--mint-deep)}
+html[data-theme="mint"] .btn-main.brk{color:var(--lav)}
+html[data-theme="mint"] .msg b{color:var(--mint-deep)}
+html[data-theme="mint"] .msg.brk b{color:var(--lav)}
+html[data-theme="mint"] .dur-slider::-webkit-slider-thumb{background:var(--mint)}
+html[data-theme="mint"] .dur-slider::-moz-range-thumb{background:var(--mint)}
+html[data-theme="mint"] .dur-slider.brk::-webkit-slider-thumb{background:var(--lav)}
+html[data-theme="mint"] .dur-slider.brk::-moz-range-thumb{background:var(--lav)}
+html[data-theme="mint"] .farewell-btn.yes{background:var(--mint)}
+
+html[data-theme="peach"] .ring-prog{stroke:url(#gradPeach)}
+html[data-theme="peach"] .ring-prog.brk{stroke:url(#gradSage)}
+html[data-theme="peach"] .badge{color:var(--pink-deep)}
+html[data-theme="peach"] .badge.brk{color:var(--mint-deep)}
+html[data-theme="peach"] .btn-main{color:var(--pink-deep)}
+html[data-theme="peach"] .btn-main.brk{color:var(--mint-deep)}
+html[data-theme="peach"] .msg b{color:var(--pink-deep)}
+html[data-theme="peach"] .msg.brk b{color:var(--mint-deep)}
+html[data-theme="peach"] .dur-slider::-webkit-slider-thumb{background:var(--pink)}
+html[data-theme="peach"] .dur-slider::-moz-range-thumb{background:var(--pink)}
+html[data-theme="peach"] .dur-slider.brk::-webkit-slider-thumb{background:var(--mint)}
+html[data-theme="peach"] .dur-slider.brk::-moz-range-thumb{background:var(--mint)}
+html[data-theme="peach"] .farewell-btn.yes{background:var(--pink)}
+
+/* ─── Celebration confetti ─── */
+@keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(60px) rotate(360deg);opacity:0}}
+.confetti{position:absolute;font-size:12px;animation:confetti-fall 1.2s ease-out forwards;pointer-events:none;z-index:10}
+
+/* ─── prefers-reduced-motion ─── */
+@media(prefers-reduced-motion:reduce){
+  .blob,.sparkle,.badge-icon,
+  #bunny-body,#ear-l,#ear-r,#paw-l,#paw-r,
+  #bunny-all,.eye,.cheek,
+  .s-idle #bunny-body,.s-idle .eye,
+  .s-work #ear-l,.s-work #ear-r,.s-work #paw-l,.s-work #paw-r,
+  .s-work #bunny-body,.s-work .cheek,
+  .s-break #ear-l,.s-break #ear-r,.s-break #bunny-body,.s-break .eye,
+  .s-done #bunny-all,.s-done .cheek,
+  .s-farewell #bunny-body,.s-farewell #paw-r,.s-farewell .eye{
+    animation:none !important;
+  }
+  .straw{animation:none !important}
+}
+
+/* ─── Responsive + mobile blur reduction ─── */
+@media(max-width:340px){
+  .card{padding:18px 14px 14px;gap:8px;border-radius:26px}
+  .ring-wrap{width:168px;height:168px}
+  .ring-inner{width:130px;height:130px}
+  .time-big{font-size:28px}
+  .btn-main{height:38px;font-size:11px;padding:0 12px}
+  .btn-sm{width:34px;height:34px;font-size:13px}
+  .btn-farewell{height:32px;font-size:10px;padding:0 11px}
+  .farewell-card{max-width:220px;padding:16px 14px 12px}
+  .controls{gap:6px}
+  /* Reduce blur for mobile performance */
+  .card,.ring-wrap,.badge,.btn-main,.btn-sm,.mute-btn,
+  .drawer-trigger,.bunny-bubble,.farewell-card,.btn-farewell{
+    backdrop-filter:blur(14px) saturate(160%);
+    -webkit-backdrop-filter:blur(14px) saturate(160%);
+  }
+  .ring-inner,.msg-wrap,.dur-num,.dur-slider{
+    backdrop-filter:blur(8px) saturate(130%);
+    -webkit-backdrop-filter:blur(8px) saturate(130%);
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Vivid background blobs (content for glass to blur) -->
+<div class="blob" style="width:320px;height:320px;top:5%;left:5%;--dur:20s;--mx:35px;--my:40px;background:linear-gradient(135deg,#ffb8d4,#f4a8c0)"></div>
+<div class="blob" style="width:280px;height:280px;bottom:8%;right:5%;--dur:24s;--mx:-35px;--my:-25px;background:linear-gradient(135deg,#cdb8e8,#b8a0d8)"></div>
+<div class="blob" style="width:250px;height:250px;top:45%;left:75%;--dur:18s;--mx:-25px;--my:30px;background:linear-gradient(135deg,#aee0d3,#8fd4c2)"></div>
+<div class="blob" style="width:200px;height:200px;top:20%;right:30%;--dur:22s;--mx:20px;--my:-35px;background:linear-gradient(135deg,#ffd4b8,#f0b89c)"></div>
+<div class="blob" style="width:160px;height:160px;bottom:25%;left:15%;--dur:16s;--mx:-20px;--my:25px;background:linear-gradient(135deg,#fbd6e3,#f4a8c0)"></div>
+<div class="blob" style="width:180px;height:180px;top:60%;left:40%;--dur:26s;--mx:30px;--my:-20px;background:linear-gradient(135deg,#d4c8f0,#cdb8e8)"></div>
+
+<div class="card">
+  <!-- Mute toggle -->
+  <button class="mute-btn" id="btn-mute" title="静音切换"></button>
+
+  <!-- Farewell overlay -->
+  <div class="farewell-overlay" id="farewell-overlay">
+    <div class="farewell-card">
+      <div class="farewell-text">现在先告一段落也完全可以，<br>已经很棒了 🌷</div>
+      <div class="farewell-btns">
+        <button class="farewell-btn no" id="farewell-no">继续休息一下</button>
+        <button class="farewell-btn yes" id="farewell-yes">先这样，谢谢兔兔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Badge -->
+  <div class="badge" id="badge">
+    <span class="badge-icon" id="badge-icon"></span>
+    <span id="badge-txt">创作中</span>
+  </div>
+
+  <!-- Round overview -->
+  <div class="round-overview" id="round-overview"></div>
+
+  <!-- Ring + Timer -->
+  <div class="ring-wrap">
+    <svg class="ring-svg" viewBox="0 0 190 190">
+      <defs>
+        <linearGradient id="gradPink" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffc1d6"/><stop offset="100%" stop-color="#ec85a8"/></linearGradient>
+        <linearGradient id="gradMint" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#cdf0e6"/><stop offset="100%" stop-color="#8fd4c2"/></linearGradient>
+        <linearGradient id="gradLav" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ddd0f0"/><stop offset="100%" stop-color="#b8a0d8"/></linearGradient>
+        <linearGradient id="gradPeach" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fddcc8"/><stop offset="100%" stop-color="#e89870"/></linearGradient>
+        <linearGradient id="gradSage" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#d8e8c8"/><stop offset="100%" stop-color="#a8b888"/></linearGradient>
+      </defs>
+      <circle class="ring-track" cx="95" cy="95" r="85"/>
+      <circle class="ring-prog" id="ring" cx="95" cy="95" r="85"/>
+    </svg>
+    <div class="ring-inner">
+      <div class="time-big" id="time">25:00</div>
+      <div class="time-sub" id="sess-num">第 1 轮</div>
+    </div>
+  </div>
+
+  <!-- Bunny companion + speech bubble -->
+  <div class="bunny-wrap" id="bunny-wrap">
+    <div class="bunny-bubble" id="bunny-bubble"></div>
+    <div class="s-idle" id="bunny-state">
+      <svg id="bunny" viewBox="0 0 100 100" width="72" height="72">
+        <g id="bunny-all">
+          <g id="bunny-body">
+            <g id="ear-l"><ellipse cx="34" cy="20" rx="8" ry="20" fill="#fff" stroke="#f6c6d6" stroke-width="1.5"/><ellipse cx="34" cy="22" rx="4" ry="13" fill="#fbd6e3"/></g>
+            <g id="ear-r"><ellipse cx="66" cy="20" rx="8" ry="20" fill="#fff" stroke="#f6c6d6" stroke-width="1.5"/><ellipse cx="66" cy="22" rx="4" ry="13" fill="#fbd6e3"/></g>
+            <ellipse cx="50" cy="48" rx="30" ry="27" fill="#ffffff" stroke="#f6c6d6" stroke-width="1.5"/>
+            <ellipse class="cheek" cx="29" cy="52" rx="6" ry="4.5" fill="#ffc6d9" opacity="0.7"/>
+            <ellipse class="cheek" cx="71" cy="52" rx="6" ry="4.5" fill="#ffc6d9" opacity="0.7"/>
+            <g class="eye" id="eye-l"><ellipse cx="40" cy="46" rx="4" ry="5.5" fill="#9b6b80"/><circle cx="41.3" cy="43.5" r="1.4" fill="#fff"/></g>
+            <g class="eye" id="eye-r"><ellipse cx="60" cy="46" rx="4" ry="5.5" fill="#9b6b80"/><circle cx="61.3" cy="43.5" r="1.4" fill="#fff"/></g>
+            <path id="mouth" d="M46 56 Q50 59 54 56" fill="none" stroke="#d99cae" stroke-width="1.8" stroke-linecap="round"/>
+            <ellipse cx="50" cy="52" rx="2" ry="1.4" fill="#f3a9c2"/>
+          </g>
+          <g id="paw-l"><ellipse cx="34" cy="74" rx="8" ry="10" fill="#ffffff" stroke="#f6c6d6" stroke-width="1.5"/></g>
+          <g id="paw-r"><ellipse cx="66" cy="74" rx="8" ry="10" fill="#ffffff" stroke="#f6c6d6" stroke-width="1.5"/></g>
+          <ellipse cx="50" cy="80" rx="26" ry="14" fill="#ffffff" stroke="#f6c6d6" stroke-width="1.5"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-sm" id="btn-reset" title="重置"></button>
+    <button class="btn btn-main" id="btn-main"></button>
+    <button class="btn btn-sm" id="btn-skip" title="跳过"></button>
+  </div>
+
+  <!-- Farewell pill button -->
+  <button class="btn-farewell" id="btn-farewell"><span class="ico" id="farewell-ico"></span>先这样也很好</button>
+
+  <!-- Sessions -->
+  <div class="sessions">
+    <div class="sess-label">本轮陪伴成果 ✿</div>
+    <div class="straws" id="straws"><span class="empty-hint">还没有呢～加油！</span></div>
+  </div>
+
+  <!-- Message -->
+  <div class="msg-wrap">
+    <div class="msg" id="msg">准备好了吗？<b>点击开始</b>，兔兔陪你一起创作 🐰💕</div>
+  </div>
+
+  <!-- Settings drawer -->
+  <button class="drawer-trigger" id="drawer-trigger">
+    <span class="ico" id="drawer-gear"></span>
+    <span>设置</span>
+    <span class="arrow" id="drawer-arrow"></span>
+  </button>
+  <div class="drawer-body" id="drawer-body">
+    <div class="drawer-inner">
+      <div class="drawer-content">
+        <!-- Duration settings -->
+        <div class="dur-settings">
+          <div class="dur-group" id="dur-work">
+            <div class="dur-top">
+              <span class="dur-label">🍓 创作</span>
+              <input type="number" class="dur-num" id="num-work" min="1" max="180" value="25">
+              <span class="dur-unit">分钟</span>
+            </div>
+            <input type="range" class="dur-slider" id="slider-work" min="1" max="180" value="25">
+            <div class="next-hint" id="hint-work">⏳ 下一轮生效</div>
+          </div>
+          <div class="dur-group dimmed" id="dur-brk">
+            <div class="dur-top">
+              <span class="dur-label">🌙 休息</span>
+              <input type="number" class="dur-num brk" id="num-brk" min="1" max="60" value="5">
+              <span class="dur-unit">分钟</span>
+            </div>
+            <input type="range" class="dur-slider brk" id="slider-brk" min="1" max="60" value="5">
+            <div class="next-hint" id="hint-brk">⏳ 下一轮生效</div>
+          </div>
+        </div>
+
+        <!-- Theme -->
+        <div class="theme-row">
+          <span class="theme-label">主题</span>
+          <button class="theme-dot active" data-t="pink" id="td-pink" title="粉色"></button>
+          <button class="theme-dot" data-t="mint" id="td-mint" title="薄荷紫"></button>
+          <button class="theme-dot" data-t="peach" id="td-peach" title="蜜桃"></button>
+        </div>
+
+        <!-- Rain toggle (iOS switch) -->
+        <div class="setting-row">
+          <span class="setting-label"><span class="ico" id="rain-icon"></span> 雨声白噪音</span>
+          <label class="ios-switch">
+            <input type="checkbox" id="toggle-rain">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+
+        <!-- Notification toggle (iOS switch) -->
+        <div class="setting-row">
+          <span class="setting-label"><span class="ico" id="notif-icon"></span> 完成提醒通知</span>
+          <label class="ios-switch">
+            <input type="checkbox" id="toggle-notif">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── SVG Icons (Lucide-style) ──────────────────────────
+const ICONS={
+  pen:'<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  moon:'<svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+  bell:'<svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+  bellOff:'<svg viewBox="0 0 24 24"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
+  rotateCcw:'<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
+  skipForward:'<svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>',
+  play:'<svg viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg>',
+  pause:'<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>',
+  gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>',
+  chevronDown:'<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>',
+  cloudRain:'<svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>',
+  leaf:'<svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+};
+
+function setIcon(el,key){
+  if(!el)return;
+  el.innerHTML=ICONS[key]||'';
+  el.querySelectorAll('svg').forEach(s=>{
+    s.setAttribute('fill','none');
+    s.setAttribute('stroke','currentColor');
+    s.setAttribute('stroke-width','1.8');
+    s.setAttribute('stroke-linecap','round');
+    s.setAttribute('stroke-linejoin','round');
+  });
+}
+
+// ─── Sparkles ─────────────────────────────────────────
+const sparkleEmojis=['✨','💕','⭐','🌸','💗'];
+for(let i=0;i<18;i++){
+  const s=document.createElement('div');
+  s.className='sparkle';
+  s.textContent=sparkleEmojis[Math.floor(Math.random()*sparkleEmojis.length)];
+  Object.assign(s.style,{left:Math.random()*100+'vw',top:Math.random()*100+'vh','--d':(Math.random()*4+3)+'s','--delay':(Math.random()*6)+'s'});
+  document.body.appendChild(s);
+}
+
+// ─── Sound system ─────────────────────────────────────
+window.soundEnabled=true;
+let actx=null;
+
+function tone(f,d,vol=0.1,type='sine'){
+  if(!window.soundEnabled)return;
+  try{
+    if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(),g=actx.createGain();
+    o.connect(g);g.connect(actx.destination);
+    o.type=type;o.frequency.value=f;
+    g.gain.setValueAtTime(vol,actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+d);
+    o.start();o.stop(actx.currentTime+d);
+  }catch(e){}
+}
+
+function sfxMainBtn(){tone(880,0.06,0.04,'sine')}
+function sfxSmallBtn(){tone(660,0.04,0.03,'sine')}
+function sfxSlider(){
+  const now=Date.now();
+  if(sfxSlider._last&&now-sfxSlider._last<80)return;
+  sfxSlider._last=now;
+  tone(1200,0.03,0.02,'sine');
+}
+function sfxToggle(){tone(988,0.05,0.03,'sine')}
+function sfxEasterEgg(){tone(988,0.06,0.03,'sine');setTimeout(()=>tone(1175,0.08,0.03,'sine'),80)}
+function sfxFarewell(){tone(523,0.08,0.03,'sine');setTimeout(()=>tone(440,0.1,0.025,'sine'),100)}
+
+function playDone(){tone(659,0.15,0.10);setTimeout(()=>tone(784,0.15,0.10),120);setTimeout(()=>tone(988,0.3,0.12),240)}
+function playBrkDone(){tone(880,0.15,0.10);setTimeout(()=>tone(740,0.15,0.10),120);setTimeout(()=>tone(659,0.28,0.10),240)}
+function playTick(){tone(1320,0.035,0.025,'sine')}
+function playCelebration(){tone(523,0.12,0.10);setTimeout(()=>tone(659,0.12,0.10),100);setTimeout(()=>tone(784,0.12,0.10),200);setTimeout(()=>tone(1047,0.3,0.12),300)}
+
+let rainNode=null,rainGain=null;
+function startRain(){
+  if(rainNode)return;
+  try{
+    if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();
+    const bufferSize=2*actx.sampleRate;
+    const buffer=actx.createBuffer(1,bufferSize,actx.sampleRate);
+    const data=buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++)data[i]=Math.random()*2-1;
+    rainNode=actx.createBufferSource();
+    rainNode.buffer=buffer;
+    rainNode.loop=true;
+    rainGain=actx.createGain();
+    rainGain.gain.value=0.045;
+    const filter=actx.createBiquadFilter();
+    filter.type='lowpass';filter.frequency.value=400;
+    rainNode.connect(filter);filter.connect(rainGain);rainGain.connect(actx.destination);
+    rainNode.start();
+  }catch(e){}
+}
+function stopRain(){
+  if(rainNode){try{rainNode.stop()}catch(e){}rainNode=null;rainGain=null}
+}
+function updateRainVol(){
+  if(rainGain)rainGain.gain.value=window.soundEnabled?0.045:0;
+}
+
+// ─── State ───────────────────────────────────────────
+const CIRC=2*Math.PI*85;
+let cfg={work:25,brk:5};
+let pending={work:null,brk:null};
+let st={
+  mode:'work',timeLeft:cfg.work*60,total:cfg.work*60,
+  running:false,sessions:0,timer:null,msgTimer:null,msgIdx:0,
+  midwayShown:false,hydrationShown:false,
+  bubbleTimer:null,hintTimerWork:null,hintTimerBrk:null,
+  farewell:false,rainOn:false,notifOn:false,drawerOpen:false,
+  bunnyTaps:[],
+};
+
+// ─── DOM ──────────────────────────────────────────────
+const $=id=>document.getElementById(id);
+const D={
+  badge:$('badge'),badgeTxt:$('badge-txt'),badgeIcon:$('badge-icon'),
+  time:$('time'),sessNum:$('sess-num'),ring:$('ring'),
+  bunnyState:$('bunny-state'),mouth:$('mouth'),bunnyWrap:$('bunny-wrap'),
+  btnMain:$('btn-main'),btnReset:$('btn-reset'),btnSkip:$('btn-skip'),
+  btnMute:$('btn-mute'),btnFarewell:$('btn-farewell'),
+  farewellOverlay:$('farewell-overlay'),farewellYes:$('farewell-yes'),farewellNo:$('farewell-no'),
+  farewellIco:$('farewell-ico'),
+  straws:$('straws'),msg:$('msg'),
+  sliderWork:$('slider-work'),sliderBrk:$('slider-brk'),
+  numWork:$('num-work'),numBrk:$('num-brk'),
+  hintWork:$('hint-work'),hintBrk:$('hint-brk'),
+  durWork:$('dur-work'),durBrk:$('dur-brk'),
+  roundOverview:$('round-overview'),bubble:$('bunny-bubble'),
+  tdPink:$('td-pink'),tdMint:$('td-mint'),tdPeach:$('td-peach'),
+  drawerTrigger:$('drawer-trigger'),drawerBody:$('drawer-body'),
+  drawerGear:$('drawer-gear'),drawerArrow:$('drawer-arrow'),
+  toggleRain:$('toggle-rain'),toggleNotif:$('toggle-notif'),
+  rainIcon:$('rain-icon'),notifIcon:$('notif-icon'),
+};
+
+// ─── Init icons ──────────────────────────────────────
+setIcon(D.badgeIcon,'pen');
+setIcon(D.btnMute,'bell');
+setIcon(D.btnReset,'rotateCcw');
+setIcon(D.btnSkip,'skipForward');
+setIcon(D.drawerGear,'gear');
+setIcon(D.drawerArrow,'chevronDown');
+setIcon(D.rainIcon,'cloudRain');
+setIcon(D.notifIcon,'bell');
+setIcon(D.farewellIco,'leaf');
+
+function updateMainBtn(label,iconKey){
+  D.btnMain.innerHTML=`<span class="ico">${ICONS[iconKey]}</span>${label}`;
+  D.btnMain.querySelectorAll('svg').forEach(s=>{
+    s.setAttribute('fill','none');s.setAttribute('stroke','currentColor');
+    s.setAttribute('stroke-width','1.8');s.setAttribute('stroke-linecap','round');
+    s.setAttribute('stroke-linejoin','round');
+  });
+}
+updateMainBtn('开始','play');
+
+// ─── Messages ─────────────────────────────────────────
+const MSGS_WORK=[
+  ['🌸','心流模式开启～大脑全速运转中'],['🎯','保持专注哦，兔兔在旁边陪你～'],
+  ['💪','加油加油！每一笔都是进步呀'],['🌷','慢慢来，一点一点把它做完'],
+  ['🍓','快了快了，下次休息很快就到～'],['🐾','兔兔正在小声鼓掌，你超棒的'],
+  ['💗','专注的样子最好看啦'],['🎨','让灵感自由流淌，创作属于你的作品'],
+  ['✍️','每一笔都是独特的，继续画下去'],['📝','文字在流淌，思绪在成型中'],
+  ['🎵','创作节奏正正好，沉浸其中吧'],['💡','灵感来了就抓住它，冲冲冲'],
+];
+const MSGS_BRK=[
+  ['🌙','歇一歇吧，喝口水休息一下～'],['👀','看看远方，让眼睛放松一下'],
+  ['🍡','要不要吃点小零食呀？'],['🌿','深呼吸～积蓄下一轮的能量'],
+  ['🤍','刚才超级努力，给自己鼓鼓掌'],['🧸','伸个懒腰，动动肩膀和脖子吧'],
+  ['☕','泡杯热饮，暖暖身子再继续'],['🎵','听一首喜欢的歌放松一下'],
+];
+const MSGS_DONE=[
+  ['🎉','太棒啦！又收获一颗草莓～'],['🏆','坚持创作真的很不容易呢'],
+  ['⭐','成就解锁！你是小天才呀'],['🚀','状态超好，继续保持哦～'],
+];
+const BUBBLE_MIDWAY=['已经过半啦～继续加油 💪','兔兔觉得你好厉害！','专注的你好闪亮 ✨','再坚持一下下～','你超棒的，别分心哦','灵感正浓，冲冲冲 🎨'];
+const BUNNY_EASTER=['兔兔被摸到了，好开心！💗','今天也要好好喝水哦 💧','兔兔最喜欢和你一起创作了 🐰','摸摸头～你辛苦了 🌷','嘿嘿，兔兔会一直在的 💕'];
+
+function fadeMsg(html){D.msg.style.opacity='0';setTimeout(()=>{D.msg.innerHTML=html;D.msg.style.opacity='1'},350)}
+function showMsg(arr,idx){
+  const[icon,text]=arr[idx%arr.length];
+  const parts=text.split('，');
+  fadeMsg(parts.length>1?`${icon} <b>${parts[0]}</b>，${parts.slice(1).join('，')}`:`${icon} <b>${text}</b>`);
+}
+function startMsgCycle(arr){clearInterval(st.msgTimer);st.msgIdx=0;showMsg(arr,0);st.msgTimer=setInterval(()=>{st.msgIdx++;showMsg(arr,st.msgIdx)},14000)}
+
+// ─── Progress ring ────────────────────────────────────
+function updateRing(){D.ring.style.strokeDashoffset=CIRC*(1-st.timeLeft/st.total)}
+function fmtTime(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+
+// ─── Tab title ────────────────────────────────────────
+function updateTitle(){
+  document.title=st.running?`${st.mode==='work'?'🍓':'🌙'} ${fmtTime(st.timeLeft)} - Pomo Bunny`:'Pomo Bunny 🐰🍓';
+}
+
+// ─── Bunny states ─────────────────────────────────────
+const MOUTHS={idle:'M46 56 Q50 59 54 56',work:'M46 56 Q50 58 54 56',brk:'M46 57 Q50 58 54 57',done:'M44 55 Q50 62 56 55',farewell:'M46 56 Q50 59 54 56'};
+function setBunny(s){D.bunnyState.className=`s-${s}`;D.mouth.setAttribute('d',MOUTHS[s]||MOUTHS.idle)}
+
+// ─── Bunny bubble ────────────────────────────────────
+function showBubble(text,duration=3000){clearTimeout(st.bubbleTimer);D.bubble.textContent=text;D.bubble.classList.add('show');st.bubbleTimer=setTimeout(()=>D.bubble.classList.remove('show'),duration)}
+function hideBubble(){clearTimeout(st.bubbleTimer);D.bubble.classList.remove('show')}
+
+// ─── Round overview ──────────────────────────────────
+function updateRoundOverview(){
+  const c=D.roundOverview;c.innerHTML='';
+  const pos=st.sessions*2+(st.mode==='break'?1:0);
+  for(let i=0;i<6;i++){
+    const absIdx=pos+i;const isWork=absIdx%2===0;const isCurrent=i===0;
+    const dot=document.createElement('div');
+    dot.className='round-dot'+(isCurrent?' current':'');
+    dot.textContent=isWork?'🍓':'🌙';c.appendChild(dot);
+    if(i<5){const arrow=document.createElement('span');arrow.className='round-arrow';arrow.textContent='›';c.appendChild(arrow)}
+  }
+}
+
+// ─── Dimming ─────────────────────────────────────────
+function updateDimming(){D.durWork.classList.toggle('dimmed',st.mode==='break');D.durBrk.classList.toggle('dimmed',st.mode==='work')}
+
+// ─── Focus dim (noise reduction) ─────────────────────
+function setFocusDim(on){document.body.classList.toggle('focus-dim',on)}
+
+// ─── Duration sync ───────────────────────────────────
+function syncDurationUI(){D.sliderWork.value=cfg.work;D.numWork.value=cfg.work;D.sliderBrk.value=cfg.brk;D.numBrk.value=cfg.brk}
+function applyPending(){
+  let changed=false;
+  if(pending.work!==null){cfg.work=pending.work;pending.work=null;changed=true}
+  if(pending.brk!==null){cfg.brk=pending.brk;pending.brk=null;changed=true}
+  if(changed)syncDurationUI();return changed;
+}
+function applyDuration(type,value){
+  if(st.running){
+    pending[type]=value;
+    const hint=type==='work'?D.hintWork:D.hintBrk;
+    const timer=type==='work'?'hintTimerWork':'hintTimerBrk';
+    clearTimeout(st[timer]);hint.classList.add('show');st[timer]=setTimeout(()=>hint.classList.remove('show'),2500);
+  }else{
+    cfg[type]=value;pending[type]=null;
+    const modeMatch=(type==='work'&&st.mode==='work')||(type==='brk'&&st.mode==='break');
+    if(modeMatch){st.timeLeft=value*60;st.total=value*60;D.time.textContent=fmtTime(st.timeLeft);updateRing()}
+  }
+  updateRoundOverview();
+}
+
+// ─── Mode switch ──────────────────────────────────────
+function setMode(m){
+  st.mode=m;const t=m==='work'?cfg.work*60:cfg.brk*60;
+  st.timeLeft=t;st.total=t;const isB=m==='break';
+  [D.badge,D.ring,D.btnMain,D.msg].forEach(el=>el.classList.toggle('brk',isB));
+  setIcon(D.badgeIcon,isB?'moon':'pen');
+  D.badgeTxt.textContent=isB?'休息中':'创作中';
+  D.sessNum.textContent=`第 ${st.sessions+1} 轮`;
+  D.time.textContent=fmtTime(st.timeLeft);
+  updateRing();updateRoundOverview();updateDimming();updateTitle();
+}
+
+// ─── Strawberry add ───────────────────────────────────
+function addStrawberry(){
+  st.sessions++;if(st.sessions===1)D.straws.innerHTML='';
+  const sp=document.createElement('span');sp.className='straw';sp.textContent='🍓';sp.title=`第 ${st.sessions} 轮`;
+  D.straws.appendChild(sp);
+}
+
+// ─── Celebration confetti ────────────────────────────
+function spawnConfetti(){
+  const card=document.querySelector('.card');const emojis=['🎉','⭐','✨','💫','🌟','🎊'];
+  for(let i=0;i<8;i++){
+    const c=document.createElement('div');c.className='confetti';
+    c.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    c.style.left=(20+Math.random()*60)+'%';c.style.top=(10+Math.random()*30)+'%';
+    c.style.animationDelay=(Math.random()*0.5)+'s';c.style.animationDuration=(0.8+Math.random()*0.6)+'s';
+    card.appendChild(c);setTimeout(()=>c.remove(),2000);
+  }
+}
+
+// ─── Browser notification ────────────────────────────
+function sendNotif(title,body){
+  if(!st.notifOn)return;
+  try{if(Notification.permission==='granted')new Notification(title,{body,icon:'🐰'})}catch(e){}
+}
+function toggleNotif(){
+  const cb=D.toggleNotif;
+  if(st.notifOn){
+    st.notifOn=false;cb.checked=false;return;
+  }
+  if(!('Notification' in window)){st.notifOn=false;cb.checked=false;return}
+  if(Notification.permission==='granted'){
+    st.notifOn=true;cb.checked=true;
+  }else if(Notification.permission!=='denied'){
+    Notification.requestPermission().then(p=>{
+      if(p==='granted'){st.notifOn=true;cb.checked=true}
+      else{st.notifOn=false;cb.checked=false}
+    });
+  }else{
+    st.notifOn=false;cb.checked=false;
+  }
+}
+
+// ─── Timer logic ──────────────────────────────────────
+function tick(){
+  if(st.timeLeft<=0){onEnd();return}
+  st.timeLeft--;D.time.textContent=fmtTime(st.timeLeft);updateRing();updateTitle();
+  if(st.timeLeft>0&&st.timeLeft%60===0)playTick();
+  if(st.mode==='work'&&!st.midwayShown&&st.timeLeft<=st.total/2&&st.timeLeft>0){
+    st.midwayShown=true;showBubble(BUBBLE_MIDWAY[Math.floor(Math.random()*BUBBLE_MIDWAY.length)]);
+  }
+  if(st.mode==='work'&&cfg.work>=45&&!st.hydrationShown&&st.timeLeft<=st.total*0.4&&st.timeLeft>0){
+    st.hydrationShown=true;showBubble('要不要喝口水？💧',4000);
+  }
+}
+
+function onEnd(){
+  clearInterval(st.timer);st.running=false;
+  updateMainBtn('开始','play');hideBubble();setFocusDim(false);
+
+  if(st.mode==='work'){
+    addStrawberry();playDone();setBunny('done');clearInterval(st.msgTimer);
+    sendNotif('Pomo Bunny 🐰','创作时间到啦，休息一下吧 🌙');
+    if(st.sessions>0&&st.sessions%4===0){
+      fadeMsg('🎉 <b>达成一组完整循环！</b> 太厉害了，好好休息吧～');
+      showBubble('🎉 完整循环达成！',4500);playCelebration();spawnConfetti();
+    }else{
+      const[icon,text]=MSGS_DONE[(st.sessions-1)%MSGS_DONE.length];
+      fadeMsg(`${icon} <b>${text}</b>`);
+    }
+    setTimeout(()=>{applyPending();setMode('break');setBunny('idle');startMsgCycle(MSGS_BRK)},2400);
+  }else{
+    applyPending();playBrkDone();setMode('work');setBunny('idle');startMsgCycle(MSGS_WORK);
+    fadeMsg('🌟 <b>休息结束啦！</b> 准备新一轮创作吧～');
+    sendNotif('Pomo Bunny 🐰','休息结束，准备好就开始新一轮创作吧 🍓');
+  }
+  updateTitle();
+}
+
+function startTimer(){
+  st.running=true;st.midwayShown=false;st.hydrationShown=false;
+  updateMainBtn('暂停','pause');
+  setBunny(st.mode==='work'?'work':'brk');
+  startMsgCycle(st.mode==='work'?MSGS_WORK:MSGS_BRK);
+  st.timer=setInterval(tick,1000);updateTitle();setFocusDim(true);
+}
+
+function pauseTimer(){
+  st.running=false;clearInterval(st.timer);
+  updateMainBtn('继续','play');setBunny('idle');
+  clearInterval(st.msgTimer);hideBubble();setFocusDim(false);
+  fadeMsg('⏸ <b>暂停中</b>，兔兔在等你回来～');updateTitle();
+}
+
+function resetTimer(){
+  clearInterval(st.timer);clearInterval(st.msgTimer);st.running=false;applyPending();
+  st.timeLeft=(st.mode==='work'?cfg.work:cfg.brk)*60;st.total=st.timeLeft;
+  updateMainBtn('开始','play');
+  D.time.textContent=fmtTime(st.timeLeft);updateRing();setBunny('idle');hideBubble();setFocusDim(false);
+  fadeMsg('准备好了吗？<b>点击开始</b>，兔兔陪你一起创作 🐰💕');updateTitle();
+}
+
+// ─── Farewell ────────────────────────────────────────
+function showFarewell(){sfxFarewell();D.farewellOverlay.classList.add('show')}
+function hideFarewell(){D.farewellOverlay.classList.remove('show')}
+function doFarewell(){
+  hideFarewell();clearInterval(st.timer);clearInterval(st.msgTimer);
+  st.running=false;st.farewell=true;
+  updateMainBtn('开始','play');setBunny('farewell');hideBubble();setFocusDim(false);updateTitle();
+  const n=st.sessions;
+  if(n>0)fadeMsg(`🌷 这轮和兔兔一起完成了 <b>${n} 轮创作</b>，辛苦啦 🐰💛`);
+  else fadeMsg('🌷 有试着坐下来，这就已经很棒了 🐰💛');
+  showBubble('辛苦啦，好好休息～',5000);
+}
+
+D.btnFarewell.addEventListener('click',showFarewell);
+D.farewellYes.addEventListener('click',doFarewell);
+D.farewellNo.addEventListener('click',()=>{hideFarewell();sfxSmallBtn()});
+D.farewellOverlay.addEventListener('click',e=>{if(e.target===D.farewellOverlay)hideFarewell()});
+
+// ─── Mute toggle ──────────────────────────────────────
+D.btnMute.addEventListener('click',()=>{
+  window.soundEnabled=!window.soundEnabled;
+  setIcon(D.btnMute,window.soundEnabled?'bell':'bellOff');
+  D.btnMute.classList.toggle('muted',!window.soundEnabled);
+  updateRainVol();
+  if(window.soundEnabled)sfxMainBtn();
+});
+
+// ─── Easter egg: tap bunny ───────────────────────────
+D.bunnyWrap.addEventListener('click',()=>{
+  const now=Date.now();st.bunnyTaps.push(now);
+  st.bunnyTaps=st.bunnyTaps.filter(t=>now-t<800);
+  if(st.bunnyTaps.length>=3){
+    st.bunnyTaps=[];showBubble(BUNNY_EASTER[Math.floor(Math.random()*BUNNY_EASTER.length)],3500);sfxEasterEgg();
+  }
+});
+
+// ─── Events ───────────────────────────────────────────
+D.btnMain.addEventListener('click',()=>{sfxMainBtn();st.running?pauseTimer():startTimer()});
+D.btnReset.addEventListener('click',()=>{sfxSmallBtn();resetTimer()});
+D.btnSkip.addEventListener('click',()=>{
+  sfxSmallBtn();clearInterval(st.timer);st.running=false;hideBubble();setFocusDim(false);applyPending();
+  if(st.mode==='work'){addStrawberry();setMode('break')}else setMode('work');
+  setBunny('idle');updateMainBtn('开始','play');
+  fadeMsg('⏭ <b>跳过啦</b>，下一阶段准备好咯！');updateRing();updateTitle();
+});
+
+// ─── Duration slider/input events ────────────────────
+D.sliderWork.addEventListener('input',e=>{const v=parseInt(e.target.value);if(isNaN(v))return;D.numWork.value=v;applyDuration('work',v);sfxSlider()});
+D.sliderBrk.addEventListener('input',e=>{const v=parseInt(e.target.value);if(isNaN(v))return;D.numBrk.value=v;applyDuration('brk',v);sfxSlider()});
+D.numWork.addEventListener('input',e=>{let v=parseInt(e.target.value);if(isNaN(v))return;v=Math.max(1,Math.min(180,v));D.sliderWork.value=v;applyDuration('work',v);sfxSlider()});
+D.numBrk.addEventListener('input',e=>{let v=parseInt(e.target.value);if(isNaN(v))return;v=Math.max(1,Math.min(60,v));D.sliderBrk.value=v;applyDuration('brk',v);sfxSlider()});
+D.numWork.addEventListener('blur',e=>{let v=parseInt(e.target.value);if(isNaN(v)||v<1)v=1;if(v>180)v=180;e.target.value=v;D.sliderWork.value=v;applyDuration('work',v)});
+D.numBrk.addEventListener('blur',e=>{let v=parseInt(e.target.value);if(isNaN(v)||v<1)v=1;if(v>60)v=60;e.target.value=v;D.sliderBrk.value=v;applyDuration('brk',v)});
+
+// ─── Theme switcher ──────────────────────────────────
+const THEME_DOTS=[D.tdPink,D.tdMint,D.tdPeach];
+THEME_DOTS.forEach(dot=>{
+  dot.addEventListener('click',()=>{
+    const t=dot.dataset.t;
+    if(t==='pink')document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme',t);
+    THEME_DOTS.forEach(d=>d.classList.remove('active'));dot.classList.add('active');sfxMainBtn();
+  });
+});
+
+// ─── Settings drawer ─────────────────────────────────
+D.drawerTrigger.addEventListener('click',()=>{
+  st.drawerOpen=!st.drawerOpen;
+  D.drawerBody.classList.toggle('open',st.drawerOpen);
+  D.drawerTrigger.classList.toggle('open',st.drawerOpen);
+  sfxSmallBtn();
+});
+
+// ─── Rain toggle (iOS switch) ────────────────────────
+D.toggleRain.addEventListener('change',()=>{
+  st.rainOn=D.toggleRain.checked;
+  if(st.rainOn){startRain();updateRainVol()}else stopRain();
+  sfxToggle();
+});
+
+// ─── Notification toggle (iOS switch) ────────────────
+D.toggleNotif.addEventListener('change',()=>{toggleNotif();sfxToggle()});
+
+// ─── Init ─────────────────────────────────────────────
+updateRing();setBunny('idle');updateRoundOverview();updateTitle();
+</script>
+</body>
+</html>

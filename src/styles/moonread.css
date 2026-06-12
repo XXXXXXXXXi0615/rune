@@ -1,0 +1,11 @@
+/* ── MoonRead animations ── */
+
+@keyframes moonread-slideUp {
+  from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+@keyframes moonread-blink {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 1; }
+}

@@ -1,0 +1,142 @@
+/* ================================================================
+   MUSIC PLAYER — Vinyl Record Style
+   ================================================================ */
+
+.vinyl-player {
+  display: flex; flex-direction: column;
+  align-items: center;
+  gap: var(--sp-16); padding: var(--sp-8) 0 var(--sp-4);
+}
+
+/* --- Vinyl Disc --- */
+.vinyl-disc {
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.vinyl-disc.spinning {
+  animation: vinyl-spin 4s linear infinite;
+}
+@keyframes vinyl-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Grooves — radial gradient simulating vinyl record */
+.vinyl-grooves {
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle at center,
+      rgba(40,40,40,1) 0px, rgba(50,50,50,1) 1px,
+      rgba(40,40,40,1) 2px, rgba(55,55,55,1) 3px,
+      rgba(35,35,35,1) 4px, rgba(50,50,50,1) 5px,
+      rgba(40,40,40,1) 6px, rgba(45,45,45,1) 7px,
+      rgba(35,35,35,1) 8px, rgba(52,52,52,1) 9px,
+      rgba(40,40,40,1) 10px
+    );
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* Center label */
+.vinyl-label {
+  position: relative; z-index: 1;
+  width: 76px; height: 76px;
+  border-radius: 50%;
+  background: var(--coral);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.vinyl-label-text {
+  font-size: 9px; font-weight: 600; color: #fff;
+  text-align: center; line-height: 1.3; padding: 4px;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+.vinyl-label-empty {
+  font-size: 24px; color: rgba(255,255,255,0.5);
+}
+
+/* --- Track Info --- */
+.vinyl-track-name {
+  font-family: var(--f-d);
+  font-size: 18px; font-weight: 500;
+  color: var(--text); text-align: center;
+  max-width: 260px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.vinyl-time-row {
+  display: flex; justify-content: space-between;
+  width: 100%; max-width: 260px;
+  font-size: var(--fs-caption); color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Progress bar */
+.vinyl-progress {
+  width: 100%; max-width: 260px;
+  -webkit-appearance: none; appearance: none;
+  height: 4px; border-radius: 2px;
+  background: var(--surface-2); outline: none; cursor: pointer;
+}
+.vinyl-progress::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.vinyl-progress::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); cursor: pointer;
+  border: 2px solid var(--bg);
+}
+
+/* Controls */
+.vinyl-controls {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--sp-16);
+}
+.vinyl-btn-play {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); color: var(--on-primary);
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer;
+  transition: transform var(--dur-fast), opacity var(--dur-normal);
+}
+.vinyl-btn-play:hover { opacity: 0.85; }
+.vinyl-btn-play:active { transform: scale(0.92); }
+
+/* --- Waveform Row --- */
+.waveform-row {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; max-width: 300px;
+}
+.waveform-bar {
+  flex: 1; height: 40px;
+  display: flex; align-items: flex-end; gap: 1px;
+  cursor: pointer; position: relative;
+}
+.waveform-bar-item {
+  flex: 1; min-width: 0;
+  border-radius: 1px;
+  background: var(--text-3);
+  opacity: 0.35;
+  transition: background var(--dur-fast), opacity var(--dur-fast);
+}
+.waveform-bar-item.played {
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+/* --- Empty State --- */
+.vinyl-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: var(--sp-12); padding: var(--sp-12) 0;
+}
+.vinyl-empty-text {
+  font-size: var(--fs-body); color: var(--text-3);
+  text-align: center; line-height: 1.6;
+}
