@@ -1,0 +1,292 @@
+/* ================================================================
+   DIFFUSE FROSTED GLASS — final visual override layer
+   ================================================================ */
+
+#app {
+  background:
+    radial-gradient(circle at 18% 8%, var(--diffuse-bg-1), transparent 38%),
+    radial-gradient(circle at 82% 18%, var(--diffuse-bg-2), transparent 42%),
+    radial-gradient(circle at 50% 100%, var(--diffuse-bg-3), transparent 48%),
+    var(--bg);
+}
+
+/* Shared elevated surfaces. Receipt paper is deliberately excluded. */
+:is(
+  .card,
+  .home-dashboard-card,
+  .sleep-glass-card,
+  .sleep-empty-card,
+  .chat-heatmap-popover,
+  .ai-prompt-card,
+  .chat-status-bar
+) {
+  border: 0;
+  background: var(--glass-bg);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow-soft);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+
+:is(.card, .home-dashboard-card, .sleep-glass-card) {
+  transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out), background 220ms ease;
+}
+
+@media (hover: hover) {
+  :is(.card, .home-dashboard-card, .sleep-glass-card):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glass-shadow-float), var(--glass-glow);
+  }
+}
+
+/* Navigation and headers keep enough opacity to remain legible. */
+.bottom-nav,
+.desktop-sidebar,
+.desktop-header,
+.mobile-header,
+.chat-header {
+  border: 0;
+  background: var(--glass-bg-strong);
+  box-shadow: var(--glass-shadow-soft);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+
+.bottom-nav {
+  border-radius: 28px;
+  box-shadow: 0 14px 42px rgba(56, 43, 34, 0.14), inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px color-mix(in srgb, var(--glass-edge) 48%, transparent);
+}
+
+.nav-item.active,
+.desktop-nav-item.active,
+.memory-tab.active,
+.bg-type-tab.active,
+.adv-tab--active,
+.mwp-tab--active {
+  background: color-mix(in srgb, var(--accent) 12%, var(--glass-bg-soft));
+  border-color: transparent;
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 12%, transparent), inset 0 1px 0 var(--glass-edge);
+}
+
+.desktop-nav-item,
+.desktop-collapse-btn,
+.home-theme-toggle,
+.theme-toggle,
+.page-back-btn,
+.view-back,
+.round-back-btn,
+.btn-icon {
+  border: 0;
+  background: var(--glass-bg-soft);
+  box-shadow: inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px color-mix(in srgb, var(--glass-edge) 45%, transparent);
+  backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+}
+
+/* Buttons use soft highlights instead of hard outlines. */
+:is(.btn, .btn-secondary, .btn-ghost, .btn-danger, .liquid-btn, .sleep-button, .sleep-empty-cta) {
+  border-color: transparent;
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px color-mix(in srgb, var(--glass-edge) 42%, transparent);
+}
+
+:is(.btn-secondary, .btn-ghost, .liquid-btn, .sleep-button--glass, .sleep-empty-cta--glass) {
+  background: var(--glass-bg-soft);
+  backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+}
+
+:is(
+  .btn, .btn-secondary, .btn-ghost, .btn-danger,
+  .liquid-btn, .sleep-button, .sleep-empty-cta,
+  .nav-item, .desktop-nav-item,
+  .round-back-btn, .btn-icon, .page-back-btn, .view-back,
+  .theme-toggle, .home-theme-toggle, .desktop-collapse-btn
+):active {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 20%, transparent));
+}
+
+/* Inputs stay more opaque than cards for contrast. */
+:is(
+  .form-input,
+  .form-input-sm,
+  .quick-sheet-input,
+  .quick-sheet-textarea,
+  .memory-todo-input,
+  .sleep-field-btn,
+  .sleep-field-textarea,
+  .drawer-form input,
+  .drawer-form select,
+  .drawer-form textarea
+) {
+  border: 0;
+  background: color-mix(in srgb, var(--glass-bg-strong) 84%, var(--bg));
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px color-mix(in srgb, var(--text) 7%, transparent);
+}
+
+:is(
+  .form-input,
+  .form-input-sm,
+  .quick-sheet-input,
+  .quick-sheet-textarea,
+  .memory-todo-input,
+  .sleep-field-btn,
+  .sleep-field-textarea,
+  .drawer-form input,
+  .drawer-form select,
+  .drawer-form textarea
+):focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent), inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* Modals and sheets. */
+:is(
+  .modal-sheet,
+  .menu-modal-card,
+  .quick-sheet,
+  .confirm-sheet,
+  .bottom-drawer,
+  .memory-modal-panel,
+  .sleep-sheet,
+  .sleep-picker-sheet,
+  .lang-modal,
+  .ai-sheet,
+  .liquid-sheet,
+  .prompt-studio-sheet,
+  .health-import-sheet,
+  .tool-drawer
+) {
+  border: 0;
+  background: var(--glass-bg-strong);
+  box-shadow: var(--glass-shadow-float);
+  backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+}
+
+:is(.memory-modal-panel, .lang-modal, .menu-modal-card) {
+  border-radius: 28px;
+  animation: diffuse-modal-in 220ms var(--ease-drawer) both;
+}
+
+:is(.modal-sheet, .quick-sheet, .confirm-sheet, .bottom-drawer, .sleep-sheet, .ai-sheet, .liquid-sheet, .tool-drawer) {
+  border-radius: 28px 28px 0 0;
+}
+
+:is(
+  .modal-overlay.active,
+  .quick-sheet-overlay.active,
+  .confirm-sheet-overlay.active,
+  .memory-modal-backdrop,
+  .sleep-sheet-overlay,
+  .sleep-picker-overlay,
+  .lang-modal-overlay,
+  .ai-sheet-overlay,
+  .liquid-modal-overlay,
+  .drawer-backdrop.active
+) {
+  background: rgba(20, 18, 24, 0.24);
+  backdrop-filter: blur(10px) saturate(112%);
+  -webkit-backdrop-filter: blur(10px) saturate(112%);
+}
+
+/* Settings rows and compact sub-surfaces. */
+#settings-view .settings-group-card {
+  border: 0;
+  background: var(--glass-bg);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow-soft);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+
+:is(
+  #settings-view .liquid-row,
+  #settings-view .settings-row,
+  #settings-view .settings-action-row,
+  .activity-icon-cell,
+  .lunaris-today-stats,
+  .sleep-activity-grid > div
+) {
+  border-color: transparent;
+  background: var(--glass-bg-soft);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--glass-edge) 72%, transparent), inset 0 0 0 1px color-mix(in srgb, var(--glass-edge) 34%, transparent);
+}
+
+#settings-view :is(.liquid-row, .settings-row) + :is(.liquid-row, .settings-row) {
+  border-top-color: transparent;
+}
+
+/* The wall is frosted; each receipt remains opaque paper. */
+.memory-wall {
+  background:
+    radial-gradient(circle at 18% 22%, color-mix(in srgb, var(--accent) 7%, transparent) 0 1px, transparent 2px),
+    var(--glass-bg-soft);
+  box-shadow: inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px color-mix(in srgb, var(--glass-edge) 38%, transparent);
+  backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+}
+
+.memory-receipt-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+@keyframes diffuse-modal-in {
+  from { opacity: 0; transform: scale(0.98) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+  }
+  :is(.card, .home-dashboard-card, .sleep-glass-card, .memory-modal-panel, .lang-modal, .menu-modal-card) {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+  :is(
+    .btn, .btn-secondary, .btn-ghost, .btn-danger,
+    .liquid-btn, .sleep-button, .sleep-empty-cta,
+    .nav-item, .desktop-nav-item,
+    .round-back-btn, .btn-icon, .page-back-btn, .view-back,
+    .theme-toggle, .home-theme-toggle, .desktop-collapse-btn
+  ):active { filter: none; }
+}
+
+@media (max-width: 1023px) {
+  .mobile-header {
+    background: var(--glass-bg-strong) !important;
+    border-bottom: 0 !important;
+    box-shadow: 0 8px 28px rgba(56, 43, 34, 0.07), inset 0 -1px 0 color-mix(in srgb, var(--glass-edge) 36%, transparent);
+  }
+}
+
+[data-theme='dark'] .bottom-nav {
+  box-shadow: 0 16px 48px rgba(0,0,0,0.34), inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+/* ═════════════════════════════════════════════════════════
+   SIDEBAR — quiet flat rows (Lunartide Minimal pass)
+   Presentation only: reduce card feeling, restrained active
+   tint, keep indicator, keep route/icon/label ownership.
+   ═════════════════════════════════════════════════════════ */
+.desktop-nav-item {
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.desktop-nav-item:hover {
+  background: var(--surface-2);
+  box-shadow: none;
+}
+
+.desktop-nav-item.active {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+  border-color: transparent;
+  box-shadow: none;
+}

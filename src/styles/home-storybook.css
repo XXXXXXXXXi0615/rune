@@ -1,0 +1,372 @@
+/* Homepage Visual Reset — iOS Minimal
+   Clean, neutral, system-native appearance */
+
+.home-view--apple-health {
+  --home-paper-canvas: var(--bg);
+  --home-paper: var(--surface);
+  --home-paper-raised: var(--surface-3);
+  --home-paper-muted: var(--surface-2);
+  --home-ink: var(--text);
+  --home-ink-muted: var(--text-2);
+  --home-border: var(--border);
+  --home-border-strong: var(--border-hi);
+  --home-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --home-shadow-pressed: 0 1px 2px rgba(0, 0, 0, 0.02);
+  --home-tape: transparent;
+  --home-stamp: var(--accent);
+  --home-stamp-coral: var(--accent);
+  --home-paper-grain: none;
+  --hs-paper: var(--surface);
+  --hs-paper-raised: var(--surface-3);
+  --hs-ink: var(--text);
+  --hs-muted: var(--text-2);
+  --hs-teal: var(--accent);
+  --hs-teal-soft: var(--accent-soft);
+  --hs-lavender: var(--accent);
+  --hs-amber: var(--accent);
+  --hs-line: var(--border);
+  position: relative;
+  isolation: isolate;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+}
+
+/* Remove decorative pseudo-elements */
+.home-view--apple-health::before,
+.home-view--apple-health::after {
+  content: none;
+}
+
+/* Hero: clean clock container */
+.home-view--apple-health .home-fixed-zone {
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.home-view--apple-health .home-fixed-clock-section {
+  position: relative;
+}
+
+.home-view--apple-health .home-fixed-clock-section::before,
+.home-view--apple-health .home-fixed-clock-section::after {
+  content: none;
+}
+
+/* Clock: clean card style */
+.home-view--apple-health .moon-glass-clock {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  color: var(--text);
+  border-radius: var(--r-card);
+}
+
+.home-view--apple-health .moon-glass-clock .mgc-time {
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-shadow: none;
+  line-height: 1;
+  padding-top: 0;
+}
+
+.home-view--apple-health .moon-glass-clock .mgc-meta-row {
+  width: max-content;
+  margin-inline: auto;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+/* Presence pill: clean style */
+.home-view--apple-health .home-presence-pill {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  color: var(--text-2);
+  backdrop-filter: none;
+}
+
+.home-view--apple-health .home-presence-pill::before {
+  content: none;
+}
+
+.home-view--apple-health .home-presence-pill strong {
+  color: var(--text);
+  font-family: inherit;
+}
+
+.home-view--apple-health .home-presence-pill-sep {
+  color: var(--text-3);
+  opacity: 0.6;
+}
+
+/* Workspace: clean toolbar */
+.home-view--apple-health .hwg-toolbar-v3 {
+  position: relative;
+  padding-inline: 8px;
+}
+
+.home-view--apple-health .hwg-toolbar-v3-title {
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.home-view--apple-health .hwg-toolbar-v3-title::before {
+  content: none;
+}
+
+.home-view--apple-health .hwg-tb-btn,
+.home-view--apple-health .hwg-tb-mode-indicator {
+  border-color: var(--border);
+  border-radius: var(--r-btn);
+  background: var(--surface-2);
+  color: var(--text-2);
+  box-shadow: none;
+}
+
+/* Widget cells: clean card style */
+.home-view--apple-health .hwg-grid {
+  --hwg-border: var(--border);
+  --hwg-border-hover: var(--border-hi);
+  --hwg-text: var(--text);
+  --hwg-text-secondary: var(--text-2);
+  --hwg-text-muted: var(--text-3);
+  --hwg-accent: var(--accent);
+  --hwg-accent-alpha: var(--accent-soft);
+  --hwg-shadow: var(--shadow-card);
+  --hwg-highlight: none;
+}
+
+.home-view--apple-health .hwg-root {
+  --hw-surface: var(--surface);
+  --hw-surface-hover: var(--surface-2);
+  --hw-surface-subtle: var(--surface-2);
+  --hw-border: var(--border);
+  --hw-border-hover: var(--border-hi);
+  --hw-border-active: var(--accent);
+  --hw-text: var(--text);
+  --hw-text-secondary: var(--text-2);
+  --hw-text-muted: var(--text-3);
+  --hw-accent: var(--accent);
+  --hw-accent-strong: var(--accent);
+  --hw-accent-alpha: var(--accent-soft);
+  --hw-shadow: var(--shadow-card);
+  --hw-highlight: none;
+  --hw-icon-surface: var(--accent-soft);
+  --hw-progress-track: var(--surface-2);
+  --hw-progress-fill: var(--accent);
+}
+
+.home-view--apple-health .hwg-cell {
+  border-color: var(--border);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: none;
+}
+
+.home-view--apple-health .hwg-cell::before,
+.home-view--apple-health .hwg-cell::after {
+  content: none;
+}
+
+.home-view--apple-health .hwg-cell-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.home-view--apple-health .hw-surface,
+.home-view--apple-health .hw-widget {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.home-view--apple-health .hw-title,
+.home-view--apple-health .hw-metric {
+  color: var(--text);
+  font-family: inherit;
+}
+
+.home-view--apple-health .hw-title {
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .home-view--apple-health {
+  background: var(--bg);
+}
+
+[data-theme="dark"] .home-view--apple-health .moon-glass-clock {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .home-view--apple-health .hwg-cell {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .home-view--apple-health * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ═════════════════════════════════════════════════════════
+   LUNARTIDE MINIMAL — scoped presentation layer
+   .home-view--minimal is the current Home presentation scope.
+   .home-view--apple-health remains for legacy layout compat
+   (home.css / desktop.css :not() exclusions).
+   Tokens are scoped under .home-view--minimal and must not
+   leak into Chat / Forum / Calendar / Settings.
+   ═════════════════════════════════════════════════════════ */
+
+.home-view--minimal {
+  --home-bg: var(--bg);
+  --home-surface: var(--surface);
+  --home-surface-raised: var(--surface-3);
+  --home-surface-muted: var(--surface-2);
+  --home-text-primary: var(--text);
+  --home-text-secondary: var(--text-2);
+  --home-text-muted: var(--text-3);
+  --home-border: var(--border);
+  --home-border-strong: var(--border-hi);
+  --home-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --home-shadow-pressed: 0 1px 1px rgba(0, 0, 0, 0.02);
+  --home-radius: var(--r-card);
+  --home-radius-sm: 12px;
+  --home-accent: var(--accent);
+
+  background: var(--home-bg);
+  color: var(--home-text-primary);
+}
+
+[data-theme="dark"] .home-view--minimal {
+  --home-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --home-shadow-pressed: 0 1px 1px rgba(0, 0, 0, 0.16);
+}
+
+/* Hero: quiet clock card */
+.home-view--minimal .home-fixed-zone {
+  gap: 10px;
+  padding-top: 18px;
+}
+
+.home-view--minimal .moon-glass-clock {
+  border: 1px solid var(--home-border);
+  background: var(--home-surface);
+  box-shadow: var(--home-shadow);
+  border-radius: var(--home-radius);
+}
+
+.home-view--minimal .moon-glass-clock .mgc-time {
+  color: var(--home-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.home-view--minimal .moon-glass-clock .mgc-meta-row {
+  width: max-content;
+  margin-inline: auto;
+  padding: 4px 12px;
+  border: 1px solid var(--home-border);
+  border-radius: var(--r-full);
+  background: var(--home-surface-muted);
+  color: var(--home-text-secondary);
+}
+
+/* Presence pill: compact, quiet, aligned with Hero */
+.home-view--minimal .home-presence-pill {
+  border: 1px solid var(--home-border);
+  border-radius: var(--home-radius-sm);
+  background: var(--home-surface);
+  box-shadow: var(--home-shadow);
+  color: var(--home-text-secondary);
+}
+
+.home-view--minimal .home-presence-pill strong {
+  color: var(--home-text-primary);
+  font-weight: 600;
+}
+
+.home-view--minimal .home-presence-pill-sep {
+  color: var(--home-text-muted);
+  opacity: 0.6;
+}
+
+/* Workspace toolbar: quiet typography */
+.home-view--minimal .hwg-toolbar-v3-title {
+  color: var(--home-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.home-view--minimal .hwg-tb-btn,
+.home-view--minimal .hwg-tb-mode-indicator {
+  border: 1px solid var(--home-border);
+  border-radius: var(--r-btn);
+  background: var(--home-surface-muted);
+  color: var(--home-text-secondary);
+  box-shadow: none;
+}
+
+/* Widget grid: unify surface / border / radius / shadow strength */
+.home-view--minimal .hwg-grid {
+  --hwg-border: var(--home-border);
+  --hwg-border-hover: var(--home-border-strong);
+  --hwg-text: var(--home-text-primary);
+  --hwg-text-secondary: var(--home-text-secondary);
+  --hwg-text-muted: var(--home-text-muted);
+  --hwg-accent: var(--home-accent);
+  --hwg-accent-alpha: var(--accent-soft);
+  --hwg-shadow: var(--home-shadow);
+}
+
+.home-view--minimal .hwg-cell {
+  border: 1px solid var(--home-border);
+  border-radius: var(--home-radius);
+  background: var(--home-surface);
+  box-shadow: var(--home-shadow);
+}
+
+.home-view--minimal .hw-surface,
+.home-view--minimal .hw-widget {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.home-view--minimal .hw-title {
+  color: var(--home-text-primary);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.home-view--minimal .hw-metric {
+  color: var(--home-text-primary);
+}
+
+[data-theme="dark"] .home-view--minimal .moon-glass-clock,
+[data-theme="dark"] .home-view--minimal .hwg-cell,
+[data-theme="dark"] .home-view--minimal .home-presence-pill {
+  background: var(--home-surface);
+  border-color: var(--home-border);
+}
