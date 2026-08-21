@@ -260,10 +260,14 @@
   --home-shadow-pressed: 0 1px 1px rgba(0, 0, 0, 0.16);
 }
 
-/* Hero: quiet clock card */
+/* Hero: quiet clock card — V2 density */
 .home-view--minimal .home-fixed-zone {
-  gap: 10px;
-  padding-top: 18px;
+  gap: 14px;
+  padding-top: 12px;
+}
+
+.home-view--minimal .home-fixed-clock-section {
+  padding-inline: 48px;
 }
 
 .home-view--minimal .moon-glass-clock {
@@ -279,6 +283,10 @@
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1;
+}
+
+.home-view--minimal .moon-glass-clock.display-flowday-primary .fdc-modern-time {
+  padding: 2px 12px;
 }
 
 .home-view--minimal .moon-glass-clock .mgc-meta-row {
@@ -358,6 +366,7 @@
   color: var(--home-text-primary);
   font-weight: 600;
   letter-spacing: 0;
+  font-size: 15px;
 }
 
 .home-view--minimal .hw-metric {
@@ -369,4 +378,59 @@
 [data-theme="dark"] .home-view--minimal .home-presence-pill {
   background: var(--home-surface);
   border-color: var(--home-border);
+}
+
+/* Mobile density — 390×844 */
+@media (max-width: 767px) {
+  .home-view--minimal .home-fixed-zone {
+    gap: 10px;
+    padding-top: 10px;
+  }
+
+  .home-view--minimal .home-fixed-clock-section {
+    padding-inline: 16px;
+  }
+}
+
+/* Desktop hero envelope — reduce redundant vertical breathing space
+   (pure spacing; Ganzhi glyph sizes untouched, mobile untouched) */
+@media (min-width: 768px) {
+  .home-view--minimal .home-clock-zone {
+    min-height: clamp(245px, 26vw, 286px);
+  }
+}
+
+/* ═══════════════════════════════════════
+   Wallpaper Readability Scrim — clock area
+   Controlled stacking context, not glassmorphism.
+   Uses existing html[data-wallpaper-image] owner.
+   ═══════════════════════════════════════ */
+
+html[data-wallpaper-image='true'] .home-view--minimal .home-fixed-clock-section {
+  position: relative;
+  isolation: isolate;
+}
+
+html[data-wallpaper-image='true'] .home-view--minimal .home-fixed-clock-section::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: calc(var(--home-radius) + 8px);
+  backdrop-filter: blur(6px) saturate(1.04);
+  -webkit-backdrop-filter: blur(6px) saturate(1.04);
+  background: color-mix(in srgb, var(--home-surface) 62%, transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+html[data-wallpaper-image='true'] .home-view--minimal .home-clock-zone,
+html[data-wallpaper-image='true'] .home-view--minimal .moon-glass-clock {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reduce clock border/shadow over wallpaper */
+html[data-wallpaper-image='true'] .home-view--minimal .moon-glass-clock {
+  border-color: color-mix(in srgb, var(--home-border) 40%, transparent);
+  box-shadow: none;
 }

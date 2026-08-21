@@ -1,0 +1,964 @@
+/* ── Photo Wall ── */
+.photo-wall-bg {
+  background-color: #f4ede0;
+  background-image:
+    linear-gradient(rgba(42,36,25,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42,36,25,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  min-height: calc(100vh - 120px);
+  padding: 24px 20px 80px;
+  border-radius: 16px;
+  position: relative;
+}
+
+[data-theme="dark"] .photo-wall-bg {
+  background-color: #1e1c17;
+  background-image:
+    linear-gradient(rgba(200,180,140,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,180,140,0.05) 1px, transparent 1px);
+}
+
+/* ── CSS Grid scattered layout ── */
+.photo-wall {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px 16px;
+  padding: 16px 0;
+}
+
+@media (max-width: 1024px) {
+  .photo-wall { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .photo-wall { grid-template-columns: repeat(3, 1fr); gap: 20px 12px; }
+}
+
+@media (max-width: 480px) {
+  .photo-wall { grid-template-columns: repeat(2, 1fr); gap: 18px 10px; }
+}
+
+/* ── Phase 2: normalized freeform pinboard canvas ── */
+.photo-wall {
+  display: block;
+  position: relative;
+  min-height: 620px;
+  padding: 16px 0;
+  overflow: visible;
+}
+
+/* ── Polaroid Wrap (scattered position) ── */
+.polaroid-wrap {
+  position: absolute;
+  width: clamp(150px, 19vw, 220px);
+  transform: translate(var(--anchor-x, 0), var(--anchor-y, 0));
+  transition: filter 0.16s ease;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  outline: none;
+}
+.polaroid-wrap:focus-visible { outline: 2px solid var(--accent, #5b7fa6); outline-offset: 5px; }
+.polaroid-wrap.is-dragging {
+  cursor: grabbing;
+  touch-action: none;
+  filter: drop-shadow(0 16px 18px rgba(42,36,25,.24));
+}
+.polaroid-wrap.is-dragging .polaroid { transform: rotate(var(--rotation, 0deg)) scale(1.02); }
+.polaroid-wrap.is-dragging .pin { transform: translateX(-50%) translateY(-2px); }
+.polaroid-wrap .polaroid { width: 100%; }
+.polaroid-wrap.entering { animation: none; }
+.polaroid-wrap.entering .polaroid { animation: photoAppearCard .4s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes photoAppearCard {
+  from { opacity: 0; transform: rotate(var(--rotation,0deg)) scale(.6); }
+  to { opacity: 1; transform: rotate(var(--rotation,0deg)) scale(1); }
+}
+
+/* ── Polaroid Card ── */
+.polaroid {
+  background: #fffdf8;
+  padding: 10px 10px 48px 10px;
+  border-radius: 2px;
+  position: relative;
+  transform: rotate(var(--rotation, 0deg));
+  transform-origin: center center;
+  cursor: pointer;
+  will-change: transform;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  box-shadow:
+    0 1px 2px rgba(42,36,25,0.08),
+    0 4px 8px rgba(42,36,25,0.12),
+    0 12px 24px -8px rgba(42,36,25,0.18),
+    inset 0 0 0 0.5px rgba(42,36,25,0.04);
+}
+
+@media (max-width: 700px) {
+  .photo-wall-bg { padding-inline: 12px; overflow-x: clip; }
+  .photo-wall { min-height: 680px; }
+  .polaroid-wrap { width: clamp(138px, 43vw, 172px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .polaroid-wrap, .polaroid-wrap .polaroid, .polaroid-wrap .pin { transition: none; animation: none; }
+  .polaroid-wrap.is-dragging .polaroid { transform: rotate(var(--rotation, 0deg)); }
+}
+
+[data-theme="dark"] .polaroid {
+  background: #2a2820;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.2),
+    0 4px 8px rgba(0,0,0,0.25),
+    0 12px 24px -8px rgba(0,0,0,0.35),
+    inset 0 0 0 0.5px rgba(200,180,140,0.06);
+}
+
+/* ── Polaroid hover: straighten slightly, elevate ── */
+.polaroid:hover {
+  transform: rotate(calc(var(--rotation, 0deg) * 0.3)) scale(1.03);
+  z-index: 10;
+  box-shadow:
+    0 2px 4px rgba(42,36,25,0.1),
+    0 8px 16px rgba(42,36,25,0.18),
+    0 20px 40px -12px rgba(42,36,25,0.28);
+}
+
+[data-theme="dark"] .polaroid:hover {
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.3),
+    0 8px 16px rgba(0,0,0,0.35),
+    0 20px 40px -12px rgba(0,0,0,0.45);
+}
+
+/* ── Paper texture ── */
+.polaroid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(200,160,80,0.04) 0%,
+      transparent 40%,
+      transparent 60%,
+      rgba(200,160,80,0.03) 100%
+    );
+  pointer-events: none;
+}
+
+/* ── Pin (top center) ── */
+.pin {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 22px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pin-cap {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 32%,
+    color-mix(in srgb, var(--pin-color) 50%, white),
+    var(--pin-color)
+  );
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.3),
+    inset 0 1px 2px rgba(255,255,255,0.3),
+    inset 0 -1px 2px rgba(0,0,0,0.15);
+  position: relative;
+  z-index: 2;
+}
+
+.pin-needle {
+  width: 2px;
+  height: 10px;
+  background: linear-gradient(to bottom,
+    #888 0%,
+    #aaa 30%,
+    #666 100%
+  );
+  border-radius: 0 0 1px 1px;
+  margin-top: -2px;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.2),
+    inset 0.5px 0 0 rgba(255,255,255,0.3);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Contact shadow on wall ── */
+.polaroid::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 10%;
+  right: 10%;
+  height: 8px;
+  background: radial-gradient(ellipse, rgba(42,36,25,0.12) 0%, transparent 70%);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .polaroid::after {
+  background: radial-gradient(ellipse, rgba(0,0,0,0.25) 0%, transparent 70%);
+}
+
+/* ── Image Area (top narrower, bottom wider polaroid shape) ── */
+.polaroid-img-area {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #e8ddd0;
+  border-radius: 1px;
+  box-shadow: inset 0 0 0 1px rgba(42,36,25,0.06);
+}
+
+[data-theme="dark"] .polaroid-img-area {
+  background: #1a1815;
+  box-shadow: inset 0 0 0 1px rgba(200,180,140,0.08);
+}
+
+.polaroid-img-area.portrait {
+  aspect-ratio: 3/4;
+}
+
+.polaroid-img-area.landscape {
+  aspect-ratio: 4/3;
+}
+
+.polaroid-img-area img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.polaroid-img-area img.loaded {
+  opacity: 1;
+}
+
+/* ── Caption (handwriting style) ── */
+.polaroid-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  right: 10px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.polaroid-caption {
+  font-family: 'LXGW WenKai TC', 'Songti TC', cursive;
+  font-size: 12px;
+  color: rgba(42,36,25,0.65);
+  text-align: center;
+  width: 100%;
+  padding: 0 4px;
+  cursor: text;
+  border-radius: 4px;
+  line-height: 1.4;
+  transition: background 0.15s;
+  background: transparent;
+  border: none;
+  outline: none;
+  word-break: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+[data-theme="dark"] .polaroid-caption {
+  color: rgba(220,210,190,0.65);
+}
+
+.polaroid-caption:focus {
+  outline: none;
+  background: rgba(216,124,76,0.06);
+}
+
+/* ── Note Source Badge ── */
+.note-source-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(42,36,25,0.4);
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.note-source-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.note-source-badge:hover {
+  color: rgba(42,36,25,0.7);
+  background: rgba(42,36,25,0.06);
+}
+
+.note-source-badge.is-invalid {
+  color: rgba(180,120,80,0.5);
+  cursor: default;
+}
+
+/* ── Enter Animation ── */
+@keyframes photoAppear {
+  from {
+    opacity: 0;
+    transform: translate(var(--offset-x, 0px), var(--offset-y, 0px)) rotate(var(--rotation, 0deg)) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: translate(var(--offset-x, 0px), var(--offset-y, 0px)) rotate(var(--rotation, 0deg)) scale(1);
+  }
+}
+
+.polaroid-wrap.entering {
+  animation: photoAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── FAB ── */
+.photo-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 100px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8966e, #b85c32);
+  box-shadow: 0 8px 20px -8px rgba(184,92,50,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 50;
+  border: none;
+  transition: transform 0.2s;
+  color: #fff;
+}
+
+.photo-fab:hover {
+  transform: scale(1.06);
+}
+
+.photo-fab:active {
+  transform: scale(0.96);
+}
+
+.photo-fab svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── Bottom Sheet ── */
+.add-photo-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(20,18,18,0.45);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.add-photo-sheet {
+  width: min(480px, 100%);
+  max-height: 85dvh;
+  background: var(--glass-bg-strong, rgba(30,28,24,0.96));
+  border-radius: 24px 24px 0 0;
+  padding: 0;
+  overflow-y: auto;
+  animation: sheetSlideUp 0.3s ease;
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.add-photo-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--border, rgba(255,255,255,0.06));
+}
+
+.add-photo-sheet-header h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text, #faf9f5);
+}
+
+.add-photo-sheet-header button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-2, rgba(255,255,255,0.06));
+  color: var(--text-2, #a09d96);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.add-photo-sheet-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.add-photo-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.add-photo-buttons button {
+  flex: 1;
+  padding: 14px 12px;
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 14px;
+  background: var(--surface-2, rgba(255,255,255,0.04));
+  color: var(--text, #faf9f5);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+
+.add-photo-buttons button:hover {
+  background: var(--surface-3, rgba(255,255,255,0.08));
+}
+
+.add-photo-buttons button svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--accent, #d87c4c);
+}
+
+.photo-preview {
+  width: 100%;
+  max-height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-2, rgba(255,255,255,0.04));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-preview img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+}
+
+.add-photo-caption-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 12px;
+  background: var(--surface-2, rgba(255,255,255,0.04));
+  color: var(--text, #faf9f5);
+  font: inherit;
+  font-size: 14px;
+  font-family: 'LXGW WenKai TC', 'Songti TC', cursive;
+  outline: none;
+  resize: none;
+  min-height: 44px;
+}
+
+.add-photo-caption-input::placeholder {
+  color: var(--text-3, #6c6a64);
+}
+
+.add-photo-submit {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #e8966e, #b85c32);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.add-photo-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Empty State ── */
+.photo-wall-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  gap: 8px;
+  text-align: center;
+}
+
+.photo-wall-empty-icon {
+  width: 48px;
+  height: 48px;
+  color: rgba(42,36,25,0.3);
+  margin-bottom: 8px;
+}
+
+[data-theme="dark"] .photo-wall-empty-icon {
+  color: rgba(200,180,140,0.3);
+}
+
+.photo-wall-empty h2 {
+  margin: 0;
+  font-size: 15px;
+  color: rgba(42,36,25,0.5);
+  font-weight: 500;
+}
+
+[data-theme="dark"] .photo-wall-empty h2 {
+  color: rgba(200,180,140,0.5);
+}
+
+.photo-wall-empty p {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(42,36,25,0.35);
+}
+
+[data-theme="dark"] .photo-wall-empty p {
+  color: rgba(200,180,140,0.3);
+}
+
+.photo-wall-empty button {
+  margin-top: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e8966e, #b85c32);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+/* ── Lightbox ── */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14,10,4,0.85);
+  backdrop-filter: blur(10px);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: lightboxFadeIn 0.2s ease;
+}
+
+@keyframes lightboxFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  z-index: 5;
+}
+
+.lightbox-polaroid {
+  background: #fffdf8;
+  padding: 12px 12px 52px 12px;
+  border-radius: 2px;
+  max-width: 340px;
+  width: 100%;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.3),
+    0 20px 48px -12px rgba(0,0,0,0.5);
+  animation: lightboxPolaroidIn 0.3s ease;
+  position: relative;
+}
+
+@keyframes lightboxPolaroidIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lightbox-polaroid .polaroid-img-area {
+  aspect-ratio: auto;
+}
+
+.lightbox-polaroid .polaroid-img-area img {
+  width: 100%;
+  max-height: 50vh;
+  object-fit: contain;
+  opacity: 1;
+}
+
+.lightbox-polaroid .polaroid-bottom {
+  height: 52px;
+  left: 12px;
+  right: 12px;
+}
+
+.lightbox-caption-input {
+  width: 100%;
+  font-family: 'LXGW WenKai TC', 'Songti TC', cursive;
+  font-size: 13px;
+  color: rgba(42,36,25,0.7);
+  text-align: center;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.lightbox-caption-input:focus {
+  background: rgba(216,124,76,0.08);
+}
+
+.lightbox-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.lightbox-actions button {
+  padding: 10px 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+
+.lightbox-actions button:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.lightbox-actions button.danger {
+  border-color: rgba(255,80,80,0.3);
+  color: rgba(255,120,120,0.9);
+}
+
+.lightbox-actions button.danger:hover {
+  background: rgba(255,80,80,0.15);
+}
+
+.lightbox-actions button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.lightbox-actions button svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Delete Confirm Dialog ── */
+.lightbox-delete-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+}
+
+.lightbox-delete-dialog > div {
+  background: var(--glass-bg-strong, rgba(30,28,24,0.98));
+  border-radius: 18px;
+  padding: 24px;
+  max-width: 320px;
+  width: 90%;
+  box-shadow: 0 20px 48px rgba(0,0,0,0.4);
+  text-align: center;
+}
+
+.lightbox-delete-dialog h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--text, #faf9f5);
+}
+
+.lightbox-delete-dialog p {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: var(--text-3, #6c6a64);
+}
+
+.lightbox-delete-dialog-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.lightbox-delete-dialog-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.lightbox-delete-dialog-buttons .cancel {
+  background: var(--surface-2, rgba(255,255,255,0.06));
+  color: var(--text-2, #a09d96);
+}
+
+.lightbox-delete-dialog-buttons .confirm {
+  background: #c64545;
+  color: #fff;
+}
+
+/* ── Journal Editor Insert Image Button ── */
+.journal-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 18px;
+  border-top: 1px solid var(--border);
+  min-height: 44px;
+}
+
+.journal-editor-toolbar button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.journal-editor-toolbar button:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.journal-editor-toolbar button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Journal Editor Images Section ── */
+.journal-editor-images {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface-2, rgba(255,255,255,0.04));
+}
+
+.journal-editor-images-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+.journal-editor-image-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.journal-editor-image-item {
+  flex: 0 0 auto;
+  width: 80px;
+  position: relative;
+}
+
+.journal-editor-image-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+
+.journal-editor-image-controls {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  gap: 2px;
+}
+
+.journal-editor-image-remove,
+.journal-editor-image-move {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.journal-editor-image-remove:hover {
+  background: #c64545;
+}
+
+.journal-editor-image-sync {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.journal-editor-image-sync input[type="checkbox"] {
+  width: 12px;
+  height: 12px;
+  accent-color: var(--accent, #d87c4c);
+}
+
+/* ── Detail Sheet Images ── */
+.jw-detail-images {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.jw-detail-image-thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.jw-detail-image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Home Photo Wall Section ── */
+.home-photo-wall-section {
+  padding: 0 20px 24px;
+}
+
+.home-photo-wall-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.home-photo-wall-header h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-2, #a09d96);
+  letter-spacing: 0.02em;
+}
+
+.home-photo-wall-add {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: var(--surface-2, rgba(255,255,255,0.06));
+  color: var(--text-2, #a09d96);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.home-photo-wall-add:hover {
+  background: var(--surface-3, rgba(255,255,255,0.1));
+  color: var(--text, #faf9f5);
+}
+
+.home-photo-wall-add svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 700px) {
+  .home-photo-wall-section {
+    padding: 0 12px 20px;
+  }
+}
