@@ -1,0 +1,115 @@
+/* CycleTrendStrip — shared trend strip (compact + full variants) */
+
+.cts-glass {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.cts-glass[data-variant="compact"] {
+  width: 100%;
+  height: auto;
+}
+
+.cts-glass[data-variant="full"] {
+  width: 100%;
+}
+
+/* compact: fit container, no horizontal scroll */
+.cts-fit-wrap {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* full: internal horizontal scroll, page body stays contained */
+.cts-scroll-wrap {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.cts-scroll-wrap::-webkit-scrollbar {
+  height: 6px;
+}
+.cts-scroll-wrap::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.cts-svg {
+  display: block;
+}
+
+.cts-empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+/* Legend (full variant only) */
+.cts-legend {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.cts-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+
+.cts-legend-swatch {
+  border-radius: 2px;
+}
+.cts-legend-dot {
+  border-radius: 50%;
+}
+.cts-legend-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--border);
+  margin: 0 2px;
+  align-self: center;
+}
+
+.cts-legend-menstruation {
+  background: #b3506e;
+}
+.cts-legend-follicular {
+  background: #8fb8a6;
+}
+.cts-legend-ovulation {
+  background: #e8c55a;
+}
+.cts-legend-luteal {
+  background: #a28fb8;
+}
+.cts-legend-mood {
+  background: #b3506e;
+  opacity: 0.7;
+}
+.cts-legend-tide {
+  background: #5ba5c0;
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cts-svg * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

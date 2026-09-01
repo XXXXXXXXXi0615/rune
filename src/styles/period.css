@@ -1,0 +1,746 @@
+/* Period page — Apple Health style continuous interaction */
+
+.period-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(
+    calc(100% - var(--period-content-gutter, 24px) * 2),
+    var(--period-content-max, 1180px)
+  );
+  margin-inline: auto;
+  padding: 16px;
+  padding-top: calc(20px + var(--focus-island-offset, 0px));
+  padding-bottom: calc(var(--mobile-dock-height, 88px) + env(safe-area-inset-bottom, 0px) + 24px);
+}
+
+#period-view .memory-page-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 8px;
+}
+
+#period-view .memory-page-heading {
+  flex: 1;
+}
+
+#period-view .memory-page-heading h1 {
+  font-family: var(--f-d);
+  font-size: 20px;
+  font-weight: 750;
+  margin: 0;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+@media (min-width: 1024px) {
+  .period-page-container {
+    padding: 24px;
+    padding-top: calc(24px + var(--focus-island-offset, 0px));
+  }
+}
+
+@media (max-width: 599px) {
+  .period-page-container {
+    padding-top: calc(12px + var(--focus-island-offset, 0px));
+  }
+}
+
+#period-view {
+  background:
+    radial-gradient(circle at 15% 8%, rgba(168, 148, 184, 0.18), transparent 35%),
+    radial-gradient(circle at 85% 5%, rgba(232, 165, 160, 0.15), transparent 30%),
+    radial-gradient(circle at 50% 45%, rgba(240, 230, 219, 0.14), transparent 50%),
+    radial-gradient(circle at 50% 90%, rgba(232, 165, 160, 0.10), transparent 40%);
+}
+
+.period-health-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 22px;
+  overflow: hidden;
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.68), rgba(255, 247, 244, 0.42)),
+    radial-gradient(circle at 20% 20%, rgba(255, 160, 150, 0.16), transparent 38%);
+  box-shadow:
+    0 22px 52px rgba(174, 112, 116, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(24px) saturate(1.18);
+}
+
+[data-theme="dark"] .period-health-hero {
+  background:
+    linear-gradient(135deg, rgba(42, 36, 46, 0.72), rgba(28, 27, 34, 0.52)),
+    radial-gradient(circle at 20% 20%, rgba(232, 165, 160, 0.14), transparent 38%);
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.period-health-copy {
+  min-width: 0;
+}
+
+.period-health-kicker {
+  display: inline-flex;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 76%, var(--text));
+}
+
+.period-health-copy h2 {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--f-d);
+  font-size: clamp(24px, 4vw, 36px);
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+}
+
+.period-health-copy p {
+  margin: 8px 0 0;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.period-cycle-gauge {
+  --cycle-progress: 0.08;
+  --cycle-angle: calc(var(--cycle-progress) * 180deg);
+  position: relative;
+  width: 194px;
+  height: 122px;
+  display: grid;
+  place-items: end center;
+  flex-shrink: 0;
+}
+
+.period-cycle-gauge-arc {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 194px;
+  height: 97px;
+  overflow: hidden;
+  filter: drop-shadow(0 14px 22px rgba(207, 113, 118, 0.2));
+}
+
+.period-cycle-gauge-arc::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 7px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 270deg,
+      rgba(232, 165, 160, 0.95) 0deg,
+      rgba(197, 125, 164, 0.82) var(--cycle-angle),
+      rgba(255, 255, 255, 0.18) var(--cycle-angle),
+      rgba(255, 255, 255, 0.08) 180deg,
+      transparent 180deg);
+  -webkit-mask: radial-gradient(circle, transparent 54%, #000 55%);
+  mask: radial-gradient(circle, transparent 54%, #000 55%);
+}
+
+.period-cycle-gauge-arc::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  top: 28px;
+  width: 138px;
+  height: 138px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 15%, rgba(255, 255, 255, 0.32), transparent 42%);
+  opacity: 0.8;
+}
+
+.period-cycle-gauge-core {
+  position: relative;
+  z-index: 1;
+  width: 104px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  border-radius: 34px 34px 22px 22px;
+  background: rgba(255, 255, 255, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 16px 30px rgba(156, 102, 116, 0.14);
+  backdrop-filter: blur(18px);
+}
+
+[data-theme="dark"] .period-cycle-gauge-core {
+  background: rgba(32, 30, 38, 0.46);
+}
+
+.period-cycle-gauge-core span,
+.period-cycle-gauge-core small {
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.period-cycle-gauge-core strong {
+  margin-top: -2px;
+  color: var(--text);
+  font-size: 40px;
+  line-height: 0.9;
+  letter-spacing: -0.08em;
+}
+
+.period-cycle-gauge-foot {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-3);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.period-cycle-gauge--compact {
+  width: 132px;
+  height: 84px;
+}
+
+.period-cycle-gauge--compact .period-cycle-gauge-arc {
+  width: 132px;
+  height: 66px;
+}
+
+.period-cycle-gauge--compact .period-cycle-gauge-arc::before {
+  left: 6px;
+  top: 6px;
+  width: 120px;
+  height: 120px;
+}
+
+.period-cycle-gauge--compact .period-cycle-gauge-arc::after,
+.period-cycle-gauge--compact .period-cycle-gauge-foot {
+  display: none;
+}
+
+.period-cycle-gauge--compact .period-cycle-gauge-core {
+  width: 74px;
+  height: 54px;
+  border-radius: 24px 24px 16px 16px;
+}
+
+.period-cycle-gauge--compact .period-cycle-gauge-core strong {
+  font-size: 27px;
+}
+
+#period-view .memory-period-card {
+  border: 0;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow:
+    0 16px 42px rgba(164, 118, 120, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(22px) saturate(1.12);
+}
+
+[data-theme="dark"] #period-view .memory-period-card {
+  background: rgba(30, 29, 36, 0.42);
+  box-shadow:
+    0 16px 42px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+
+#period-view .period-tide-card {
+  border: 0;
+  box-shadow:
+    0 12px 26px rgba(176, 122, 126, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.period-health-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.period-form-stage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.56), rgba(255, 245, 244, 0.34));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+[data-theme="dark"] .period-form-stage {
+  background: rgba(42, 38, 48, 0.42);
+}
+
+.period-form-stage-note {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.period-mood-section--slider,
+.period-symptoms-section,
+.period-tide-section,
+.period-date-details,
+.period-health-form .memory-period-field {
+  margin: 0;
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.34);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .period-mood-section--slider,
+[data-theme="dark"] .period-symptoms-section,
+[data-theme="dark"] .period-tide-section,
+[data-theme="dark"] .period-date-details,
+[data-theme="dark"] .period-health-form .memory-period-field {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.period-slider-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.period-slider-head .period-mood-label {
+  margin: 0;
+}
+
+.period-slider-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mood-color, var(--accent)) 13%, rgba(255, 255, 255, 0.5));
+  color: var(--text);
+}
+
+.period-slider-current div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.period-slider-current strong {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.period-slider-current span {
+  color: var(--text-3);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.period-mood-slider {
+  width: 100%;
+  height: 28px;
+  margin: 2px 0 6px;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.period-mood-slider::-webkit-slider-runnable-track {
+  height: 12px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg,
+      #5db8a6 0%,
+      #e8a5a0 25%,
+      #e8c55a 50%,
+      #a28fb8 75%,
+      #c64545 100%);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.28),
+    0 10px 22px color-mix(in srgb, var(--mood-color, var(--accent)) 18%, transparent);
+}
+
+.period-mood-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: -7px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  background: var(--mood-color, var(--accent));
+  box-shadow:
+    0 8px 18px color-mix(in srgb, var(--mood-color, var(--accent)) 34%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
+}
+
+.period-mood-slider::-moz-range-track {
+  height: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #5db8a6 0%, #e8a5a0 25%, #e8c55a 50%, #a28fb8 75%, #c64545 100%);
+}
+
+.period-mood-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  background: var(--mood-color, var(--accent));
+}
+
+.period-mood-scale {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  color: var(--text-3);
+  font-size: 10px;
+  text-align: center;
+}
+
+.period-custom-symptom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.period-custom-symptom .memory-period-input {
+  min-width: 0;
+}
+
+.period-add-symptom {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 14%, rgba(255, 255, 255, 0.48));
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.period-health-form .memory-period-chip {
+  min-height: 36px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.46);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.period-health-form .memory-period-chip.active {
+  background: color-mix(in srgb, var(--accent) 74%, #ffffff);
+  box-shadow:
+    0 8px 20px color-mix(in srgb, var(--accent) 18%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.period-health-form .memory-period-input,
+.period-health-form .memory-period-textarea {
+  border: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+[data-theme="dark"] .period-health-form .memory-period-chip,
+[data-theme="dark"] .period-health-form .memory-period-input,
+[data-theme="dark"] .period-health-form .memory-period-textarea {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.period-health-form .memory-period-form-actions {
+  margin-top: 0;
+}
+
+@media (max-width: 720px) {
+  .period-health-hero {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .period-cycle-gauge {
+    justify-self: center;
+  }
+
+  .period-form-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .period-form-stage .period-cycle-gauge {
+    justify-self: center;
+  }
+
+  .period-slider-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .period-custom-symptom {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Phase 3: CurrentCycleHero ── */
+.cch-glass {
+  background: var(--glass-bg, rgba(255,255,255,0.04));
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 16px 20px;
+}
+
+.cch-main {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cch-gauge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.cch-day-num {
+  position: absolute;
+  font-size: 28px;
+  font-weight: 600;
+  font-family: var(--font-serif, var(--f-s));
+  color: var(--text);
+}
+
+.cch-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cch-phase {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.cch-day-label {
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.cch-day {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.cch-no-data .cch-main {
+  justify-content: center;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.cch-no-data .cch-phase {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.cch-period-day {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.cch-next {
+  font-size: 13px;
+  color: var(--text-2);
+  margin-top: 2px;
+}
+
+.cch-confidence {
+  font-size: 11px;
+  color: var(--text-4);
+  font-style: italic;
+}
+
+/* ── CycleTimelineChart scroll ── */
+.ctc-glass {
+  background: var(--glass-bg, rgba(255,255,255,0.04));
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 16px 20px 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.ctc-scroll-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* ── Period Summary ── */
+.period-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  text-align: center;
+}
+
+.period-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.period-summary-item strong {
+  font-size: 20px;
+  font-family: var(--font-serif, var(--f-s));
+  color: var(--text);
+}
+.period-summary-item span {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* ── Recent Records ── */
+.period-recent-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin: 0 0 8px;
+}
+
+.period-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.period-recent-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background 0.12s;
+}
+.period-recent-row:hover {
+  background: var(--surface, rgba(255,255,255,0.03));
+}
+
+.period-recent-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  font-size: 13px;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+}
+
+.period-recent-date {
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.period-recent-mood {
+  color: var(--text);
+  white-space: nowrap;
+}
+.period-recent-tide {
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.period-recent-symptoms {
+  color: var(--text-4);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.period-recent-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.period-recent-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+}
+.period-recent-btn:hover {
+  background: var(--surface, rgba(255,255,255,0.06));
+  color: var(--text-2);
+}
+.period-recent-btn--danger:hover {
+  color: var(--danger);
+}
+
+/* ── Period header ── */
+.period-header-add {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent);
+  color: var(--accent-fg, #fff);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 44px;
+  min-width: 44px;
+}
+.period-header-add .period-header-add-text {
+  display: inline;
+}
+
+/* 390px adjustments */
+/* ── Section 2: Glass pill buttons for symptom toggle & disclosure ── */
+
+/* ── Section 6: Date range warning ── */
+/* Period form modal: one deliberate internal scroller, never a black outer rail. */
+}
