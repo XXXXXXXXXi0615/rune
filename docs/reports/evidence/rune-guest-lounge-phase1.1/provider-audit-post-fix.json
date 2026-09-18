@@ -1,0 +1,114 @@
+{
+  "scenarioSameSession": {
+    "profile": {
+      "providerCount": 1,
+      "providers": [
+        {
+          "id": "4eb848d9-0aa5-43b3-bc70-33dde05e9dc4",
+          "name": "Audit OpenAI",
+          "type": "openai",
+          "enabled": true,
+          "isDefault": false,
+          "baseUrl": "https://api.openai.com/v1",
+          "model": "gpt-4o",
+          "apiKeyPresent": false,
+          "hasCredential": true,
+          "credentialId": "provider:325636fa-7eeb-42bf-8ddb-0279c7631884"
+        }
+      ],
+      "aiRoles": {},
+      "credentialStoreMode": null,
+      "webFallbackAck": null,
+      "migrationMarker": "v2",
+      "memoryCredentialIds": [
+        "provider:325636fa-7eeb-42bf-8ddb-0279c7631884"
+      ],
+      "memoryCredentialCount": 1
+    },
+    "chain": {
+      "configured": true,
+      "reason": "ready",
+      "providerName": "Audit OpenAI",
+      "providerNonNull": true,
+      "resolvedProviderApiKey": "<19 chars>",
+      "configApiKeyAfterResolveChatConfig": "<19 chars>"
+    },
+    "authenticatedPath": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "apiKey": "(empty)"
+    },
+    "guest": {
+      "inputEnabled": true,
+      "unavailableAtOpen": 0,
+      "sendOutcome": {
+        "requestsSent": 1,
+        "replyCount": 1,
+        "guestCount": 1,
+        "unavailableShown": 0,
+        "unavailableText": null,
+        "statusAttr": "idle"
+      }
+    },
+    "requests": [
+      {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authorization": "Bearer <present>",
+        "apiKeyHeader": "(absent)",
+        "model": "gpt-4o",
+        "keyActuallySent": true
+      }
+    ]
+  },
+  "scenarioAfterReload": {
+    "profile": {
+      "providerCount": 1,
+      "providers": [
+        {
+          "id": "ca82b5a9-88e5-4287-9883-16f695b96501",
+          "name": "Audit OpenAI",
+          "type": "openai",
+          "enabled": true,
+          "isDefault": false,
+          "baseUrl": "https://api.openai.com/v1",
+          "model": "gpt-4o",
+          "apiKeyPresent": false,
+          "hasCredential": true,
+          "credentialId": "provider:ee81d439-d80f-4fc4-9a6b-e40b6ed5e037"
+        }
+      ],
+      "aiRoles": {},
+      "credentialStoreMode": null,
+      "webFallbackAck": null,
+      "migrationMarker": "v2",
+      "memoryCredentialIds": null,
+      "memoryCredentialCount": null
+    },
+    "chain": {
+      "configured": true,
+      "reason": "ready",
+      "providerName": "Audit OpenAI",
+      "providerNonNull": true,
+      "resolvedProviderApiKey": "(empty)",
+      "configApiKeyAfterResolveChatConfig": "(empty)"
+    },
+    "authenticatedPath": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "apiKey": "(empty)"
+    },
+    "guest": {
+      "inputEnabled": true,
+      "unavailableAtOpen": 0,
+      "sendOutcome": {
+        "requestsSent": 0,
+        "replyCount": 0,
+        "guestCount": 1,
+        "unavailableShown": 1,
+        "unavailableText": "Rune 現在暫時不能在門外應答。\n\n返回登入",
+        "statusAttr": "error"
+      }
+    },
+    "requests": []
+  }
+}

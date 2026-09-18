@@ -1,0 +1,11 @@
+{
+  "requestsSent": 0,
+  "captured": [],
+  "assistantBubbles": 0,
+  "assistantText": [],
+  "bodySnippet": "Rune\n○\n今日未報備 ·\n03\nCLAWD · 平靜\nAudit × LUNARIS\nAudit OpenAI · gpt-4o\n\n晚安，智能體。\n\n今天想聊什麼？\n\n寫下問題、想法，或讓我幫你整理一段混亂。",
+  "memoryCredentialIds": [
+    "provider:audit-provider"
+  ],
+  "consoleErrors": []
+}

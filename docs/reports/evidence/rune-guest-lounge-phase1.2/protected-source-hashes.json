@@ -1,0 +1,46 @@
+{
+  "src/pages/AuthGate.tsx": {
+    "before": "5d484a77fc68cc2d5945ed0eecd0154d846788098ed0806e194cc966f08e4832",
+    "after": "5d484a77fc68cc2d5945ed0eecd0154d846788098ed0806e194cc966f08e4832"
+  },
+  "src/pages/ChatPage.tsx": {
+    "before": "74f71ec7e7ea446a76a820593fb1d43f5004d9c77f289fbf9d886ec918a7ff22",
+    "after": "74f71ec7e7ea446a76a820593fb1d43f5004d9c77f289fbf9d886ec918a7ff22"
+  },
+  "src/components/memory/DiaryPanel.tsx": {
+    "before": "7152448a88d29428021d7f382072a5b3645fd5d733f1ea81d2779a4ecfd8cebb",
+    "after": "7152448a88d29428021d7f382072a5b3645fd5d733f1ea81d2779a4ecfd8cebb"
+  },
+  "src/ai/providerRuntime.ts": {
+    "before": "3ddd919905cfdae8baa89f569376a7393affd0c6c499450d815d6ad0b5228197",
+    "after": "3ddd919905cfdae8baa89f569376a7393affd0c6c499450d815d6ad0b5228197"
+  },
+  "src/ai/client.ts": {
+    "before": "733d8e645eb37d725ba40229b3e73359ee4080989502cb2e1b950eadc40c06ae",
+    "after": "733d8e645eb37d725ba40229b3e73359ee4080989502cb2e1b950eadc40c06ae"
+  },
+  "src/features/auth/guestConversationAdapter.ts": {
+    "before": "490c4c4141f34ab8677ef0721facb82725f35432fa27dc77e9958e8d19f0153f",
+    "after": "490c4c4141f34ab8677ef0721facb82725f35432fa27dc77e9958e8d19f0153f"
+  },
+  "src/ai/credentialStore.ts": {
+    "before": "e36f8f6eda1061b112c6474112f904811ed11d8e1922c975f15b988459756f8c",
+    "after": "e36f8f6eda1061b112c6474112f904811ed11d8e1922c975f15b988459756f8c"
+  },
+  "src/ai/credentialStore.test.ts": {
+    "before": "a5370f5e17efd35505396a7b6ea2018c0565a76758bc7f2b175a9f8a3e2bc5dc",
+    "after": "a5370f5e17efd35505396a7b6ea2018c0565a76758bc7f2b175a9f8a3e2bc5dc"
+  },
+  "src/ai/credentialMigration.ts": {
+    "before": "e1b9e01cba54c385abd1c2a51c20703405ef16ded7059f20c5acb2f2926f83ae",
+    "after": "e1b9e01cba54c385abd1c2a51c20703405ef16ded7059f20c5acb2f2926f83ae"
+  },
+  "src/ai/credentialMigration.test.ts": {
+    "before": "623b75ecf0112f86973aa4f7079b00bbda75d79bc2f80f5fbb05081a5ecf02d9",
+    "after": "623b75ecf0112f86973aa4f7079b00bbda75d79bc2f80f5fbb05081a5ecf02d9"
+  },
+  "src/pages/rune-login-gate.css": {
+    "before": "13023c60dcdede480f6050a1b84e3d945a94264317ba455790d21c325df8af41",
+    "after": "13023c60dcdede480f6050a1b84e3d945a94264317ba455790d21c325df8af41"
+  }
+}

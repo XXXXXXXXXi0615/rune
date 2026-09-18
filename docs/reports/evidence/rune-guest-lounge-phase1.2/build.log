@@ -1,0 +1,125 @@
+
+> lunartide-react@0.0.0 build
+> tsc -b && vite build
+
+vite v8.0.14 building client environment for production...
+[2Ktransforming...✓ 1306 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/assets/clawd-working-carrying-CR6M-Y0d.svg           4.27 kB │ gzip:   1.29 kB
+dist/assets/clawd-celebrating-pfoa54sV.svg                4.34 kB │ gzip:   0.84 kB
+dist/assets/clawd-working-typing-DCmVFReg.svg             5.28 kB │ gzip:   1.52 kB
+dist/assets/clawd-happy-DMNzgW_7.svg                      5.59 kB │ gzip:   1.51 kB
+dist/assets/clawd-notification-Bo0AdyIU.svg               5.76 kB │ gzip:   1.39 kB
+dist/assets/permission_prompt-Ck1TP4xZ.gif                6.09 kB
+dist/assets/working_hardhat-D_zXls7T.gif                 14.90 kB
+dist/index.html                                          24.73 kB │ gzip:   5.87 kB
+dist/assets/clawd-exercise-DDg_5NG8.gif                  29.06 kB
+dist/assets/clawd-sleeping.gif-C9Sif_sx.gif              40.50 kB
+dist/assets/clawd-idle.gif-McocuG-q.gif                  40.70 kB
+dist/assets/clawd-happy.gif-Cj0QphmZ.gif                 47.94 kB
+dist/assets/clawd-sweeping.gif-BPpDPlwe.gif              53.84 kB
+dist/assets/idle_bubble-BFIQyssL.gif                     54.05 kB
+dist/assets/clawd-error.gif-6uYIYf4I.gif                 55.84 kB
+dist/assets/clawd-juggling.gif-i2HEtDyH.gif              57.58 kB
+dist/assets/clawd-thinking.gif-NOyFKO3M.gif              57.59 kB
+dist/assets/clawd-photo-RFS1pMIw.gif                     61.68 kB
+dist/assets/clawd-headphones-groove.gif-B26qNR_T.gif     66.64 kB
+dist/assets/clawd-carrying.gif-V36-NAxp.gif              68.14 kB
+dist/assets/clawd-eating-BHj6Hi-M.gif                    69.68 kB
+dist/assets/clawd-idle-reading.gif-B1eplWpd.gif          73.53 kB
+dist/assets/clawd-birthday-CtVxQCE3.gif                  74.89 kB
+dist/assets/welding_work-Ba8BEeXF.gif                    76.51 kB
+dist/assets/clawd-painting-B3-guO1d.gif                  80.95 kB
+dist/assets/clawd-dragon-boat-DZbQ5do1.gif               84.33 kB
+dist/assets/clawd-building.gif-D7ey4NQJ.gif              89.98 kB
+dist/assets/clawd-listening-Cd4ejxNN.gif                 91.10 kB
+dist/assets/clawd-guitar-DSQmuC_z.gif                    91.61 kB
+dist/assets/clawd-reading--WdO9pFW.gif                   94.33 kB
+dist/assets/clawd-typing.gif-6vmXvRHc.gif               101.03 kB
+dist/assets/celebrate_bunny-CmwixBVT.gif                124.99 kB
+dist/assets/clawd-notification.gif-Dlzhix5P.gif         126.06 kB
+dist/assets/clawd-mini-happy-dxeBCse9.gif               131.09 kB
+dist/assets/clawd-sleeping-CJDN2rq9.gif                 134.59 kB
+dist/assets/clawd-mini-peek-DOm2KVLl.gif                146.25 kB
+dist/assets/clawd-mini-idle-CzliWHEV.gif                158.47 kB
+dist/assets/clawd-mini-alert-C4c2IMzn.gif               160.48 kB
+dist/assets/TimelinePage-vfFuY7j8.css                     4.60 kB │ gzip:   1.22 kB
+dist/assets/QuestPage-DCEslhf4.css                        5.79 kB │ gzip:   1.60 kB
+dist/assets/ObjectMemoryEditor-CQdFqkjL.css               8.96 kB │ gzip:   2.34 kB
+dist/assets/PeriodTicketModal-CsW57HO7.css                8.98 kB │ gzip:   2.21 kB
+dist/assets/period-ticket-archive-ob0D1GhO.css           10.63 kB │ gzip:   2.38 kB
+dist/assets/TideRailPage-BGsSAnoT.css                    11.81 kB │ gzip:   2.75 kB
+dist/assets/ChatLandingPage-7X0c5CQ1.css                 15.35 kB │ gzip:   3.53 kB
+dist/assets/MoonLexPage-BATv8x1q.css                     16.59 kB │ gzip:   4.44 kB
+dist/assets/PeriodRecordSheet-D11cZw8b.css               17.25 kB │ gzip:   3.99 kB
+dist/assets/ExchangePage-BQ4JkMm-.css                    18.57 kB │ gzip:   3.65 kB
+dist/assets/CalendarPage-Cm8dSE8H.css                    21.77 kB │ gzip:   4.46 kB
+dist/assets/CountdownEditorSheet-BV7MViAv.css            29.15 kB │ gzip:   4.84 kB
+dist/assets/RuneStashPage-BsmHquPm.css                   32.78 kB │ gzip:   6.48 kB
+dist/assets/SettingsPage-ChoEUttO.css                    36.95 kB │ gzip:   6.62 kB
+dist/assets/ImmersiveListeningPage-DgjS9nns.css          37.88 kB │ gzip:   7.45 kB
+dist/assets/PeriodPage-X6RW072Y.css                      42.61 kB │ gzip:   8.08 kB
+dist/assets/TidewatchPage-CbG48a2b.css                   43.79 kB │ gzip:   7.83 kB
+dist/assets/messageVisibility-DKIxp7dV.css               43.88 kB │ gzip:   8.07 kB
+dist/assets/GachaMachine-CY3yb3yk.css                    56.39 kB │ gzip:  10.77 kB
+dist/assets/Music-Bj3hlBdx.css                           62.25 kB │ gzip:  10.92 kB
+dist/assets/LifeRhythmPage-CqP_UQwj.css                  91.30 kB │ gzip:  13.45 kB
+dist/assets/ChatEntry-CDOzRrNw.css                      168.63 kB │ gzip:  28.63 kB
+dist/assets/index-CGTHZAGG.css                        1,677.63 kB │ gzip: 296.95 kB
+dist/assets/Header-TLzsGrDq.js                            0.29 kB │ gzip:   0.20 kB
+dist/assets/BackButton-DYuQZm9i.js                        0.42 kB │ gzip:   0.31 kB
+dist/assets/web-BcHfRelZ.js                               0.76 kB │ gzip:   0.35 kB
+dist/assets/web-BKCJyPem.js                               1.12 kB │ gzip:   0.54 kB
+dist/assets/periodStorage-D6dkB9dw.js                     1.57 kB │ gzip:   0.86 kB
+dist/assets/CountdownsPage-CCZfSTJS.js                    1.65 kB │ gzip:   0.88 kB
+dist/assets/ChatMomentDetailPage-Ch-gEyFo.js              2.11 kB │ gzip:   1.13 kB
+dist/assets/agentActivityState-DOrITX6a.js                2.57 kB │ gzip:   1.05 kB
+dist/assets/ObjectMemoryArchivePage-78LSv7BP.js           2.81 kB │ gzip:   1.18 kB
+dist/assets/chatThemeDraftBridge-DQkPZWAc.js              2.93 kB │ gzip:   1.23 kB
+dist/assets/TimeWheelPicker-9QddkJDk.js                   3.09 kB │ gzip:   1.35 kB
+dist/assets/TimelinePage-DZ9X1uXJ.js                      3.26 kB │ gzip:   1.37 kB
+dist/assets/releaseNotices-DrKSFWi0.js                    4.66 kB │ gzip:   2.16 kB
+dist/assets/pickerUtils-D97IDOr5.js                       4.67 kB │ gzip:   1.81 kB
+dist/assets/ObjectMemoryDashboardPage-Dq1_C4W3.js         4.68 kB │ gzip:   1.34 kB
+dist/assets/PeriodTicketArchivePage-CXv6ggXq.js           4.93 kB │ gzip:   1.74 kB
+dist/assets/objectMemoryStore-B5yxknY1.js                 6.56 kB │ gzip:   2.53 kB
+dist/assets/calendarDayScene-Xp1qRv_L.js                  6.85 kB │ gzip:   2.49 kB
+dist/assets/PeriodTicketModal-DalffUv6.js                 7.02 kB │ gzip:   2.86 kB
+dist/assets/MomentPostCard-DuUhFP-6.js                    9.00 kB │ gzip:   3.20 kB
+dist/assets/ObjectMemoryEditor-QQxDz7zP.js               10.30 kB │ gzip:   3.70 kB
+dist/assets/ObjectMemoryDetailPage-CqkalDBU.js           10.62 kB │ gzip:   3.16 kB
+dist/assets/TideRailPage-C6fp2au-.js                     12.74 kB │ gzip:   4.85 kB
+dist/assets/MoonLexPage-C0oG2pYm.js                      15.68 kB │ gzip:   5.54 kB
+dist/assets/canonicalItemStore-C9VFTFNQ.js               16.19 kB │ gzip:   3.29 kB
+dist/assets/QuestPage-CgTtVzNj.js                        20.02 kB │ gzip:   6.56 kB
+dist/assets/PeriodRecordSheet-DW_sGuqo.js                20.41 kB │ gzip:   7.07 kB
+dist/assets/PeriodPage-DfpmgapK.js                       21.69 kB │ gzip:   7.47 kB
+dist/assets/SimulatedCallPage-ho8w8GYE.js                23.53 kB │ gzip:   7.00 kB
+dist/assets/GachaMachine-BG2FMXlM.js                     27.50 kB │ gzip:   8.60 kB
+dist/assets/ImmersiveListeningPage-DZ0UYrr9.js           28.87 kB │ gzip:   9.33 kB
+dist/assets/ExchangePage-BwUA7U6L.js                     29.58 kB │ gzip:   9.30 kB
+dist/assets/Music-BG9YlGr-.js                            36.98 kB │ gzip:   9.19 kB
+dist/assets/CountdownEditorSheet-vqLRWvaf.js             38.52 kB │ gzip:  10.70 kB
+dist/assets/RuneStashPage-C2ZAalXk.js                    40.39 kB │ gzip:  11.05 kB
+dist/assets/TidewatchPage-C-Orf4U6.js                    46.35 kB │ gzip:  13.52 kB
+dist/assets/ChatLandingPage-CDbs1foH.js                  46.54 kB │ gzip:  13.26 kB
+dist/assets/messageVisibility-D_owmxtt.js                49.81 kB │ gzip:  11.09 kB
+dist/assets/CalendarPage-BYMRJwja.js                     60.13 kB │ gzip:  19.30 kB
+dist/assets/LifeRhythmPage-CcG0QwpO.js                   64.86 kB │ gzip:  16.08 kB
+dist/assets/useMoonLexStore-DDtQxdrV.js                 133.47 kB │ gzip:  43.98 kB
+dist/assets/SettingsPage-D_Y04xyD.js                    154.52 kB │ gzip:  45.55 kB
+dist/assets/DicePreview3D-zp2MjWi2.js                   540.81 kB │ gzip: 137.07 kB
+dist/assets/ChatEntry-DQNe7HOj.js                       555.97 kB │ gzip: 160.34 kB
+dist/assets/index-Cuecl9MU.js                         1,397.56 kB │ gzip: 389.11 kB
+
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/store/assets.ts is dynamically imported by src/components/settings/SettingsDataPanels.tsx, src/features/characters/characterRuntimeContext.ts, src/pages/Music/ImmersiveListeningPage.tsx but also statically imported by src/components/calendar/CalendarDayCanvas.tsx, src/components/call/CallContextDrawer.tsx, src/components/call/IdentityCallMediaSheet.tsx, src/components/chat/AttachmentDrawer.tsx, src/components/chat/BubbleSkinStudioSection.tsx, ..., dynamic import will not move module into another chunk.
+
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/store/useCharacterStore.ts is dynamically imported by src/features/characters/characterRuntimeContext.ts but also statically imported by src/components/chat/CharacterLibrary.tsx, src/components/chat/CharacterStudio/CharacterStudio.tsx, src/components/chat/CharacterStudio/CharacterStudioForm.tsx, src/components/chat/ConversationAvatars.tsx, src/components/chat/PartnerOnboarding/PartnerCreatorSheet.tsx, ..., dynamic import will not move module into another chunk.
+
+✓ built in 490ms

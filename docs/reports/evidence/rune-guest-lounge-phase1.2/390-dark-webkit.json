@@ -1,0 +1,79 @@
+{
+  "initial": {
+    "height": 489.515625,
+    "bottom": 832,
+    "composerBottom": 831,
+    "composerTop": 735.625,
+    "messageBottom": 735.625,
+    "scrollHeight": 321,
+    "clientHeight": 321,
+    "panelOverflow": 0,
+    "overflow": 0
+  },
+  "turn-1": {
+    "height": 542.40625,
+    "bottom": 832,
+    "composerBottom": 831,
+    "composerTop": 735.625,
+    "messageBottom": 735.625,
+    "scrollHeight": 374,
+    "clientHeight": 374,
+    "panelOverflow": 0,
+    "overflow": 0
+  },
+  "turn-2": {
+    "height": 607.671875,
+    "bottom": 832,
+    "composerBottom": 831,
+    "composerTop": 735.625,
+    "messageBottom": 735.625,
+    "scrollHeight": 564,
+    "clientHeight": 439,
+    "panelOverflow": 0,
+    "overflow": 0
+  },
+  "turn-3": {
+    "height": 607.671875,
+    "bottom": 832,
+    "composerBottom": 831,
+    "composerTop": 735.625,
+    "messageBottom": 735.625,
+    "scrollHeight": 753,
+    "clientHeight": 439,
+    "panelOverflow": 0,
+    "overflow": 0
+  },
+  "turn-4": {
+    "height": 607.671875,
+    "bottom": 832,
+    "composerBottom": 831,
+    "composerTop": 735.625,
+    "messageBottom": 735.625,
+    "scrollHeight": 943,
+    "clientHeight": 439,
+    "panelOverflow": 0,
+    "overflow": 0
+  },
+  "turn-5": {
+    "height": 607.671875,
+    "bottom": 832,
+    "composerBottom": 831,
+    "composerTop": 735.625,
+    "messageBottom": 735.625,
+    "scrollHeight": 1133,
+    "clientHeight": 439,
+    "panelOverflow": 0,
+    "overflow": 0
+  },
+  "turn-6": {
+    "height": 607.671875,
+    "bottom": 832,
+    "composerBottom": 831,
+    "composerTop": 735.625,
+    "messageBottom": 735.625,
+    "scrollHeight": 1322,
+    "clientHeight": 439,
+    "panelOverflow": 0,
+    "overflow": 0
+  }
+}

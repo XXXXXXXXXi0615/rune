@@ -1,0 +1,214 @@
+
+Running 82 tests using 2 workers
+
+(node:71548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:71549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:147:1 › credential-store provider answers the guest through the canonical resolver (3.7s)
+  ✓   2 [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 390 dark: six exchanges, adaptive height and inline states (4.4s)
+  ✓   3 [chromium] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:190:1 › no provider keeps the calm fallback and sends nothing (3.2s)
+  ✓   4 [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 390 light: six exchanges, adaptive height and inline states (4.2s)
+  ✓   5 [chromium] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:207:1 › disabled provider keeps the calm fallback and sends nothing (3.2s)
+  ✓   6 [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 430 dark: six exchanges, adaptive height and inline states (4.2s)
+  ✓   7 [chromium] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:223:1 › missing credential fails safely without pretending success (3.5s)
+  ✓   8 [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 430 light: six exchanges, adaptive height and inline states (4.3s)
+  ✓   9 [chromium] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:247:1 › in-memory credential does not survive reload and the guest stays calm (7.6s)
+  ✘  10 [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 1440 dark: six exchanges, adaptive height and inline states (5.1s)
+(node:71715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [chromium] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:274:1 › unlock destroys the guest session and never migrates it (4.4s)
+  ✘  12 [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 1440 light: six exchanges, adaptive height and inline states (5.2s)
+(node:71757) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 390×844 light: trigger and lounge preserve frozen gate geometry (3.9s)
+(node:71771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:230:1 › short viewport and reduced motion keep composer and keyboard controls reachable (3.1s)
+  ✓  15 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 390×844 dark: trigger and lounge preserve frozen gate geometry (3.6s)
+  ✓  17 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 430×932 light: trigger and lounge preserve frozen gate geometry (3.6s)
+  ✓  16 [chromium] › e2e/rune-login-final-runtime-closure.spec.ts:118:1 › A/B/C. first-run issuance survives reload and becomes Returning flow (7.2s)
+  ✓  18 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 430×932 dark: trigger and lounge preserve frozen gate geometry (3.6s)
+  ✓  19 [chromium] › e2e/rune-login-final-runtime-closure.spec.ts:170:1 › Returning accepts an OS clipboard paste (3.1s)
+  ✘  20 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 1440×900 light: trigger and lounge preserve frozen gate geometry (3.9s)
+(node:71830) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 [chromium] › e2e/rune-login-final-runtime-closure.spec.ts:185:1 › D/F. Returning supports show/hide, keyboard Enter, and deterministic verifying (4.5s)
+  ✓  22 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 1440×900 dark: trigger and lounge preserve frozen gate geometry (3.8s)
+  ✓  23 [chromium] › e2e/rune-login-final-runtime-closure.spec.ts:240:1 › E. invalid Access String is muted and does not move the card or CTA (3.4s)
+  ✓  25 [chromium] › e2e/rune-login-final-runtime-closure.spec.ts:279:3 › 390×844 uses one safe scroller and keeps the full card usable (3.1s)
+  ✓  24 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:227:1 › ephemeral transport sends only guest session context and reload clears it (6.5s)
+  ✓  26 [chromium] › e2e/rune-login-final-runtime-closure.spec.ts:279:3 › 430×932 uses one safe scroller and keeps the full card usable (3.1s)
+  ✓  28 [chromium] › e2e/rune-login-final-runtime-closure.spec.ts:279:3 › 1440×900 uses one safe scroller and keeps the full card usable (3.3s)
+  ✓  27 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:285:1 › successful unlock destroys the guest session without migrating it to Chat (4.6s)
+  ✓  29 [chromium] › e2e/rune-login-final-runtime-closure.spec.ts:294:3 › 390px keyboard-equivalent visual viewport keeps input and CTA immediately reachable (3.1s)
+  ✓  30 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:312:1 › unconfigured provider stays calm and returns focus to Login Gate (3.5s)
+  ✓  31 [chromium] › e2e/rune-login-final-runtime-closure.spec.ts:294:3 › 430px keyboard-equivalent visual viewport keeps input and CTA immediately reachable (3.1s)
+  ✓  32 [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:328:1 › provider failure keeps the ephemeral session and never exposes a raw error (3.6s)
+(node:71952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  33 [chromium] › e2e/rune-login-production-assets.spec.ts:121:3 › 390x844 light first-run and returning production renders (6.2s)
+  ✓  34 [webkit] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:147:1 › credential-store provider answers the guest through the canonical resolver (4.1s)
+  ✓  36 [webkit] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:190:1 › no provider keeps the calm fallback and sends nothing (3.3s)
+  ✓  35 [chromium] › e2e/rune-login-production-assets.spec.ts:121:3 › 390x844 dark first-run and returning production renders (6.2s)
+  ✓  37 [webkit] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:207:1 › disabled provider keeps the calm fallback and sends nothing (3.3s)
+  ✓  39 [webkit] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:223:1 › missing credential fails safely without pretending success (3.7s)
+  ✓  38 [chromium] › e2e/rune-login-production-assets.spec.ts:121:3 › 430x932 light first-run and returning production renders (6.3s)
+  ✓  40 [webkit] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:247:1 › in-memory credential does not survive reload and the guest stays calm (7.1s)
+  ✓  41 [chromium] › e2e/rune-login-production-assets.spec.ts:121:3 › 430x932 dark first-run and returning production renders (6.2s)
+  ✓  42 [webkit] › e2e/rune-guest-lounge-phase1.1-provider.spec.ts:274:1 › unlock destroys the guest session and never migrates it (4.6s)
+  ✓  43 [chromium] › e2e/rune-login-production-assets.spec.ts:121:3 › 1280x800 light first-run and returning production renders (6.6s)
+  ✓  44 [webkit] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 390 dark: six exchanges, adaptive height and inline states (4.5s)
+  ✓  46 [webkit] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 390 light: six exchanges, adaptive height and inline states (4.5s)
+  ✓  45 [chromium] › e2e/rune-login-production-assets.spec.ts:121:3 › 1280x800 dark first-run and returning production renders (6.4s)
+  ✓  47 [webkit] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 430 dark: six exchanges, adaptive height and inline states (4.5s)
+  ✓  48 [chromium] › e2e/rune-login-production-assets.spec.ts:121:3 › 1440x900 light first-run and returning production renders (6.6s)
+  ✓  49 [webkit] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 430 light: six exchanges, adaptive height and inline states (4.5s)
+  ✓  50 [chromium] › e2e/rune-login-production-assets.spec.ts:121:3 › 1440x900 dark first-run and returning production renders (6.5s)
+  ✓  51 [webkit] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 1440 dark: six exchanges, adaptive height and inline states (4.9s)
+  ✓  52 [chromium] › e2e/rune-login-production-assets.spec.ts:149:1 › verified invitation crossfades neutral to soft and remains keyboard-reachable (4.0s)
+(node:72211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  53 [webkit] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 1440 light: six exchanges, adaptive height and inline states (4.9s)
+  ✓  54 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 390×844 light: trigger and lounge preserve frozen gate geometry (4.0s)
+  ✓  56 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 390×844 dark: trigger and lounge preserve frozen gate geometry (3.9s)
+  ✘  55 [webkit] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:230:1 › short viewport and reduced motion keep composer and keyboard controls reachable (8.3s)
+(node:72259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  57 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 430×932 light: trigger and lounge preserve frozen gate geometry (3.8s)
+  ✓  59 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 430×932 dark: trigger and lounge preserve frozen gate geometry (3.8s)
+  ✓  58 [webkit] › e2e/rune-login-final-runtime-closure.spec.ts:118:1 › A/B/C. first-run issuance survives reload and becomes Returning flow (7.5s)
+  -  61 [webkit] › e2e/rune-login-final-runtime-closure.spec.ts:170:1 › Returning accepts an OS clipboard paste
+  ✓  60 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 1440×900 light: trigger and lounge preserve frozen gate geometry (3.9s)
+  ✓  62 [webkit] › e2e/rune-login-final-runtime-closure.spec.ts:185:1 › D/F. Returning supports show/hide, keyboard Enter, and deterministic verifying (4.3s)
+  ✓  63 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 1440×900 dark: trigger and lounge preserve frozen gate geometry (4.0s)
+  ✓  64 [webkit] › e2e/rune-login-final-runtime-closure.spec.ts:240:1 › E. invalid Access String is muted and does not move the card or CTA (3.6s)
+  ✓  66 [webkit] › e2e/rune-login-final-runtime-closure.spec.ts:279:3 › 390×844 uses one safe scroller and keeps the full card usable (3.2s)
+  ✓  65 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:227:1 › ephemeral transport sends only guest session context and reload clears it (6.7s)
+  ✓  67 [webkit] › e2e/rune-login-final-runtime-closure.spec.ts:279:3 › 430×932 uses one safe scroller and keeps the full card usable (3.3s)
+  ✓  68 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:285:1 › successful unlock destroys the guest session without migrating it to Chat (4.8s)
+  ✓  69 [webkit] › e2e/rune-login-final-runtime-closure.spec.ts:279:3 › 1440×900 uses one safe scroller and keeps the full card usable (3.4s)
+  ✓  71 [webkit] › e2e/rune-login-final-runtime-closure.spec.ts:294:3 › 390px keyboard-equivalent visual viewport keeps input and CTA immediately reachable (3.3s)
+  ✓  70 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:312:1 › unconfigured provider stays calm and returns focus to Login Gate (3.7s)
+  ✓  72 [webkit] › e2e/rune-login-final-runtime-closure.spec.ts:294:3 › 430px keyboard-equivalent visual viewport keeps input and CTA immediately reachable (3.3s)
+  ✓  73 [webkit] › e2e/rune-guest-lounge-phase1.spec.ts:328:1 › provider failure keeps the ephemeral session and never exposes a raw error (3.7s)
+  ✓  74 [webkit] › e2e/rune-login-production-assets.spec.ts:121:3 › 390x844 light first-run and returning production renders (6.4s)
+  ✓  75 [webkit] › e2e/rune-login-production-assets.spec.ts:121:3 › 390x844 dark first-run and returning production renders (6.4s)
+  ✓  76 [webkit] › e2e/rune-login-production-assets.spec.ts:121:3 › 430x932 light first-run and returning production renders (6.4s)
+  ✓  77 [webkit] › e2e/rune-login-production-assets.spec.ts:121:3 › 430x932 dark first-run and returning production renders (6.4s)
+  ✓  78 [webkit] › e2e/rune-login-production-assets.spec.ts:121:3 › 1280x800 light first-run and returning production renders (6.5s)
+  ✓  79 [webkit] › e2e/rune-login-production-assets.spec.ts:121:3 › 1280x800 dark first-run and returning production renders (6.5s)
+  ✓  80 [webkit] › e2e/rune-login-production-assets.spec.ts:121:3 › 1440x900 light first-run and returning production renders (6.6s)
+  ✓  81 [webkit] › e2e/rune-login-production-assets.spec.ts:121:3 › 1440x900 dark first-run and returning production renders (6.6s)
+  ✓  82 [webkit] › e2e/rune-login-production-assets.spec.ts:149:1 › verified invitation crossfades neutral to soft and remains keyboard-reachable (4.2s)
+
+
+  1) [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 1440 dark: six exchanges, adaptive height and inline states
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    1
+
+      218 |       await expect(page.getByTestId('guest-lounge-trigger')).toBeFocused();
+      219 |       const after = await page.locator('.rlg-panel').boundingBox();
+    > 220 |       for (const key of ['x', 'y', 'width', 'height'] as const) expect(Math.abs(after![key] - gateBefore![key])).toBeLessThanOrEqual(.5);
+          |                                                                                                                  ^
+      221 |       await mkdir(EVIDENCE_DIR, { recursive: true });
+      222 |       await writeFile(path.join(EVIDENCE_DIR, `${frame.width}-${theme}-${browserName}.json`), JSON.stringify(measurements, null, 2));
+      223 |       expect(failures.consoleErrors).toEqual([]);
+        at /Users/shidaoxiang/Desktop/lunartide-react/e2e/rune-guest-lounge-phase1.2-polish.spec.ts:220:114
+
+    Error Context: test-results/rune-guest-lounge-phase1.2-26366-ve-height-and-inline-states-chromium/error-context.md
+
+  2) [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 1440 light: six exchanges, adaptive height and inline states
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    1
+
+      218 |       await expect(page.getByTestId('guest-lounge-trigger')).toBeFocused();
+      219 |       const after = await page.locator('.rlg-panel').boundingBox();
+    > 220 |       for (const key of ['x', 'y', 'width', 'height'] as const) expect(Math.abs(after![key] - gateBefore![key])).toBeLessThanOrEqual(.5);
+          |                                                                                                                  ^
+      221 |       await mkdir(EVIDENCE_DIR, { recursive: true });
+      222 |       await writeFile(path.join(EVIDENCE_DIR, `${frame.width}-${theme}-${browserName}.json`), JSON.stringify(measurements, null, 2));
+      223 |       expect(failures.consoleErrors).toEqual([]);
+        at /Users/shidaoxiang/Desktop/lunartide-react/e2e/rune-guest-lounge-phase1.2-polish.spec.ts:220:114
+
+    Error Context: test-results/rune-guest-lounge-phase1.2-57bc4-ve-height-and-inline-states-chromium/error-context.md
+
+  3) [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 390×844 light: trigger and lounge preserve frozen gate geometry
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    1
+
+      154 |   expect(Math.abs(a.y - b.y)).toBeLessThanOrEqual(0.5);
+      155 |   expect(Math.abs(a.width - b.width)).toBeLessThanOrEqual(0.5);
+    > 156 |   expect(Math.abs(a.height - b.height)).toBeLessThanOrEqual(0.5);
+          |                                         ^
+      157 | }
+      158 |
+      159 | for (const frame of [
+        at expectSameBox (/Users/shidaoxiang/Desktop/lunartide-react/e2e/rune-guest-lounge-phase1.spec.ts:156:41)
+        at /Users/shidaoxiang/Desktop/lunartide-react/e2e/rune-guest-lounge-phase1.spec.ts:219:7
+
+    Error Context: test-results/rune-guest-lounge-phase1-3-73c84-eserve-frozen-gate-geometry-chromium/error-context.md
+
+  4) [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 1440×900 light: trigger and lounge preserve frozen gate geometry
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    1
+
+      154 |   expect(Math.abs(a.y - b.y)).toBeLessThanOrEqual(0.5);
+      155 |   expect(Math.abs(a.width - b.width)).toBeLessThanOrEqual(0.5);
+    > 156 |   expect(Math.abs(a.height - b.height)).toBeLessThanOrEqual(0.5);
+          |                                         ^
+      157 | }
+      158 |
+      159 | for (const frame of [
+        at expectSameBox (/Users/shidaoxiang/Desktop/lunartide-react/e2e/rune-guest-lounge-phase1.spec.ts:156:41)
+        at /Users/shidaoxiang/Desktop/lunartide-react/e2e/rune-guest-lounge-phase1.spec.ts:219:7
+
+    Error Context: test-results/rune-guest-lounge-phase1-1-e914c-eserve-frozen-gate-geometry-chromium/error-context.md
+
+  5) [webkit] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:230:1 › short viewport and reduced motion keep composer and keyboard controls reachable
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('.guest-lounge-close')
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" with timeout 5000ms
+      - waiting for locator('.guest-lounge-close')
+        14 × locator resolved to <button type="button" aria-label="關閉待客廳" class="guest-lounge-close">…</button>
+           - unexpected value "inactive"
+
+
+      237 |   await expect(page.getByTestId('guest-lounge-input')).toBeFocused();
+      238 |   await page.keyboard.press('Shift+Tab');
+    > 239 |   await expect(page.locator('.guest-lounge-close')).toBeFocused();
+          |                                                     ^
+      240 |   await page.keyboard.press('Shift+Tab');
+      241 |   await expect(page.getByTestId('guest-lounge-input')).toBeFocused();
+      242 |   const animation = await page.getByTestId('guest-lounge-panel').evaluate(node => getComputedStyle(node).animationDuration);
+        at /Users/shidaoxiang/Desktop/lunartide-react/e2e/rune-guest-lounge-phase1.2-polish.spec.ts:239:53
+
+    Error Context: test-results/rune-guest-lounge-phase1.2-da737-keyboard-controls-reachable-webkit/error-context.md
+
+  5 failed
+    [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 1440 dark: six exchanges, adaptive height and inline states
+    [chromium] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:133:5 › 1440 light: six exchanges, adaptive height and inline states
+    [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 390×844 light: trigger and lounge preserve frozen gate geometry
+    [chromium] › e2e/rune-guest-lounge-phase1.spec.ts:165:5 › 1440×900 light: trigger and lounge preserve frozen gate geometry
+    [webkit] › e2e/rune-guest-lounge-phase1.2-polish.spec.ts:230:1 › short viewport and reduced motion keep composer and keyboard controls reachable
+  1 skipped
+  76 passed (3.6m)

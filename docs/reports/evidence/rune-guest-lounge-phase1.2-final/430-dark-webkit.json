@@ -1,0 +1,98 @@
+{
+  "initial": {
+    "height": 540.546875,
+    "bottom": 920,
+    "controlBottom": 919,
+    "controlTop": 823.625,
+    "messageBottom": 823.625,
+    "scrollHeight": 372,
+    "clientHeight": 372,
+    "panelOverflow": 0,
+    "overflow": 0,
+    "composerPresent": true
+  },
+  "turn-1": {
+    "height": 542.40625,
+    "bottom": 920,
+    "controlBottom": 919,
+    "controlTop": 823.625,
+    "messageBottom": 823.625,
+    "scrollHeight": 374,
+    "clientHeight": 374,
+    "panelOverflow": 0,
+    "overflow": 0,
+    "composerPresent": true
+  },
+  "turn-2": {
+    "height": 671.03125,
+    "bottom": 920,
+    "controlBottom": 919,
+    "controlTop": 823.625,
+    "messageBottom": 823.625,
+    "scrollHeight": 564,
+    "clientHeight": 503,
+    "panelOverflow": 0,
+    "overflow": 0,
+    "composerPresent": true
+  },
+  "turn-3": {
+    "height": 671.03125,
+    "bottom": 920,
+    "controlBottom": 919,
+    "controlTop": 823.625,
+    "messageBottom": 823.625,
+    "scrollHeight": 753,
+    "clientHeight": 503,
+    "panelOverflow": 0,
+    "overflow": 0,
+    "composerPresent": true
+  },
+  "turn-4": {
+    "height": 671.03125,
+    "bottom": 920,
+    "controlBottom": 919,
+    "controlTop": 823.625,
+    "messageBottom": 823.625,
+    "scrollHeight": 943,
+    "clientHeight": 503,
+    "panelOverflow": 0,
+    "overflow": 0,
+    "composerPresent": true
+  },
+  "turn-5": {
+    "height": 671.03125,
+    "bottom": 920,
+    "controlBottom": 919,
+    "controlTop": 823.625,
+    "messageBottom": 823.625,
+    "scrollHeight": 1133,
+    "clientHeight": 503,
+    "panelOverflow": 0,
+    "overflow": 0,
+    "composerPresent": true
+  },
+  "turn-6": {
+    "height": 671.03125,
+    "bottom": 920,
+    "controlBottom": 919,
+    "controlTop": 823.625,
+    "messageBottom": 823.625,
+    "scrollHeight": 1322,
+    "clientHeight": 503,
+    "panelOverflow": 0,
+    "overflow": 0,
+    "composerPresent": true
+  },
+  "error": {
+    "height": 503.265625,
+    "bottom": 920,
+    "controlBottom": 919,
+    "controlTop": 878,
+    "messageBottom": 878,
+    "scrollHeight": 1482,
+    "clientHeight": 389,
+    "panelOverflow": 0,
+    "overflow": 0,
+    "composerPresent": false
+  }
+}

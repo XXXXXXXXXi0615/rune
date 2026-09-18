@@ -1,0 +1,8 @@
+
+ RUN  v4.1.10 /Users/shidaoxiang/Desktop/lunartide-react
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  04:37:32
+   Duration  607ms (transform 67ms, setup 13ms, import 71ms, tests 4ms, environment 441ms)

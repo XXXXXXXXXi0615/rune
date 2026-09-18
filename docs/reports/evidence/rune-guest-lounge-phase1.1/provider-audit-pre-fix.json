@@ -1,0 +1,106 @@
+{
+  "scenarioSameSession": {
+    "profile": {
+      "providerCount": 1,
+      "providers": [
+        {
+          "id": "063e7fbf-c80f-40df-9a6b-12a76c105492",
+          "name": "Audit OpenAI",
+          "type": "openai",
+          "enabled": true,
+          "isDefault": false,
+          "baseUrl": "https://api.openai.com/v1",
+          "model": "gpt-4o",
+          "apiKeyPresent": false,
+          "hasCredential": true,
+          "credentialId": "provider:73c2998b-4811-483e-ba9a-c9b21b70d31c"
+        }
+      ],
+      "aiRoles": {},
+      "credentialStoreMode": null,
+      "webFallbackAck": null,
+      "migrationMarker": "v2",
+      "memoryCredentialIds": [
+        "provider:73c2998b-4811-483e-ba9a-c9b21b70d31c"
+      ],
+      "memoryCredentialCount": 1
+    },
+    "chain": {
+      "configured": true,
+      "reason": "ready",
+      "providerName": "Audit OpenAI",
+      "providerNonNull": true,
+      "resolvedProviderApiKey": "<19 chars>",
+      "configApiKeyAfterResolveChatConfig": "(empty)"
+    },
+    "authenticatedPath": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "apiKey": "(empty)"
+    },
+    "guest": {
+      "inputEnabled": true,
+      "unavailableAtOpen": 0,
+      "sendOutcome": {
+        "requestsSent": 0,
+        "replyCount": 0,
+        "guestCount": 1,
+        "unavailableShown": 1,
+        "unavailableText": "Rune 現在暫時不能在門外應答。\n\n返回登入",
+        "statusAttr": "error"
+      }
+    },
+    "requests": []
+  },
+  "scenarioAfterReload": {
+    "profile": {
+      "providerCount": 1,
+      "providers": [
+        {
+          "id": "0935570c-0bcf-4c5e-b5d4-01770afe965c",
+          "name": "Audit OpenAI",
+          "type": "openai",
+          "enabled": true,
+          "isDefault": false,
+          "baseUrl": "https://api.openai.com/v1",
+          "model": "gpt-4o",
+          "apiKeyPresent": false,
+          "hasCredential": true,
+          "credentialId": "provider:adeb5027-5250-4c53-bd1a-9701495bd6a1"
+        }
+      ],
+      "aiRoles": {},
+      "credentialStoreMode": null,
+      "webFallbackAck": null,
+      "migrationMarker": "v2",
+      "memoryCredentialIds": null,
+      "memoryCredentialCount": null
+    },
+    "chain": {
+      "configured": true,
+      "reason": "ready",
+      "providerName": "Audit OpenAI",
+      "providerNonNull": true,
+      "resolvedProviderApiKey": "(empty)",
+      "configApiKeyAfterResolveChatConfig": "(empty)"
+    },
+    "authenticatedPath": {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "apiKey": "(empty)"
+    },
+    "guest": {
+      "inputEnabled": true,
+      "unavailableAtOpen": 0,
+      "sendOutcome": {
+        "requestsSent": 0,
+        "replyCount": 0,
+        "guestCount": 1,
+        "unavailableShown": 1,
+        "unavailableText": "Rune 現在暫時不能在門外應答。\n\n返回登入",
+        "statusAttr": "error"
+      }
+    },
+    "requests": []
+  }
+}

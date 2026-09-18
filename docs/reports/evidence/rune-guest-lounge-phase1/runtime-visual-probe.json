@@ -1,0 +1,142 @@
+{
+  "gateBefore": {
+    "mode": "returning",
+    "state": "returning",
+    "hasEnter": true,
+    "hasInvitation": false,
+    "seeded": true,
+    "seedErr": "seeded-ok",
+    "raw": "{\"state\":{\"auth\":{\"authEnabled\":true,\"onboardingComplete\":true,\"username\":\"PRIVA",
+    "bodyText": "Welcome back,\n\nMaster.\n\nRune is waiting.\n\nAccess String\nEnter Rune\n☾\n待客廳"
+  },
+  "triggerVsCta": {
+    "trigger": {
+      "x": 282,
+      "y": 788,
+      "width": 96,
+      "height": 44
+    },
+    "cta": {
+      "x": 37,
+      "y": 696.765625,
+      "width": 316,
+      "height": 50
+    },
+    "card": {
+      "x": 16,
+      "y": 357.796875,
+      "width": 358,
+      "height": 413.96875
+    },
+    "overlap": false
+  },
+  "geometry": {
+    "cardAfterOpen": {
+      "x": 16,
+      "y": 357.796875,
+      "width": 358,
+      "height": 413.96875
+    },
+    "cardUnchanged": true,
+    "panel": {
+      "x": 12,
+      "y": 242,
+      "width": 366,
+      "height": 590
+    },
+    "overflowX": 0
+  },
+  "visualContract": {
+    "composerVisible": true,
+    "composerInViewport": true,
+    "panelOverflowHidden": true,
+    "messageScrollerOverflowY": "auto",
+    "messageOverscroll": "contain",
+    "documentScrollable": 0,
+    "scrollableRegions": [
+      "label.guest-lounge-sr-only"
+    ],
+    "scrimBackdropFilter": "blur(3px)",
+    "scrimBackground": "rgba(1, 7, 20, 0.38)",
+    "closeSize": {
+      "w": 44,
+      "h": 44
+    },
+    "disclosure": {
+      "text": "本次對話不會保存。",
+      "visible": true,
+      "opacity": "1"
+    },
+    "panelBackdropFilter": "blur(28px) saturate(1.08)"
+  },
+  "successReply": {
+    "messages": 2,
+    "text": "RUNE\n\n我在門外。"
+  },
+  "duringReply": {
+    "composerInViewport": true,
+    "messageListScrollTop": 0,
+    "docScrollable": 0
+  },
+  "capturedRequest": {
+    "model": "guest-test-model",
+    "keys": [
+      "model",
+      "messages",
+      "temperature",
+      "max_tokens",
+      "top_p",
+      "stream",
+      "stream_options"
+    ],
+    "toolsPresent": false,
+    "roles": [
+      "system",
+      "user"
+    ],
+    "stream": true,
+    "payloadHasSentinels": false
+  },
+  "providerFailure": {
+    "calmCopy": "Rune 現在暫時不能在門外應答。\n\n返回登入",
+    "rawErrorLeaked": false,
+    "inputEnabled": true,
+    "guestMessagePreserved": 2
+  },
+  "closeFocusReturn": {
+    "focused": "guest-lounge-trigger",
+    "cardAfterClose": {
+      "x": 16,
+      "y": 357.796875,
+      "width": 358,
+      "height": 413.96875
+    },
+    "cardUnchangedAfterClose": true
+  },
+  "reloadClears": {
+    "messageCount": 0,
+    "disclosureVisible": true
+  },
+  "smallHeight": {
+    "panel": {
+      "top": 8,
+      "bottom": 488,
+      "height": 480
+    },
+    "composerInViewport": true,
+    "composerHeight": 91.59375,
+    "overflowX": 0
+  },
+  "unlock": {
+    "triggerGone": true,
+    "guestMessageInStorage": false,
+    "usageDb": [
+      "lunartide-life-ledger-v1"
+    ]
+  },
+  "runtime": {
+    "consoleErrors": [],
+    "pageErrors": [],
+    "unhandled": []
+  }
+}

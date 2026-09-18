@@ -1,0 +1,22 @@
+
+Running 15 tests using 1 worker
+
+(node:72556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:103:1 › A1. Fresh profile lands on /login with Invitation Code (no Access String) (3.1s)
+  ✓   2 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:122:1 › A2. Wrong invitation code uses the reserved validation slot without moving the CTA (3.2s)
+  ✓   3 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:153:1 › A3. Correct invitation generates a safe 20-char Access String (3.1s)
+  ✓   4 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:176:1 › A4. Copy shows feedback and Regenerate replaces the value (3.2s)
+  ✓   5 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:196:1 › A5. Enter Rune commits the credential, opens Home and persists across reload (4.2s)
+  ✓   6 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:250:1 › B1. Legacy credential migrates to Returning mode with a fresh setup option (3.1s)
+  ✓   7 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:274:1 › B2. Wrong Access String is blocked and focus returns to the field (3.1s)
+  ✓   8 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:305:1 › B3. Correct Access String unlocks and navigates to Home (4.1s)
+  ✓   9 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:329:1 › C1. Exit Rune row is the last settings row with a divider (3.1s)
+  ✓  10 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:359:1 › C2. Cancel keeps the session and data (3.1s)
+  ✓  11 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:377:1 › C3. Confirm locks the session, returns to /login and preserves data (3.5s)
+  ✓  12 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:415:3 › D-390px. No horizontal overflow on the gate (3.2s)
+  ✓  13 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:415:3 › D-430px. No horizontal overflow on the gate (3.2s)
+  ✓  14 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:415:3 › D-1440px. No horizontal overflow on the gate (3.3s)
+  ✓  15 [chromium] › e2e/rune-login-gate-rebuild.spec.ts:449:1 › D4. Zero runtime errors across the whole gate lifecycle (7.2s)
+
+  15 passed (54.1s)
