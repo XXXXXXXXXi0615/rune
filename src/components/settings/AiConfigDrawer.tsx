@@ -174,7 +174,7 @@ export function AiConfigDrawer({ onDone }: AiConfigDrawerProps) {
             type="text"
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            placeholder="gpt-4o"
+            placeholder="輸入 Model ID"
           />
         </div>
 
