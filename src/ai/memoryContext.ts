@@ -9,11 +9,17 @@ export function buildMemoryContext(entries: MemoryEntry[]): string {
   const parts: string[] = [];
   for (const entry of entries) {
     const fields: string[] = [];
-    if (entry.scene) fields.push(`場景：${entry.scene}`);
-    if (entry.triggerText) fields.push(`觸發：${entry.triggerText}`);
-    if (entry.bodyThoughts) fields.push(`身體感受：${entry.bodyThoughts}`);
-    fields.push(`焦慮：${entry.anxietyLevel}/10`);
-    if (entry.nextStep) fields.push(`下一步：${entry.nextStep}`);
+    // Forum bookmarks — use linked post content
+    if (entry.cardType === 'forum_bookmark') {
+      const content = entry.linkedForumPostContent || entry.bodyThoughts || '';
+      fields.push(`收錄潮痕：${content}`);
+    } else {
+      if (entry.scene) fields.push(`場景：${entry.scene}`);
+      if (entry.triggerText) fields.push(`觸發：${entry.triggerText}`);
+      if (entry.bodyThoughts) fields.push(`身體感受：${entry.bodyThoughts}`);
+      fields.push(`焦慮：${entry.anxietyLevel}/10`);
+      if (entry.nextStep) fields.push(`下一步：${entry.nextStep}`);
+    }
     let entryText = fields.join('；');
     if (entryText.length > MAX_ENTRY_CHARS) {
       entryText = entryText.slice(0, MAX_ENTRY_CHARS - 1) + '…';

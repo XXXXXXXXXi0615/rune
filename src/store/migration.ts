@@ -104,3 +104,27 @@ export async function runAssetMigration(): Promise<void> {
   }
   localStorage.setItem(MIGRATION_KEY, '1');
 }
+
+/* ── CLAWD decommission migration (Idempotent) ──
+ * One-time cleanup of orphaned desktop-pet persisting keys left by the
+ * retired CLAWD desktop pet runtime. Sticker favorites/recent, TIDEBOUND
+ * (lunartide-tidebound-pet), chat/memory/journal/settings and provider
+ * data are untouched.
+ */
+const CLAWD_DECOMMISSION_KEY = 'lunartide-clawd-decommission-v1';
+const CLAWD_DECOMMISSION_PREFIXES = ['lunartide-desktop-pet-v', 'lunartide-pet-store-v', 'lunartide-pet-pos-'];
+
+export function runClawdDecommissionMigration(): void {
+  if (localStorage.getItem(CLAWD_DECOMMISSION_KEY)) return;
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (CLAWD_DECOMMISSION_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+        localStorage.removeItem(key);
+      }
+    }
+  } finally {
+    localStorage.setItem(CLAWD_DECOMMISSION_KEY, '1');
+  }
+}

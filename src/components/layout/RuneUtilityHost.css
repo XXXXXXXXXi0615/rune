@@ -1,0 +1,508 @@
+/* ================================================================
+   RUNE UTILITY ORB — radial orbit menu (Phase 2A rebuild)
+   ================================================================ */
+
+:root {
+  --rune-orb-main-size: 56px;
+  --rune-orb-bead-inset: 4px;
+  --rune-orb-bead-size: 48px;
+  --rune-orb-avatar-size: 38px;
+  --rune-orb-sub-size: 44px;
+  --rune-orb-sub-hit: 44px;
+  --rune-orb-inner-radius: 80px;
+  --rune-orb-outer-radius: 124px;
+  --rune-orb-reveal-stagger: 28ms;
+}
+
+.rune-orb-host {
+  --rune-orb-ice: color-mix(in srgb, var(--accent) 38%, var(--text) 62%);
+  --rune-orb-edge: color-mix(in srgb, var(--accent) 34%, var(--border) 66%);
+  --rune-orb-glass-a: color-mix(in srgb, var(--surface) 76%, var(--accent) 24%);
+  --rune-orb-glass-b: color-mix(in srgb, var(--surface-2) 88%, var(--accent) 12%);
+  --rune-orb-halo: color-mix(in srgb, var(--accent) 18%, transparent);
+
+  position: fixed;
+  z-index: 180;
+  width: var(--rune-orb-main-size);
+  height: var(--rune-orb-main-size);
+  pointer-events: none;
+  touch-action: none;
+}
+
+/* ── Main orb (collapses to just this in the resting state) ─────── */
+.rune-orb {
+  position: absolute;
+  inset: 0;
+  width: var(--rune-orb-main-size);
+  height: var(--rune-orb-main-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--rune-orb-ice);
+  pointer-events: auto;
+  cursor: grab;
+  transition: transform 160ms ease;
+}
+
+.rune-orb__bead {
+  position: absolute;
+  inset: var(--rune-orb-bead-inset);
+  border: 1px solid var(--rune-orb-edge);
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--rune-orb-glass-a), var(--rune-orb-glass-b));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text) 13%, transparent),
+    inset 0 -3px 9px color-mix(in srgb, var(--accent) 8%, transparent),
+    0 4px 12px color-mix(in srgb, var(--text) 7%, transparent),
+    0 0 9px var(--rune-orb-halo);
+  backdrop-filter: blur(14px) saturate(1.16);
+  -webkit-backdrop-filter: blur(14px) saturate(1.16);
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.rune-orb__avatar-viewport {
+  position: absolute;
+  left: calc((var(--rune-orb-main-size) - var(--rune-orb-avatar-size)) / 2);
+  top: calc((var(--rune-orb-main-size) - var(--rune-orb-avatar-size)) / 2);
+  width: var(--rune-orb-avatar-size);
+  height: var(--rune-orb-avatar-size);
+  overflow: hidden;
+  border-radius: 50%;
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--text) 16%, transparent));
+  pointer-events: none;
+}
+
+.rune-orb__avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transform: scale(1.12) translateY(2.2%);
+  transform-origin: center;
+  user-select: none;
+}
+
+.rune-orb:hover { transform: scale(1.03); }
+
+.rune-orb:hover .rune-orb__bead,
+.rune-orb:focus-visible .rune-orb__bead {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border) 52%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text) 16%, transparent),
+    inset 0 -3px 9px color-mix(in srgb, var(--accent) 10%, transparent),
+    0 5px 14px color-mix(in srgb, var(--text) 9%, transparent),
+    0 0 12px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.rune-orb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rune-orb.is-expanded .rune-orb__bead {
+  border-color: color-mix(in srgb, var(--accent) 54%, var(--border) 46%);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 15%, transparent), 0 5px 14px color-mix(in srgb, var(--text) 9%, transparent), 0 0 14px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+.rune-orb-host.is-dragging .rune-orb { cursor: grabbing; transform: scale(1.04); }
+.rune-orb-host.is-dragging .rune-orb__bead {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text) 17%, transparent),
+    0 8px 18px color-mix(in srgb, var(--text) 12%, transparent),
+    0 0 14px color-mix(in srgb, var(--accent) 27%, transparent);
+}
+
+/* ── Edge-snap affordance (linear tab on the host's chosen side) ── */
+.rune-orb-host::before {
+  content: '';
+  position: absolute;
+  top: 9px;
+  width: 3px;
+  height: 20px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--accent) 44%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 24%, transparent);
+  opacity: 0;
+  transform: scaleY(.65);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.rune-orb-host[data-edge-hint='left']::before,
+.rune-orb-host[data-edge='left'].is-snap-feedback::before { left: -12px; opacity: .62; transform: scaleY(1); }
+.rune-orb-host[data-edge-hint='right']::before,
+.rune-orb-host[data-edge='right'].is-snap-feedback::before { right: -12px; opacity: .62; transform: scaleY(1); }
+
+/* ================================================================
+   ORBIT MENU — radial slot rings around the main orb
+   ================================================================ */
+.rune-orb-orbit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rune-orb-orbit__track {
+  position: absolute;
+  left: calc(50% - 130px);
+  top: calc(50% - 130px);
+  width: 260px;
+  height: 260px;
+  overflow: visible;
+  pointer-events: none;
+  color: var(--rune-orb-edge);
+  opacity: 0;
+  transform-origin: 130px 130px;
+  animation: rune-orbit-track-in 320ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.rune-orb-host[data-presentation-mode='expanded'] .rune-orb-orbit__track {
+  opacity: 0.85;
+}
+
+.rune-orb-orbit__arc { vector-effect: non-scaling-stroke; }
+
+@keyframes rune-orbit-track-in {
+  from { opacity: 0; transform: scale(0.84); }
+  to { opacity: 0.85; transform: none; }
+}
+
+/* ── Slot bead (44px visible, 52px hit) — fixed angular position ── */
+.rune-orb-slot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--rune-orb-sub-hit);
+  height: var(--rune-orb-sub-hit);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--rune-orb-ice);
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Falls back to (0,0) so collapsed state hides everything at orb center. */
+  --orbit-x: 0px;
+  --orbit-y: 0px;
+  --orbit-scale: 0.42;
+  --orbit-opacity: 0;
+  --orbit-delay: 0ms;
+  transform: translate(
+      calc(-50% + var(--orbit-x)),
+      calc(-50% + var(--orbit-y))
+    ) scale(var(--orbit-scale));
+  transform-origin: center;
+  opacity: var(--orbit-opacity);
+  transition:
+    transform 240ms cubic-bezier(.2, .8, .2, 1) var(--orbit-delay),
+    opacity 180ms ease var(--orbit-delay);
+}
+
+.rune-orb-host[data-presentation-mode='expanded'] .rune-orb-slot {
+  --orbit-scale: 1;
+  --orbit-opacity: 1;
+}
+
+/* Inner ring beads lean warmer-gold; outer ring leans cooler-pearl, */
+.rune-orb-slot--inner .rune-orb-slot__bead {
+  background: linear-gradient(145deg,
+    color-mix(in srgb, var(--surface) 84%, var(--accent) 16%),
+    color-mix(in srgb, var(--surface-2) 92%, var(--accent) 8%)
+  );
+}
+.rune-orb-slot--outer .rune-orb-slot__bead {
+  background: linear-gradient(145deg,
+    color-mix(in srgb, var(--surface) 88%, transparent),
+    color-mix(in srgb, var(--surface-2) 96%, var(--accent) 4%)
+  );
+}
+
+.rune-orb-slot__hit {
+  display: grid;
+  place-items: center;
+  width: var(--rune-orb-sub-size);
+  height: var(--rune-orb-sub-size);
+  margin: 4px auto;
+  border-radius: 50%;
+}
+
+.rune-orb-slot__bead {
+  display: grid;
+  place-items: center;
+  width: var(--rune-orb-sub-size);
+  height: var(--rune-orb-sub-size);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border) 72%);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text) 11%, transparent),
+    inset 0 -2px 6px color-mix(in srgb, var(--accent) 6%, transparent),
+    0 3px 9px color-mix(in srgb, var(--text) 7%, transparent),
+    0 0 6px color-mix(in srgb, var(--accent) 14%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--accent);
+  transition:
+    box-shadow 200ms ease,
+    border-color 200ms ease,
+    transform 200ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.rune-orb-slot__bead svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rune-orb-slot:hover .rune-orb-slot__bead,
+.rune-orb-slot:focus-visible .rune-orb-slot__bead {
+  border-color: color-mix(in srgb, var(--accent) 56%, var(--border) 44%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--text) 15%, transparent),
+    inset 0 -2px 6px color-mix(in srgb, var(--accent) 9%, transparent),
+    0 5px 12px color-mix(in srgb, var(--text) 11%, transparent),
+    0 0 10px color-mix(in srgb, var(--accent) 28%, transparent);
+  transform: translateY(-1px) scale(1.04);
+}
+
+.rune-orb-slot:active .rune-orb-slot__bead {
+  transform: translateY(0) scale(0.97);
+}
+
+.rune-orb-slot:focus-visible {
+  outline: none;
+}
+.rune-orb-slot:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Slot label — hidden by default, surfaces on hover/focus or first-open reveal. */
+.rune-orb-slot__label {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 9px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border) 76%);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--text) 9%, transparent);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: none;
+}
+
+/* Slots hugging the upper-left arc keep the label on the right-edge so it
+   never crosses the central orb; slots on the far left (210/180/195deg)
+   flip the label to the LEFT edge so hovering them never paints over the
+   orb or a neighbouring bead. */
+.rune-orb-host .rune-orb-slot[data-orbit-slot='2'] .rune-orb-slot__label {
+  left: 100%;
+  right: auto;
+}
+
+/* Slot 6 (135deg): its right neighbour is slot 4's bead — flip left. */
+.rune-orb-host .rune-orb-slot[data-orbit-slot='6'] .rune-orb-slot__label {
+  left: auto;
+  right: calc(100% + 10px);
+  transform: translateY(-50%) translateX(4px);
+}
+
+/* Slot 4 (90deg, due north) has beads at 105/135deg flanking it: its label
+   floats ABOVE them, clearing slot 7's bead band. */
+.rune-orb-host .rune-orb-slot[data-orbit-slot='4'] .rune-orb-slot__label {
+  left: 50%;
+  right: auto;
+  bottom: calc(100% + 44px);
+  transform: translateX(-50%);
+}
+
+.rune-orb-host .rune-orb-slot[data-orbit-slot='4']:hover .rune-orb-slot__label,
+.rune-orb-host .rune-orb-slot[data-orbit-slot='4']:focus-visible .rune-orb-slot__label {
+  transform: translateX(-50%);
+}
+
+/* Slot 7 (105deg) right-edge label would clip the app canvas: flip left. */
+.rune-orb-host .rune-orb-slot[data-orbit-slot='7'] .rune-orb-slot__label {
+  left: auto;
+  right: calc(100% + 10px);
+  transform: translateY(-50%) translateX(4px);
+}
+
+.rune-orb-host .rune-orb-slot[data-orbit-slot='1'] .rune-orb-slot__label,
+.rune-orb-host .rune-orb-slot[data-orbit-slot='3'] .rune-orb-slot__label,
+.rune-orb-host .rune-orb-slot[data-orbit-slot='5'] .rune-orb-slot__label {
+  left: auto;
+  right: calc(100% + 10px);
+  transform: translateY(-50%) translateX(4px);
+}
+
+/* Slot 3's left-side label sits between slot 6's bead (above) and slot 2's
+   bead (below): nudge it DOWN away from slot 6's core. */
+.rune-orb-host .rune-orb-slot[data-orbit-slot='3'] .rune-orb-slot__label {
+  transform: translateY(calc(-50% + 10px)) translateX(4px);
+}
+
+.rune-orb-host .rune-orb-slot[data-orbit-slot='3']:hover .rune-orb-slot__label,
+.rune-orb-host .rune-orb-slot[data-orbit-slot='3']:focus-visible .rune-orb-slot__label {
+  transform: translateY(calc(-50% + 10px)) translateX(0);
+}
+
+/* Slot 0 (210deg) is boxed in by the orb (right), slot 5's bead (left) and
+   slot 1's bead (above): its label drops BELOW the bead, into clear space. */
+.rune-orb-host .rune-orb-slot[data-orbit-slot='0'] .rune-orb-slot__label {
+  left: auto;
+  right: calc(100% + 10px);
+  top: calc(100% + 4px);
+  transform: none;
+}
+
+.rune-orb-host .rune-orb-slot[data-orbit-slot='0']:hover .rune-orb-slot__label,
+.rune-orb-host .rune-orb-slot[data-orbit-slot='0']:focus-visible .rune-orb-slot__label {
+  transform: none;
+}
+
+.rune-orb-slot:hover .rune-orb-slot__label,
+.rune-orb-slot:focus .rune-orb-slot__label,
+.rune-orb-slot:focus-visible .rune-orb-slot__label,
+.rune-orb-host.is-showing-labels .rune-orb-slot__label {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* ================================================================
+   MOBILE BOTTOM SHEET (≤600px) — same 8 slots, rendered as a grid
+   ================================================================ */
+.rune-mobile-utility-trigger,
+.rune-utility-sheet-backdrop { display: none; }
+
+@media (max-width: 600px) {
+  .rune-mobile-utility-trigger {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+  }
+  .rune-mobile-utility-trigger { color: var(--text); }
+  .rune-utility-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    align-items: flex-end;
+    background: color-mix(in srgb, var(--text) 16%, transparent);
+  }
+  .rune-utility-sheet {
+    width: 100%;
+    max-height: min(78dvh, 620px);
+    overflow-y: auto;
+    padding: 10px 18px calc(18px + env(safe-area-inset-bottom));
+    border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border) 78%);
+    border-radius: 22px 22px 0 0;
+    background: color-mix(in srgb, var(--surface) 91%, transparent);
+    box-shadow: 0 -12px 34px color-mix(in srgb, var(--text) 10%, transparent);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  }
+  .rune-utility-sheet__handle { width: 34px; height: 4px; margin: 0 auto 12px; border-radius: 99px; background: var(--border); }
+  .rune-utility-sheet header { display: flex; align-items: center; gap: 9px; font-weight: 650; }
+  .rune-utility-sheet header .rune-brand-logo { width: 28px; height: 28px; }
+
+  /* Inside the sheet, OrbitMenu collapses from radial to a flat 4-col grid. */
+  .rune-utility-sheet .rune-orb-orbit {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+    pointer-events: auto;
+  }
+  .rune-utility-sheet .rune-orb-orbit__track { display: none; }
+  .rune-utility-sheet .rune-orb-slot {
+    position: static;
+    width: 100%;
+    height: 76px;
+    --orbit-x: 0px;
+    --orbit-y: 0px;
+    --orbit-scale: 1;
+    --orbit-opacity: 1;
+    --orbit-delay: 0ms;
+    transform: none;
+    transition: opacity 160ms ease;
+    opacity: 1;
+  }
+  .rune-utility-sheet .rune-orb-slot__hit { width: var(--rune-orb-sub-size); height: var(--rune-orb-sub-size); margin: 0 auto; }
+  .rune-utility-sheet .rune-orb-slot__label {
+    position: static;
+    transform: none;
+    display: block;
+    max-width: none;
+    margin-top: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    opacity: 1;
+    color: var(--text-2);
+  }
+  .rune-utility-sheet__close {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface-2);
+    color: var(--text);
+  }
+}
+
+@media (min-width: 601px) {
+  .rune-orb-host .rune-orb-slot .rune-orb-slot__label {
+    left: var(--tooltip-x, calc(100% + 10px)) !important;
+    top: var(--tooltip-y, 50%) !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rune-orb,
+  .rune-orb-orbit__track,
+  .rune-orb-orbit__arc,
+  .rune-orb-slot,
+  .rune-orb-slot__bead {
+    animation: none !important;
+    transition-duration: 90ms !important;
+  }
+  .rune-orb-slot {
+    /* Keep slots readable in motion-reduced mode (positions still apply). */
+    --orbit-scale: 1;
+    --orbit-opacity: 1;
+  }
+}

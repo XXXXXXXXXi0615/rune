@@ -94,7 +94,7 @@ export function TopIslandHost() {
   }, [hostVisible]);
 
   return <>
-    {showFocus && <FocusIsland hideIdleOrb={pathname === '/'} />}
+    {showFocus && <FocusIsland />}
     {showMusic && <div ref={islandRef}><MusicIsland /></div>}
   </>;
 }

@@ -8,8 +8,15 @@ export const PERIOD_FLOW_VALUES = FLOW_LEVELS;
  * CSS/SVG orb visual later without touching this component's contract.
  * Returns null today → CSS orb rendering is used.
  */
-export function resolvePeriodFlowOrbAsset(_value: string): string | null {
-  return null;
+export function resolvePeriodFlowOrbAsset(value: string): string | null {
+  const assets: Record<string, string> = {
+    '無': '/assets/period-flow/period-flow-none.png',
+    '點滴': '/assets/period-flow/period-flow-spotting.png',
+    '輕': '/assets/period-flow/period-flow-light.png',
+    '中': '/assets/period-flow/period-flow-medium.png',
+    '重': '/assets/period-flow/period-flow-heavy.png',
+  };
+  return assets[value] ?? null;
 }
 
 /** Orb intensity stages share one reusable item; value drives the art only. */
@@ -48,6 +55,7 @@ export function PeriodFlowOrbSelector({
     <div className="period-flow-orbs" role="radiogroup" aria-label={label} data-testid="period-flow-orbs">
       {PERIOD_FLOW_VALUES.map((item) => {
         const checked = value === item;
+        const asset = resolvePeriodFlowOrbAsset(item);
         return (
           <button
             key={item}
@@ -57,7 +65,9 @@ export function PeriodFlowOrbSelector({
             className={`period-flow-orb${checked ? ' is-selected' : ''}`}
             onClick={() => onChange(checked ? '' : item)}
           >
-            <OrbArt intensity={PERIOD_ORB_INTENSITY[item] ?? 0} />
+            {asset
+              ? <img className="pf-orb-image" src={asset} alt="" aria-hidden="true" draggable={false} />
+              : <OrbArt intensity={PERIOD_ORB_INTENSITY[item] ?? 0} />}
             <span className="period-flow-orb-label">{item}</span>
           </button>
         );

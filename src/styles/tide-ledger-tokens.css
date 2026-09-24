@@ -1,0 +1,67 @@
+/* ═══════════════════════════════════════════════════════════════
+   Tide Ledger design tokens — shared surface (Life Utility Phase C)
+
+   These `--ledger-*` tokens were defined inside `components/ledger/ledger.css`.
+   Phase C extracted Exchange out of the ledger, and `features/exchange/exchange.css`
+   consumes the same tokens, so the definitions moved here and are imported by both
+   remaining surfaces (the Moon Dew transitional shell and the Exchange utility).
+
+   Token names are unchanged (no rename in this phase). When `/ledger` retires in
+   Phase D / the IA cleanup, this file is the single place to rename or fold into the
+   global token set.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Design Tokens ── */
+:root {
+  --ledger-bg: #FAF8F5;
+  --ledger-surface: #FFFFFF;
+  --ledger-surface-2: #F5F0EB;
+  --ledger-surface-3: #EDE8E2;
+  --ledger-accent: #E8836A;
+  --ledger-accent-hover: #D4724F;
+  --ledger-accent-soft: #F5C4B8;
+  --ledger-accent-glow: rgba(232, 131, 106, 0.15);
+  --ledger-dark: #1E2A3A;
+  --ledger-dark-2: #2D3E50;
+  --ledger-dark-3: #3D5068;
+  --ledger-text: #2C2C2C;
+  --ledger-text-2: #6B6B6B;
+  --ledger-text-3: #9E9E9E;
+  --ledger-text-4: #C4C4C4;
+  --ledger-income: #5DB8A6;
+  --ledger-income-soft: rgba(93, 184, 166, 0.12);
+  --ledger-expense: #E8836A;
+  --ledger-expense-soft: rgba(232, 131, 106, 0.12);
+  --ledger-danger: #D9534F;
+  --ledger-radius-xl: 32px;
+  --ledger-radius-lg: 24px;
+  --ledger-radius-md: 18px;
+  --ledger-radius-sm: 12px;
+  --ledger-radius-xs: 8px;
+  --ledger-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --ledger-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --ledger-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --ledger-shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] {
+  --ledger-bg: #1A1A1A;
+  --ledger-surface: #242424;
+  --ledger-surface-2: #2E2E2E;
+  --ledger-surface-3: #383838;
+  --ledger-accent: #E8836A;
+  --ledger-accent-hover: #F09078;
+  --ledger-accent-soft: rgba(232, 131, 106, 0.2);
+  --ledger-accent-glow: rgba(232, 131, 106, 0.25);
+  --ledger-dark: #0F1520;
+  --ledger-dark-2: #1A2535;
+  --ledger-dark-3: #253545;
+  --ledger-text: #E8E8E8;
+  --ledger-text-2: #B0B0B0;
+  --ledger-text-3: #808080;
+  --ledger-text-4: #505050;
+  --ledger-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --ledger-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --ledger-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --ledger-shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.5);
+}

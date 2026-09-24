@@ -1,0 +1,404 @@
+/* ════════════════════════════════════════════════════════════════
+   Phase 2B — Edit Home presentation layer.
+
+   Resting Home is unchanged: every edit affordance below exists only
+   while the stack carries [data-home-edit-mode='on'], and the preset
+   blocks are scoped to the canonical wrapper attribute
+   [data-home-widget-preset] owned by HomeWidgetShell.
+   ════════════════════════════════════════════════════════════════ */
+
+.home-widget-stack {
+  position: relative;
+}
+
+.home-widget-row {
+  position: relative;
+  min-width: 0;
+}
+
+/* ── Accessibility entry ──────────────────────────────────────────────
+   Long-press is the pointer gesture; keyboard and screen-reader users get
+   a real control that stays clipped until it is focused. Home has no
+   permanent edit button. */
+.home-widget-edit-entry {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.home-widget-edit-entry:focus-visible {
+  width: auto;
+  height: auto;
+  padding: 10px 18px;
+  overflow: visible;
+  clip-path: none;
+  z-index: 9;
+  border: 1px solid var(--rune-border-subtle);
+  border-radius: 999px;
+  background: var(--rune-surface-elevated);
+  box-shadow: var(--rune-shadow-control);
+  outline: var(--rune-focus-ring-width) solid var(--rune-focus-ring-color);
+  outline-offset: var(--rune-focus-ring-offset);
+}
+
+/* ── Edit mode: subtle lift, no jiggle ──────────────────────────────── */
+[data-home-edit-mode='on'] .home-widget-row {
+  transition: transform var(--rune-motion-standard) var(--rune-spring-control);
+}
+
+[data-home-edit-mode='on'] .home-widget-row:not([data-home-dragging='true']) {
+  transform: translate3d(0, -3px, 0);
+}
+
+[data-home-edit-mode='on'] .home-widget-row[data-home-dragging='true'] {
+  transition: none;
+  will-change: transform;
+}
+
+[data-home-edit-mode='on'] .home-widget-row[data-home-widget-selected='true'] > .home-widget-shell {
+  border-radius: 28px;
+  outline: 1px solid var(--rune-focus-ring-color);
+  outline-offset: 6px;
+}
+
+/* ── Per-widget edit chrome ─────────────────────────────────────────── */
+.hv-widget-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 48px;
+  margin: 0 0 8px;
+  padding: 2px 4px;
+  border: 1px solid var(--rune-border-subtle);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--rune-surface-control) 94%, transparent);
+  -webkit-backdrop-filter: blur(var(--rune-glass-blur-control)) saturate(1.1);
+  backdrop-filter: blur(var(--rune-glass-blur-control)) saturate(1.1);
+  box-shadow: var(--rune-shadow-control);
+}
+
+[data-theme='dark'] .hv-widget-bar,
+[data-theme='dark'] .hv-widget-controls,
+[data-theme='dark'] .hv-edit-bar {
+  border-color: color-mix(in srgb, var(--border-hi) 46%, transparent);
+}
+
+.hv-drag-handle,
+.hv-widget-select,
+.hv-ctl,
+.hv-bar-btn,
+.hv-hidden-add {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.hv-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hv-drag-handle:active { cursor: grabbing; }
+
+.hv-widget-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hv-widget-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hv-widget-order {
+  flex: 0 0 auto;
+  padding-right: 10px;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.hv-drag-handle:focus-visible,
+.hv-widget-select:focus-visible,
+.hv-ctl:focus-visible,
+.hv-bar-btn:focus-visible,
+.hv-hidden-add:focus-visible {
+  outline: var(--rune-focus-ring-width) solid var(--rune-focus-ring-color);
+  outline-offset: -2px;
+}
+
+[data-theme='dark'] .hv-drag-handle { color: var(--text-2); }
+
+/* ── Selected widget controls ───────────────────────────────────────── */
+.hv-widget-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--rune-border-subtle);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--rune-surface-control) 88%, transparent);
+  -webkit-backdrop-filter: blur(var(--rune-glass-blur-control));
+  backdrop-filter: blur(var(--rune-glass-blur-control));
+}
+
+.hv-ctl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--rune-border-subtle);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface-3) 58%, transparent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hv-ctl--quiet { color: var(--text-2); }
+
+.hv-ctl:disabled,
+.hv-bar-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ── Edit action bar (bottom, above the Dock reservation) ───────────── */
+.hv-edit-bar {
+  position: sticky;
+  bottom: calc(var(--dock-effective-inset, 0px) + 8px);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 8px;
+  border: 1px solid var(--rune-border-subtle);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--rune-surface-elevated) 92%, transparent);
+  -webkit-backdrop-filter: blur(var(--rune-glass-blur-floating)) saturate(1.12);
+  backdrop-filter: blur(var(--rune-glass-blur-floating)) saturate(1.12);
+  box-shadow: var(--rune-shadow-floating);
+}
+
+.hv-bar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid var(--rune-border-subtle);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-3) 50%, transparent);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Restore-hidden control hugs its label so it never ellipsizes at 360px. */
+.hv-edit-bar > .hv-bar-btn:first-child {
+  flex: 0 1 auto;
+  padding-inline: 12px;
+}
+
+.hv-bar-btn > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hv-bar-btn--primary {
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface-3));
+  font-weight: 700;
+}
+
+/* ── Restore sheet ──────────────────────────────────────────────────── */
+.hv-hidden-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hv-hidden-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 56px;
+  padding: 4px 6px 4px 12px;
+  border: 1px solid var(--rune-border-subtle);
+  border-radius: 16px;
+}
+
+.hv-hidden-item[data-hidden='true'] {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--rune-border-subtle));
+}
+
+.hv-hidden-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.hv-hidden-state {
+  padding-right: 12px;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.hv-hidden-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--rune-border-subtle);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-3));
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Preset presentation
+
+   Each widget keeps its canonical owner and data: presets only change the
+   composition (density, size, which existing presentation is mounted).
+   The .home-widget-stack prefix keeps these rules above the
+   .home-view--minimal / [data-wallpaper-image] heritage layers.
+   ════════════════════════════════════════════════════════════════ */
+
+/* Moon Clock — 精簡 (medium): same time / date / pillars / context data,
+   tighter composition. The retired compact disclosure HUD (world-time) is
+   not involved. */
+.home-widget-stack [data-home-widget-preset='medium'] .home-clock-zone {
+  min-height: 0;
+  gap: 10px;
+}
+
+.home-widget-stack [data-home-widget-preset='medium'] .moon-glass-clock.flow-day-clock {
+  padding: 16px 20px 12px;
+  gap: 6px;
+}
+
+.home-widget-stack [data-home-widget-preset='medium'] .fdc-digital-clock {
+  font-size: clamp(30px, 4.6vw, 36px);
+}
+
+.home-widget-stack [data-home-widget-preset='medium'] .fdc-pillars-wrapper {
+  margin-top: 8px;
+  padding-top: 6px;
+  gap: 7px;
+}
+
+.home-widget-stack [data-home-widget-preset='medium'] .fdc-decorative-layer img {
+  width: min(58%, 230px);
+}
+
+/* Presence — 精簡 (island): compact avatar, connection and one-line
+   signature. Same canonical presence owner and avatars. */
+.home-widget-stack [data-home-widget-preset='island'] .home-presence-pill-zone {
+  margin: 2px auto 6px;
+  padding: 0 10px;
+}
+
+.home-widget-stack [data-home-widget-preset='island'] .home-presence-pill {
+  width: min(100%, 300px);
+  padding: 5px 10px;
+  gap: 4px;
+  border-radius: 22px;
+}
+
+.home-widget-stack [data-home-widget-preset='island'] .home-presence-pill__name {
+  font-size: 12px;
+}
+
+.home-widget-stack [data-home-widget-preset='island'] .home-presence-pill__intro {
+  font-size: 10px;
+}
+
+.home-widget-stack [data-home-widget-preset='island'] .home-presence-pill__avatar--action {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Pixel World — 精簡 (medium): uniform scale-down window. The aspect ratio is
+   preserved, so hotspot ratios stay aligned with the canonical art; nothing is
+   remapped and no second world owner exists. */
+.home-widget-stack [data-home-widget-preset='medium'] .rune-pixel-world {
+  padding: 0 12px 16px;
+}
+
+.home-widget-stack [data-home-widget-preset='medium'] .rune-pixel-world__viewport {
+  width: min(100%, 232px);
+  margin-inline: auto;
+  border-radius: 22px;
+}
+
+/* ── Reduced motion: state change only, no continuous movement ──────── */
+@media (prefers-reduced-motion: reduce) {
+  [data-home-edit-mode='on'] .home-widget-row {
+    transition: none;
+  }
+
+  [data-home-edit-mode='on'] .home-widget-row:not([data-home-dragging='true']) {
+    transform: none;
+  }
+
+  .hv-widget-bar,
+  .hv-widget-controls,
+  .hv-edit-bar,
+  .home-widget-edit-entry {
+    transition: none;
+    animation: none;
+  }
+}

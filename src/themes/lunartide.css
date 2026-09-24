@@ -1,0 +1,69 @@
+:root,
+:root[data-appearance-preset='classic'] {
+  --preset-font-ui: var(--f-ui, system-ui, sans-serif);
+  --preset-control-radius: 16px;
+  --preset-card-radius: var(--glass-radius, 20px);
+  --preset-card-shadow: var(--glass-shadow-soft);
+  --preset-control-press: translateY(0);
+}
+
+:root[data-appearance-preset='classic'] .app-button,
+:root[data-appearance-preset='classic'] .app-input,
+:root[data-appearance-preset='classic'] .app-select,
+:root[data-appearance-preset='classic'] .app-switch,
+:root[data-appearance-preset='classic'] .app-checkbox__mark,
+:root[data-appearance-preset='classic'] .hw-action {
+  box-shadow:none;
+  transform:none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AppSwitch — canonical control geometry (theme independent).
+   Visual track 52×30 with a 64×44 pointer target so the control
+   never collapses to a bare knob when a preset stylesheet is absent.
+   ═══════════════════════════════════════════════════════════ */
+.app-switch {
+  position: relative;
+  display: inline-grid;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 52px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.app-switch:disabled { opacity: .55; cursor: not-allowed; }
+/* The control box is the 52×44 hit target; the visible track stays 52×30. */
+.app-switch::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 0;
+  box-sizing: border-box;
+  width: 52px;
+  height: 30px;
+  border: 1px solid var(--border-hi, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-2) 85%, transparent);
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+.app-switch__knob {
+  position: absolute;
+  top: 9px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.18);
+  transition: left 180ms ease, background-color 180ms ease;
+}
+.app-switch.is-checked::before { background: var(--accent); border-color: var(--accent); }
+.app-switch.is-checked .app-switch__knob { left: 27px; background: var(--on-primary, #fff); }
+.app-switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .app-switch, .app-switch__knob { transition: none; } }

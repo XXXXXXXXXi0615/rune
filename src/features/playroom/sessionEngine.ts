@@ -1,0 +1,4 @@
+import type { GameCheckpoint, GameSession } from './types';
+export const clonePublic = (value: Record<string, unknown>) => structuredClone(value);
+export function createCheckpoint(session: GameSession, label = `回合 ${session.currentTurn}`): GameCheckpoint { return { id: crypto.randomUUID(), label, turn: session.currentTurn, publicState: structuredClone(session.publicState), privateStateBySeat: structuredClone(session.privateStateBySeat), createdAt: Date.now() }; }
+export function restoreCheckpoint(session: GameSession, checkpoint: GameCheckpoint): GameSession { return { ...session, status: 'active', currentTurn: checkpoint.turn, publicState: structuredClone(checkpoint.publicState), privateStateBySeat: structuredClone(checkpoint.privateStateBySeat), transcript: session.transcript.filter((entry) => entry.turn <= checkpoint.turn), updatedAt: Date.now() }; }

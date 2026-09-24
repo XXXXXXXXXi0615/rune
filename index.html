@@ -1,28 +1,599 @@
 <!doctype html>
-<html lang="zh-TW" data-theme="dark">
+<html lang="zh-TW" data-theme="dark" data-boot-splash-active="true">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>月潮 Lunartide</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+    <title>Rune</title>
 
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#181715" />
+    <link rel="icon" type="image/svg+xml" href="/branding/lunartide-mark-ui-v2.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
+    <meta name="theme-color" content="#181715" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f2ede4" media="(prefers-color-scheme: light)" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="月潮" />
+    <meta name="apple-mobile-web-app-title" content="Rune" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="preload" as="image" type="image/png" href="/branding/lunartide-splash-ring.png" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/png" href="%BASE_URL%branding/rune/rune-logo-neutral.png" fetchpriority="high" />
+
+    <!-- Canonical UI fonts (Sidebar Phase 1.4A): Ubuntu (Latin UI) · Noto Sans TC (Traditional Chinese UI) · Huninn (TC rounded display).
+         DynaPuff (--font-display-latin token) is NOT network-loaded: zero production consumers. Wire it into this
+         css2 link only when the first whole-label-Latin rounded surface ships (MoonLex / Playroom).
+         display=swap keeps FOIT-free first paint; every family is subsetted by Google's css2 unicode-range. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Deferred after `load`: a render-blocking stylesheet to fonts.googleapis.com
+         hangs the window load event whenever the CDN is unreachable (offline dev /
+         CI), which stalls app boot and browser-e2e navigation. Injected post-load,
+         fonts still apply within a beat when reachable; offline falls through to
+         the system stack in --f-ui / --f-d with zero load-event cost. -->
+    <script>
+      window.addEventListener('load', function () {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&display=swap';
+        document.head.appendChild(link);
+      });
+    </script>
 
     <!-- SEO / Social -->
     <meta name="description" content="你的 AI 伴侶，記錄情緒、記憶與日常。" />
-    <meta property="og:title" content="月潮 Lunartide" />
+    <meta property="og:title" content="Rune" />
     <meta property="og:description" content="你的 AI 伴侶，記錄情緒、記憶與日常。" />
     <meta property="og:type" content="website" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:opsz,wght@14..32,400;14..32,500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+        color-scheme: dark;
+        background: #090d10;
+      }
+      html, body, #root {
+        min-height: 100%;
+        margin: 0;
+      }
+      body {
+        background: #090d10;
+      }
+
+      /* ── Shell initial obscured state (revealed during splash exit) ── */
+      #root {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.44s cubic-bezier(0.22, 0.61, 0.36, 1),
+                    transform 0.44s cubic-bezier(0.22, 0.61, 0.36, 1);
+      }
+      html[data-boot-splash-active="true"] #root {
+        opacity: 0.88;
+        transform: translateY(4px);
+        transition: none;
+      }
+
+      /* ── Splash Container ── */
+      #pre-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        isolation: isolate;
+        display: grid;
+        place-items: center;
+        min-height: 100dvh;
+        overflow: hidden;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        box-sizing: border-box;
+        background-color: #070c10;
+        background-image:
+          radial-gradient(ellipse 78% 58% at 12% 54%, rgba(204, 120, 92, .12), transparent 68%),
+          radial-gradient(ellipse 72% 62% at 89% 48%, rgba(65, 151, 154, .12), transparent 70%),
+          linear-gradient(145deg, #080b0e 0%, #0c1114 52%, #080b0e 100%);
+        color: #f1eee8;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        pointer-events: all;
+        opacity: 1;
+        transition: opacity 0.44s cubic-bezier(0.22, 0.61, 0.36, 1),
+                    transform 0.44s cubic-bezier(0.22, 0.61, 0.36, 1);
+      }
+
+      /* Phase modifiers */
+      #pre-splash[data-splash-phase="entering"],
+      #pre-splash[data-splash-phase="visible"] {
+        opacity: 1;
+        pointer-events: all;
+      }
+      #pre-splash[data-splash-phase="exiting"] {
+        opacity: 0;
+        transform: scale(1.015);
+        pointer-events: none;
+      }
+      #pre-splash[data-splash-phase="hidden"] {
+        opacity: 0;
+        pointer-events: none;
+      }
+      /* In error state, stop brand-loop animations */
+      #pre-splash[data-splash-phase="error-stopped"] .boot-orbit,
+      #pre-splash[data-splash-phase="error-stopped"] .boot-halo,
+      #pre-splash[data-splash-phase="error-stopped"] .boot-mist,
+      #pre-splash[data-splash-phase="error-stopped"] .boot-logo-wrap,
+      #pre-splash[data-splash-phase="error-stopped"] .boot-logo-glow {
+        animation-play-state: paused;
+      }
+
+      /* ── Background Ambient ── */
+      .boot-aurora {
+        position: absolute;
+        inset: -18%;
+        z-index: -3;
+        background:
+          radial-gradient(circle at 27% 52%, rgba(227, 139, 91, .2), transparent 25%),
+          radial-gradient(circle at 73% 47%, rgba(69, 177, 174, .17), transparent 29%);
+        filter: blur(52px);
+        opacity: 0;
+        animation: boot-aurora-enter 0.68s 0.1s ease-out forwards,
+                   boot-aurora-drift 14s 0.8s ease-in-out infinite alternate;
+      }
+      @keyframes boot-aurora-enter {
+        from { opacity: 0; }
+        to { opacity: 0.82; }
+      }
+      @keyframes boot-aurora-drift {
+        0% { transform: translate3d(-2%, 1%, 0) scale(1); }
+        100% { transform: translate3d(2%, -1%, 0) scale(1.05); }
+      }
+
+      /* ── Light Mists (amber left, cyan right) ── */
+      .boot-mist {
+        position: absolute;
+        z-index: -2;
+        width: 38%;
+        height: 44%;
+        border-radius: 50%;
+        filter: blur(64px);
+        opacity: 0;
+      }
+      .boot-mist--amber {
+        left: -5%;
+        top: 42%;
+        background: radial-gradient(ellipse at center, rgba(227, 139, 91, .22), transparent 72%);
+        transform: translateX(-14px);
+        animation: boot-mist-amber-enter 0.52s 0.12s ease-out forwards;
+      }
+      .boot-mist--cyan {
+        right: -5%;
+        top: 38%;
+        background: radial-gradient(ellipse at center, rgba(69, 177, 174, .19), transparent 72%);
+        transform: translateX(14px);
+        animation: boot-mist-cyan-enter 0.52s 0.12s ease-out forwards;
+      }
+      @keyframes boot-mist-amber-enter {
+        0% { opacity: 0; transform: translateX(-20px); }
+        100% { opacity: 0.64; transform: translateX(0); }
+      }
+      @keyframes boot-mist-cyan-enter {
+        0% { opacity: 0; transform: translateX(20px); }
+        100% { opacity: 0.58; transform: translateX(0); }
+      }
+
+      /* ── Waves ── */
+      .boot-waves {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        animation: boot-waves-enter 0.6s 0.32s ease-out forwards;
+      }
+      @keyframes boot-waves-enter {
+        from { opacity: 0; }
+        to { opacity: 0.34; }
+      }
+
+      /* ── Particles (sequential lighting) ── */
+      .boot-particles { position: absolute; inset: 0; z-index: 0; }
+      .boot-particles i {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        border-radius: 50%;
+        background: rgba(127, 201, 197, 0);
+        box-shadow: 0 0 8px rgba(127, 201, 197, 0);
+        opacity: 0;
+        transition: opacity 0.38s ease, box-shadow 0.38s ease;
+      }
+      .boot-particles i:nth-child(2n) { color: #dc936c; background: rgba(220, 147, 108, 0); }
+      .boot-particles i:nth-child(1) { left: 9%; top: 42%; }
+      .boot-particles i:nth-child(2) { left: 23%; top: 32%; width: 3px; height: 3px; }
+      .boot-particles i:nth-child(3) { left: 37%; top: 19%; }
+      .boot-particles i:nth-child(4) { left: 70%; top: 29%; }
+      .boot-particles i:nth-child(5) { left: 82%; top: 39%; width: 3px; height: 3px; }
+      .boot-particles i:nth-child(6) { left: 91%; top: 65%; }
+      .boot-particles i:nth-child(7) { left: 16%; top: 73%; }
+      .boot-particles i:nth-child(8) { left: 74%; top: 78%; }
+      /* Sequential particle lighting via staggered animation-delay */
+      .boot-particles i {
+        animation: boot-particle-glow 0.44s ease-out forwards;
+      }
+      .boot-particles i:nth-child(1) { animation-delay: 0.38s; }
+      .boot-particles i:nth-child(2) { animation-delay: 0.44s; }
+      .boot-particles i:nth-child(3) { animation-delay: 0.50s; }
+      .boot-particles i:nth-child(4) { animation-delay: 0.42s; }
+      .boot-particles i:nth-child(5) { animation-delay: 0.48s; }
+      .boot-particles i:nth-child(6) { animation-delay: 0.54s; }
+      .boot-particles i:nth-child(7) { animation-delay: 0.56s; }
+      .boot-particles i:nth-child(8) { animation-delay: 0.60s; }
+      @keyframes boot-particle-glow {
+        from { opacity: 0; background: rgba(127, 201, 197, 0); box-shadow: 0 0 0px rgba(127, 201, 197, 0); }
+        to { opacity: 0.65; background: rgba(127, 201, 197, 1); box-shadow: 0 0 8px currentColor; }
+      }
+      .boot-particles i:nth-child(2n) {
+        animation-name: boot-particle-glow-amber;
+      }
+      @keyframes boot-particle-glow-amber {
+        from { opacity: 0; background: rgba(220, 147, 108, 0); box-shadow: 0 0 0px rgba(220, 147, 108, 0); }
+        to { opacity: 0.65; background: rgba(220, 147, 108, 1); box-shadow: 0 0 8px currentColor; }
+      }
+
+      /* ── Stage (orbit+logo container) ── */
+      .boot-stage {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: min(64vw, 590px);
+        aspect-ratio: 1;
+        transform: translateY(-1vh);
+      }
+
+      /* ── Halo (ambient ring behind orbits, fades in) ── */
+      .boot-halo {
+        position: absolute;
+        inset: 4%;
+        border-radius: 50%;
+        background: conic-gradient(from 12deg, transparent 0 7%, rgba(91, 191, 187, .44) 18%, rgba(91, 191, 187, .04) 35%, transparent 48%, rgba(222, 133, 91, .05) 61%, rgba(222, 133, 91, .52) 81%, transparent 96%);
+        opacity: 0;
+        filter: drop-shadow(0 0 8px rgba(91, 191, 187, .18));
+        -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+        mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+        animation: boot-halo-enter 0.56s 0.28s ease-out forwards,
+                   boot-halo-drift 24s 1.08s linear infinite;
+      }
+      @keyframes boot-halo-enter {
+        from { opacity: 0; }
+        to { opacity: 0.56; }
+      }
+      @keyframes boot-halo-drift {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* ── SVG Orbit Layers ── */
+      .boot-orbit {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      /* Inner orbit — highest contrast */
+      .boot-orbit--inner {
+        opacity: 0;
+        animation: boot-orbit-fade-in 0.38s 0.34s ease-out forwards;
+      }
+      .boot-orbit--inner .orbit-ring {
+        stroke: rgba(91, 191, 187, .38);
+        stroke-width: 1.6;
+        fill: none;
+        stroke-dasharray: 628;
+        stroke-dashoffset: 628;
+        animation: boot-orbit-draw 0.72s 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      }
+      .boot-orbit--inner .orbit-segment-highlight {
+        stroke: rgba(91, 191, 187, .58);
+        stroke-width: 2;
+        fill: none;
+        stroke-dasharray: 44 584;
+        stroke-dashoffset: 672;
+        animation: boot-orbit-draw 0.72s 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      }
+      /* Inner orbit rotation after draw */
+      .boot-orbit--inner {
+        animation: boot-orbit-fade-in 0.38s 0.34s ease-out forwards,
+                   boot-orbit-rotate-inner 16s 1.06s linear infinite;
+      }
+      @keyframes boot-orbit-rotate-inner {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* Middle orbit — mid contrast, with tide-cyan highlight */
+      .boot-orbit--mid {
+        opacity: 0;
+        animation: boot-orbit-fade-in 0.38s 0.42s ease-out forwards;
+      }
+      .boot-orbit--mid .orbit-ring {
+        stroke: rgba(91, 191, 187, .16);
+        stroke-width: 1.2;
+        fill: none;
+        stroke-dasharray: 530;
+        stroke-dashoffset: 530;
+        animation: boot-orbit-draw 0.68s 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      }
+      .boot-orbit--mid .orbit-highlight-cyan {
+        stroke: rgba(69, 177, 174, .64);
+        stroke-width: 1.6;
+        fill: none;
+        stroke-dasharray: 32 498;
+        stroke-dashoffset: 562;
+        animation: boot-orbit-draw 0.68s 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      }
+      @keyframes boot-orbit-fade-in {
+        from { opacity: 0; }
+        to { opacity: .34; }
+      }
+
+      /* Outer orbit — sparse amber/cyan arcs, lowest contrast */
+      .boot-orbit--outer {
+        opacity: 0;
+        animation: boot-orbit-fade-in 0.38s 0.50s ease-out forwards;
+      }
+      .boot-orbit--outer .orbit-ring {
+        stroke: rgba(222, 133, 91, .12);
+        stroke-width: 0.9;
+        fill: none;
+        stroke-dasharray: 470;
+        stroke-dashoffset: 470;
+        animation: boot-orbit-draw 0.64s 0.50s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      }
+      .boot-orbit--outer .orbit-arc-amber {
+        stroke: rgba(222, 133, 91, .3);
+        stroke-width: 1.2;
+        fill: none;
+        stroke-dasharray: 18 452;
+        stroke-dashoffset: 488;
+        animation: boot-orbit-draw 0.64s 0.50s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      }
+      .boot-orbit--outer .orbit-arc-cyan {
+        stroke: rgba(91, 191, 187, .24);
+        stroke-width: 1.1;
+        fill: none;
+        stroke-dasharray: 22 448;
+        stroke-dashoffset: 496;
+        animation: boot-orbit-draw 0.64s 0.50s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      }
+      /* Outer orbit rotation (opposite direction) */
+      .boot-orbit--outer {
+        animation: boot-orbit-fade-in 0.38s 0.50s ease-out forwards,
+                   boot-orbit-rotate-outer 18s 1.14s linear infinite;
+      }
+      @keyframes boot-orbit-rotate-outer {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(-360deg); }
+      }
+
+      /* Shared orbit draw keyframe */
+      @keyframes boot-orbit-draw {
+        from { stroke-dashoffset: var(--orbit-length, 628); }
+        to { stroke-dashoffset: 0; }
+      }
+
+      /* ── Brand (logo + text) ── */
+      .boot-brand {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .boot-logo-glow {
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        left: 50%;
+        width: clamp(260px, 24vw, 330px);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 31% 52%, rgba(225, 153, 65, .36), transparent 56%),
+          radial-gradient(circle at 69% 49%, rgba(74, 202, 191, .32), transparent 58%);
+        filter: blur(29px);
+        opacity: .7;
+        transform: translateX(-50%) scale(.96);
+        animation: boot-logo-glow-breathe 4.8s 1.06s ease-in-out infinite;
+        pointer-events: none;
+      }
+      @keyframes boot-logo-glow-breathe {
+        0%, 100% { opacity: .56; transform: translateX(-50%) scale(.95); }
+        50% { opacity: .8; transform: translateX(-50%) scale(1.045); }
+      }
+
+      .boot-logo-wrap {
+        position: relative;
+        z-index: 1;
+        width: clamp(240px, 20vw, 280px);
+        aspect-ratio: 1;
+        margin-bottom: clamp(10px, 1.5vw, 17px);
+        opacity: 0;
+        transform: scale(.82);
+        filter: blur(8px);
+        animation: boot-logo-enter .9s .1s cubic-bezier(.2,.72,.2,1) forwards,
+                   boot-logo-breathe 3.2s 1.06s ease-in-out infinite;
+      }
+      .boot-splash__main-logo {
+        display: block;
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 1;
+        object-fit: contain;
+      }
+      @keyframes boot-logo-enter {
+        0% { opacity: 0; transform: scale(.82); filter: blur(8px); }
+        72% { opacity: 1; transform: scale(1.025); filter: blur(0); }
+        100% { opacity: 1; transform: scale(1); filter: blur(0); }
+      }
+      @keyframes boot-logo-breathe {
+        0%, 100% { opacity: 1; transform: scale(.985); filter: blur(0); }
+        50% { opacity: 1; transform: scale(1.018); filter: blur(0); }
+      }
+
+      /* Wordmark */
+      .boot-wordmark {
+        margin: 0;
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: clamp(43px, 5.2vw, 68px);
+        font-weight: 500;
+        line-height: .95;
+        letter-spacing: -.025em;
+        color: #f0ede7;
+        text-shadow: 0 2px 18px rgba(0, 0, 0, .4);
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(5px);
+        letter-spacing: 0.04em;
+        animation: boot-wordmark-enter 0.52s 0.58s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+      }
+      @keyframes boot-wordmark-enter {
+        0% { opacity: 0; transform: translateY(10px); filter: blur(5px); letter-spacing: 0.04em; }
+        100% { opacity: 1; transform: translateY(0); filter: blur(0); letter-spacing: -0.025em; }
+      }
+
+      /* Status message */
+      #pre-splash .pre-splash-sub {
+        position: absolute;
+        top: calc(100% + 26px);
+        width: min(76vw, 420px);
+        font-size: 12px;
+        line-height: 1.55;
+        letter-spacing: .05em;
+        color: rgba(231, 225, 215, .5);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      #pre-splash .pre-splash-sub.visible {
+        opacity: 1;
+      }
+
+      /* ── Layout utilities ── */
+      html.boot-lock {
+        overflow: hidden;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 600px) {
+        .boot-stage {
+          width: min(108vw, 460px);
+          transform: translateY(-3vh);
+        }
+        .boot-halo { inset: 8%; }
+        .boot-logo-wrap { width: clamp(154px, 44vw, 190px); margin-bottom: 12px; }
+        .boot-logo-glow { width: clamp(188px, 54vw, 230px); filter: blur(25px); }
+        .boot-wordmark { font-size: 48px; }
+      }
+      @media (min-width: 601px) and (max-width: 1024px) {
+        .boot-logo-wrap { width: clamp(200px, 25vw, 240px); }
+        .boot-logo-glow { width: clamp(236px, 30vw, 286px); }
+      }
+
+      /* ── Reduced Motion ── */
+      @media (prefers-reduced-motion: reduce) {
+        /* Disable all animated motion */
+        .boot-aurora { animation: none; opacity: 0.82; }
+        .boot-mist--amber { animation: none; opacity: 0.64; transform: translateX(0); }
+        .boot-mist--cyan { animation: none; opacity: 0.58; transform: translateX(0); }
+        .boot-waves { animation: none; opacity: 0.34; }
+        .boot-particles i { animation: none; opacity: 0.65; background: rgba(127, 201, 197, 1); box-shadow: 0 0 8px currentColor; }
+        .boot-particles i:nth-child(2n) { background: rgba(220, 147, 108, 1); }
+        .boot-halo { animation: none; opacity: 0.56; }
+        .boot-orbit--inner,
+        .boot-orbit--mid,
+        .boot-orbit--outer { animation: none; opacity: .34; }
+        .boot-orbit--inner .orbit-ring,
+        .boot-orbit--mid .orbit-ring,
+        .boot-orbit--outer .orbit-ring,
+        .boot-orbit--inner .orbit-segment-highlight,
+        .boot-orbit--mid .orbit-highlight-cyan,
+        .boot-orbit--outer .orbit-arc-amber,
+        .boot-orbit--outer .orbit-arc-cyan {
+          animation: none;
+          stroke-dashoffset: 0;
+        }
+        .boot-logo-wrap {
+          animation: boot-logo-enter .9s .1s cubic-bezier(.2,.72,.2,1) forwards;
+          opacity: 1;
+          transform: scale(1);
+          filter: blur(0);
+        }
+        .boot-logo-glow {
+          animation: none;
+          opacity: .64;
+          transform: translateX(-50%) scale(1);
+        }
+        .boot-wordmark {
+          animation: none;
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+          letter-spacing: -0.025em;
+        }
+        /* Simple cross-fade for splash exit, reduced shell transition */
+        #pre-splash { transition-duration: 0.28s; }
+        #root { transition-duration: 0.28s; }
+        html[data-boot-splash-active="true"] #root {
+          transition: none;
+        }
+      }
+
+      /* ── Keyframes (global) ── */
+      @keyframes boot-bg-enter {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+    </style>
   </head>
   <body>
+    <div id="pre-splash" data-testid="app-boot-splash" data-splash-phase="entering" role="status" aria-label="Rune 正在啟動" aria-live="polite">
+      <div class="boot-aurora" aria-hidden="true"></div>
+      <div class="boot-mist boot-mist--amber" aria-hidden="true"></div>
+      <div class="boot-mist boot-mist--cyan" aria-hidden="true"></div>
+      <svg class="boot-waves" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-120 630C215 470 398 810 749 670s493-38 811-260" fill="none" stroke="url(#boot-wave-a)" stroke-width="1.2"/>
+        <path d="M-170 700C165 540 443 866 791 729s521-78 799-242" fill="none" stroke="url(#boot-wave-b)" stroke-width="46" opacity=".12"/>
+        <defs>
+          <linearGradient id="boot-wave-a"><stop stop-color="#d98962" stop-opacity="0"/><stop offset=".42" stop-color="#d98962" stop-opacity=".35"/><stop offset="1" stop-color="#65b8b4" stop-opacity=".28"/></linearGradient>
+          <linearGradient id="boot-wave-b"><stop stop-color="#d98962" stop-opacity="0"/><stop offset=".55" stop-color="#d98962" stop-opacity=".2"/><stop offset="1" stop-color="#65b8b4" stop-opacity=".24"/></linearGradient>
+        </defs>
+      </svg>
+      <div class="boot-particles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="boot-stage">
+        <div class="boot-halo" data-testid="boot-halo" aria-hidden="true"></div>
+        <!-- Inner orbit — highest contrast -->
+        <svg class="boot-orbit boot-orbit--inner" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle class="orbit-ring" cx="100" cy="100" r="94" />
+          <circle class="orbit-segment-highlight" cx="100" cy="100" r="94" />
+        </svg>
+        <!-- Middle orbit — mid contrast, tide-cyan highlight -->
+        <svg class="boot-orbit boot-orbit--mid" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle class="orbit-ring" cx="100" cy="100" r="84" />
+          <circle class="orbit-highlight-cyan" cx="100" cy="100" r="84" />
+        </svg>
+        <!-- Outer orbit — sparse amber/cyan arcs -->
+        <svg class="boot-orbit boot-orbit--outer" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle class="orbit-ring" cx="100" cy="100" r="74" />
+          <circle class="orbit-arc-amber" cx="100" cy="100" r="74" />
+          <circle class="orbit-arc-cyan" cx="100" cy="100" r="74" />
+        </svg>
+        <div class="boot-brand">
+          <div class="boot-logo-glow" aria-hidden="true"></div>
+          <div class="boot-logo-wrap"><img src="/branding/lunartide-splash-ring.png" class="boot-splash__main-logo" alt="" aria-hidden="true" draggable="false"></div>
+          <p class="boot-wordmark">Rune</p>
+          <span class="pre-splash-sub" id="pre-splash-sub"></span>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

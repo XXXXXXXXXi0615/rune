@@ -1,0 +1,1874 @@
+/* ================================================================
+   Gacha Phase 2.1 — Visual Stabilization
+   ================================================================ */
+
+/* ── Design Tokens ── */
+:root {
+  --gacha-surface: color-mix(in srgb, var(--surface) 92%, transparent);
+  --gacha-surface-strong: var(--surface-card, #efe9de);
+  --gacha-surface-muted: var(--surface-2, rgba(0,0,0,0.04));
+  --gacha-border: var(--hairline, #e6dfd8);
+  --gacha-text: var(--ink, #141413);
+  --gacha-text-muted: var(--muted, #6c6a64);
+  --gacha-accent: var(--accent, #cc785c);
+  --gacha-accent-soft: color-mix(in srgb, var(--accent) 10%, transparent);
+  --gacha-danger: var(--error, #c64545);
+  --gacha-shadow: 0 2px 12px rgba(20, 20, 19, 0.08);
+}
+
+[data-theme="dark"] {
+  --gacha-surface: var(--surface-dark-soft, #1f1e1b);
+  --gacha-surface-strong: var(--surface-dark-elevated, #252320);
+  --gacha-surface-muted: rgba(255, 255, 255, 0.04);
+  --gacha-border: rgba(255, 255, 255, 0.08);
+  --gacha-text: var(--on-dark, #faf9f5);
+  --gacha-text-muted: var(--on-dark-soft, #a09d96);
+  --gacha-accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --gacha-shadow: 0 2px 12px rgba(0, 0, 0, 0.24);
+}
+
+/* ── Attachment Sheet Scroll Structure ── */
+.gacha-attachment-sheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.gacha-attachment-sheet .chat-bottom-sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.gacha-attachment-sheet .chat-bottom-sheet-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.gacha-attachment-sheet .chat-bottom-sheet-body::-webkit-scrollbar-thumb {
+  background: var(--gacha-border);
+  border-radius: 2px;
+}
+
+/* ── Segmented Control ── */
+.gacha-segmented-control {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-height: 52px;
+  padding: 4px;
+  border-radius: 16px;
+  background: var(--gacha-surface-muted);
+  border: 1px solid var(--gacha-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
+.gacha-segmented-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  min-height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: 500 13px var(--f-ui);
+  color: var(--gacha-text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+.gacha-segmented-btn:hover {
+  color: var(--gacha-text);
+}
+
+.gacha-segmented-btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--gacha-accent);
+  border-radius: 12px;
+}
+
+.gacha-segmented-btn--active {
+  background: var(--gacha-surface);
+  color: var(--gacha-text);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.gacha-segmented-btn--active:hover {
+  color: var(--gacha-text);
+}
+
+.gacha-segmented-btn svg {
+  flex-shrink: 0;
+}
+
+/* ── Internal Gacha Header ── */
+.gacha-internal-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 2px 4px;
+  flex-shrink: 0;
+}
+
+.gacha-internal-header-back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--gacha-text-muted);
+  font: 500 11px var(--f-ui);
+  cursor: pointer;
+  width: fit-content;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.gacha-internal-header-back:hover {
+  color: var(--gacha-accent);
+}
+
+.gacha-internal-header-title {
+  font: 600 16px var(--f-ui);
+  color: var(--gacha-text);
+}
+
+.gacha-internal-header-subtitle {
+  font: 400 12px var(--f-ui);
+  color: var(--gacha-text-muted);
+}
+
+/* ── Pool List ── */
+.gc-pool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gc-pool-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.gc-pool-list-title {
+  font: 600 11px var(--f-ui);
+  color: var(--gacha-text-muted);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.gc-pool-add-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px dashed var(--gacha-accent);
+  border-radius: 8px;
+  background: var(--gacha-accent-soft);
+  color: var(--gacha-accent);
+  font: 500 11px var(--f-ui);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.gc-pool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.gc-pool-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 10px;
+  background: var(--gacha-surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gc-pool-card:hover {
+  border-color: var(--gacha-accent);
+  box-shadow: var(--gacha-shadow);
+}
+
+.gc-pool-card-cover {
+  width: 100%;
+  height: 80px;
+  border-radius: 6px;
+  background: var(--gacha-surface-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gc-pool-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gc-pool-card-cover-placeholder {
+  color: var(--gacha-text-muted);
+  opacity: 0.4;
+}
+
+.gc-pool-card-name {
+  font: 600 13px var(--f-ui);
+  color: var(--gacha-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gc-pool-card-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gc-pool-card-tag {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font: 500 9px var(--f-ui);
+  background: var(--gacha-surface-muted);
+  color: var(--gacha-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.gc-pool-card-menu {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--gacha-text-muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.gc-pool-card:hover .gc-pool-card-menu {
+  opacity: 1;
+}
+
+/* ── Pool menu dropdown ── */
+.gc-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  margin-top: 4px;
+  min-width: 140px;
+  background: var(--gacha-surface);
+  border: 1px solid var(--gacha-border);
+  border-radius: 8px;
+  box-shadow: var(--gacha-shadow);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.gc-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gacha-text);
+  font: 500 12px var(--f-ui);
+  cursor: pointer;
+  text-align: left;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.gc-menu-item:hover {
+  background: var(--gacha-surface-muted);
+}
+
+.gc-menu-item--danger {
+  color: var(--gacha-danger);
+}
+
+.gc-menu-item--danger:hover {
+  background: color-mix(in srgb, var(--gacha-danger) 8%, transparent);
+}
+
+/* ── Empty state ── */
+.gc-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+  gap: 8px;
+}
+
+.gc-empty-state svg {
+  color: var(--gacha-text-muted);
+  opacity: 0.5;
+}
+
+.gc-empty-title {
+  font: 600 14px var(--f-ui);
+  color: var(--gacha-text);
+}
+
+.gc-empty-text {
+  font: 400 12px var(--f-ui);
+  color: var(--gacha-text-muted);
+  max-width: 220px;
+  line-height: 1.5;
+}
+
+.gc-empty-btn {
+  margin-top: 4px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--gacha-accent);
+  color: var(--accent-fg, #fff);
+  font: 600 12px var(--f-ui);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* ── Pool Editor ── */
+.gc-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 80px; /* room for sticky footer */
+}
+
+.gc-editor-cover {
+  width: 100%;
+  height: 140px;
+  border: 1px dashed var(--gacha-border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--gacha-surface-muted);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.gc-editor-cover,
+.gc-item-editor-image {
+  background-color: #eee8df;
+  background-image: linear-gradient(45deg, rgba(120,110,100,.12) 25%, transparent 25%), linear-gradient(-45deg, rgba(120,110,100,.12) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(120,110,100,.12) 75%), linear-gradient(-45deg, transparent 75%, rgba(120,110,100,.12) 75%);
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-size: 16px 16px;
+}
+
+.gc-editor-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gc-editor-cover-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--gacha-text-muted);
+  font: 400 11px var(--f-ui);
+}
+
+.gc-editor-cover-placeholder svg {
+  opacity: 0.4;
+}
+
+.gc-editor-cover-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.gc-editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gc-editor-label {
+  font: 600 10px var(--f-ui);
+  color: var(--gacha-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gc-editor-input {
+  padding: 11px 12px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 10px;
+  background: var(--gacha-surface);
+  color: var(--gacha-text);
+  font: 400 14px var(--f-ui);
+  height: 48px;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.gc-editor-input::placeholder {
+  color: var(--gacha-text-muted);
+  opacity: 0.6;
+}
+
+.gc-editor-input:focus {
+  border-color: var(--gacha-accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--gacha-accent-soft);
+}
+
+.gc-editor-textarea {
+  resize: vertical;
+  min-height: 72px;
+  max-height: 160px;
+  height: auto;
+  font: 400 13px var(--f-ui);
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+
+.gc-editor-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--gacha-surface-muted);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.gc-editor-toggle-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--gacha-text-muted);
+  font: 500 12px var(--f-ui);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gc-editor-toggle-btn--active {
+  background: var(--gacha-surface);
+  color: var(--gacha-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Editor Sticky Footer ── */
+.gc-editor-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 0;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--gacha-surface);
+  border-top: 1px solid var(--gacha-border);
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+}
+
+.gc-editor-footer-btn {
+  flex: 1;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font: 600 13px var(--f-ui);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+}
+
+.gc-editor-footer-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.gc-editor-footer-btn--secondary {
+  background: var(--gacha-surface-muted);
+  color: var(--gacha-text);
+  border: 1px solid var(--gacha-border);
+}
+
+.gc-editor-footer-btn--primary {
+  background: var(--gacha-accent);
+  color: var(--accent-fg, #fff);
+  flex: 2;
+}
+
+.gc-editor-footer-hint {
+  font: 400 10px var(--f-ui);
+  color: var(--gacha-text-muted);
+  padding: 4px 2px 0;
+}
+
+/* ── Item List ── */
+.gc-item-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gc-item-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gc-item-section-title {
+  font: 600 11px var(--f-ui);
+  color: var(--gacha-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.gc-item-add-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 10px;
+  border: 1px dashed var(--gacha-accent);
+  border-radius: 6px;
+  background: var(--gacha-accent-soft);
+  color: var(--gacha-accent);
+  font: 500 10px var(--f-ui);
+  cursor: pointer;
+}
+
+.gc-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gc-item-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 10px;
+  background: var(--gacha-surface);
+  transition: border-color 0.15s ease;
+  min-height: 52px;
+}
+
+.gc-item-card--disabled {
+  opacity: 0.45;
+}
+
+.gc-item-card:hover {
+  border-color: var(--gacha-accent);
+}
+
+.gc-item-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--gacha-surface-muted);
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gc-item-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gc-item-thumb-placeholder {
+  color: var(--gacha-text-muted);
+  opacity: 0.3;
+}
+
+.gc-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.gc-item-title {
+  font: 600 13px var(--f-ui);
+  color: var(--gacha-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gc-item-content-preview {
+  font: 400 10px var(--f-ui);
+  color: var(--gacha-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gc-item-weight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.gc-item-weight input[type="number"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 44px;
+  padding: 4px 6px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 6px;
+  background: var(--gacha-surface-muted);
+  color: var(--gacha-text);
+  font: 500 11px var(--f-ui);
+  text-align: center;
+}
+
+.gc-item-prob {
+  font: 500 11px var(--f-ui);
+  color: var(--gacha-accent);
+  min-width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.gc-item-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.gc-item-action-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--gacha-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.gc-item-action-btn:hover {
+  background: var(--gacha-surface-muted);
+}
+
+.gc-item-action-btn--danger:hover {
+  background: color-mix(in srgb, var(--gacha-danger) 8%, transparent);
+  color: var(--gacha-danger);
+}
+
+/* ── Item Editor Modal ── */
+.gc-item-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gc-item-editor-image {
+  width: 100%;
+  height: 130px;
+  border: 1px dashed var(--gacha-border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--gacha-surface-muted);
+  overflow: hidden;
+  position: relative;
+}
+
+.gc-item-editor-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Draw Stage ── */
+.gc-draw-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.gc-draw-pool-name {
+  font: 600 13px var(--f-ui);
+  color: var(--gacha-text-muted);
+  text-align: center;
+}
+
+.gc-draw-remaining {
+  font: 400 11px var(--f-ui);
+  color: var(--gacha-text-muted);
+  opacity: 0.7;
+}
+
+.gc-draw-btn {
+  width: 100%;
+  max-width: 200px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: var(--gacha-accent);
+  color: var(--accent-fg, #fff);
+  font: 700 13px var(--f-ui);
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.gc-draw-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.gc-draw-btn:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+/* ── Gacha Machine SVG ── */
+.gc-machine-wrapper {
+  position: relative;
+  width: 180px;
+  height: 200px;
+}
+
+.gc-machine-wrapper--desktop {
+  width: 240px;
+  height: 260px;
+}
+
+.gc-machine-wrapper--spinning .gc-machine-crank {
+  animation: gcCrankSpin 0.4s steps(4, end) infinite;
+}
+
+.gc-machine-wrapper--spinning .gc-machine-capsule {
+  animation: gcCapsuleBounce 0.5s ease-in-out infinite;
+}
+
+.gc-machine-wrapper--result .gc-machine-slot-el {
+  animation: gcSlotGlow 0.8s ease-in-out infinite;
+}
+
+@keyframes gcCrankSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gcCapsuleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes gcSlotGlow {
+  50% { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-machine-wrapper--spinning .gc-machine-crank,
+  .gc-machine-wrapper--spinning .gc-machine-capsule {
+    animation: none;
+  }
+}
+
+/* ── Result Card ── */
+.gc-result-card {
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 14px;
+  background: var(--gacha-surface);
+  gap: 12px;
+  animation: gcResultReveal 0.4s ease-out both;
+}
+
+@keyframes gcResultReveal {
+  0% { opacity: 0; transform: translateY(8px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-result-card { animation: none; }
+}
+
+.gc-result-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  background: var(--gacha-surface-muted);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gc-result-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: transparent;
+}
+
+.gc-result-image-placeholder {
+  color: var(--gacha-text-muted);
+  opacity: 0.4;
+}
+
+.gc-result-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.gc-result-title {
+  font: 700 16px var(--f-ui);
+  color: var(--gacha-text);
+}
+
+.gc-result-content {
+  font: 400 12px var(--f-ui);
+  color: var(--gacha-text-muted);
+  max-width: 200px;
+  line-height: 1.4;
+}
+
+.gc-result-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font: 500 10px var(--f-ui);
+  color: var(--gacha-text-muted);
+}
+
+.gc-result-meta-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--gacha-text-muted);
+  opacity: 0.4;
+}
+
+.gc-result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.gc-result-action-primary {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: var(--gacha-accent);
+  color: var(--accent-fg, #fff);
+  font: 600 13px var(--f-ui);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.gc-result-action-secondary {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 10px;
+  background: var(--gacha-surface);
+  color: var(--gacha-text);
+  font: 500 12px var(--f-ui);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.gc-result-action-secondary:hover {
+  background: var(--gacha-surface-muted);
+}
+
+/* ── History List ── */
+.gc-history {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gc-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.gc-history-title {
+  font: 600 11px var(--f-ui);
+  color: var(--gacha-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.gc-history-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.gc-history-action {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 3px 8px;
+  border: none;
+  border-radius: 6px;
+  background: var(--gacha-surface-muted);
+  color: var(--gacha-text-muted);
+  font: 500 10px var(--f-ui);
+  cursor: pointer;
+}
+
+.gc-history-action--active {
+  background: var(--gacha-accent);
+  color: var(--accent-fg, #fff);
+}
+
+.gc-history-filter {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 8px;
+  background: var(--gacha-surface);
+  color: var(--gacha-text);
+  font: 400 12px var(--f-ui);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.gc-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gc-history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 8px;
+  background: var(--gacha-surface);
+}
+
+.gc-history-item-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: var(--gacha-surface-muted);
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gc-history-item-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gc-history-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.gc-history-item-title {
+  font: 600 11px var(--f-ui);
+  color: var(--gacha-text);
+}
+
+.gc-history-item-meta {
+  display: flex;
+  gap: 6px;
+  font: 400 9px var(--f-ui);
+  color: var(--gacha-text-muted);
+}
+
+.gc-history-item-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.gc-history-item-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gacha-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gc-history-item-btn:hover {
+  background: var(--gacha-surface-muted);
+}
+
+.gc-history-item-btn--faved {
+  color: var(--accent-amber, #e8a55a);
+}
+
+/* ── Mystery collection ── */
+.gc-mystery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.gc-mystery-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--gacha-surface-muted);
+  border: 1px solid var(--gacha-border);
+}
+
+.gc-mystery-item--discovered {
+  background: var(--gacha-surface);
+  border-color: var(--gacha-accent);
+}
+
+.gc-mystery-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gacha-text-muted);
+}
+
+.gc-mystery-item--discovered .gc-mystery-icon {
+  color: var(--gacha-accent);
+}
+
+.gc-mystery-label {
+  font: 500 9px var(--f-ui);
+  color: var(--gacha-text-muted);
+  text-align: center;
+}
+
+/* ── Context Chip ── */
+.gc-context-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--gacha-accent);
+  border-radius: 12px;
+  background: var(--gacha-accent-soft);
+  color: var(--gacha-accent);
+  font: 500 11px var(--f-ui);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gc-context-chip-remove {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gacha-accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+/* ── Confirm dialog ── */
+.gc-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gc-confirm-box {
+  background: var(--gacha-surface);
+  border: 1px solid var(--gacha-border);
+  border-radius: 14px;
+  padding: 20px;
+  max-width: 300px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.gc-confirm-title {
+  font: 600 14px var(--f-ui);
+  color: var(--gacha-text);
+}
+
+.gc-confirm-text {
+  font: 400 13px var(--f-ui);
+  color: var(--gacha-text-muted);
+  line-height: 1.5;
+}
+
+.gc-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.gc-confirm-btn {
+  padding: 7px 18px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 8px;
+  font: 500 12px var(--f-ui);
+  cursor: pointer;
+  background: var(--gacha-surface);
+  color: var(--gacha-text);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.gc-confirm-btn--danger {
+  background: var(--gacha-danger);
+  color: #fff;
+  border-color: var(--gacha-danger);
+}
+
+/* ── Item Section Actions ── */
+.gc-item-section-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.gc-item-action-pill {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 6px;
+  background: var(--gacha-surface);
+  color: var(--gacha-text-muted);
+  font: 500 10px var(--f-ui);
+  cursor: pointer;
+  min-height: 28px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.gc-item-action-pill:hover {
+  background: var(--gacha-accent-soft);
+  color: var(--gacha-accent);
+  border-color: var(--gacha-accent);
+}
+
+.gc-item-action-pill--active {
+  background: var(--gacha-accent);
+  color: var(--accent-fg, #fff);
+  border-color: var(--gacha-accent);
+}
+
+/* ── Quick Add Row ── */
+.gc-quick-add {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.gc-quick-add-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 10px;
+  background: var(--gacha-surface);
+  color: var(--gacha-text);
+  font: 400 13px var(--f-ui);
+  min-height: 44px;
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+}
+
+.gc-quick-add-input::placeholder {
+  color: var(--gacha-text-muted);
+  opacity: 0.6;
+}
+
+.gc-quick-add-input:focus {
+  border-color: var(--gacha-accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--gacha-accent-soft);
+}
+
+.gc-quick-add-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--gacha-accent);
+  color: var(--accent-fg, #fff);
+  font: 600 12px var(--f-ui);
+  cursor: pointer;
+  min-height: 44px;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.gc-quick-add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Item Empty State ── */
+.gc-item-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  text-align: center;
+  gap: 8px;
+}
+
+.gc-item-empty-title {
+  font: 600 13px var(--f-ui);
+  color: var(--gacha-text);
+}
+
+.gc-item-empty-text {
+  font: 400 11px var(--f-ui);
+  color: var(--gacha-text-muted);
+  line-height: 1.5;
+}
+
+.gc-item-empty-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.gc-empty-btn--secondary {
+  background: var(--gacha-surface-muted) !important;
+  color: var(--gacha-text) !important;
+  border: 1px solid var(--gacha-border) !important;
+}
+
+/* ── Inline Edit ── */
+.gc-inline-edit-input {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--gacha-accent);
+  border-radius: 6px;
+  background: var(--gacha-surface);
+  color: var(--gacha-text);
+  font: 600 13px var(--f-ui);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--gacha-accent-soft);
+  box-sizing: border-box;
+}
+
+/* ── Management Mode ── */
+.gc-manage-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: 1px solid var(--gacha-accent);
+  border-radius: 10px;
+  background: var(--gacha-accent-soft);
+}
+
+.gc-manage-toolbar-left,
+.gc-manage-toolbar-right {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gc-manage-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 5px 10px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 6px;
+  background: var(--gacha-surface);
+  color: var(--gacha-text);
+  font: 500 11px var(--f-ui);
+  cursor: pointer;
+  min-height: 32px;
+}
+
+.gc-manage-btn--accent {
+  background: var(--gacha-accent-soft);
+  color: var(--gacha-accent);
+  border-color: var(--gacha-accent);
+}
+
+.gc-manage-btn--danger {
+  background: color-mix(in srgb, var(--gacha-danger) 8%, transparent);
+  color: var(--gacha-danger);
+  border-color: var(--gacha-danger);
+}
+
+.gc-manage-count {
+  font: 500 11px var(--f-ui);
+  color: var(--gacha-text-muted);
+  padding: 0 4px;
+}
+
+/* ── Item Checkbox ── */
+.gc-item-checkbox {
+  flex-shrink: 0;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.gc-item-checkbox-inner {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--gacha-border);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.gc-item-checkbox-inner--checked {
+  background: var(--gacha-accent);
+  border-color: var(--gacha-accent);
+  color: var(--accent-fg, #fff);
+}
+
+.gc-item-card--selected {
+  border-color: var(--gacha-accent);
+  background: var(--gacha-accent-soft);
+}
+
+/* ── Undo Toast ── */
+.gc-undo-toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--gacha-surface-strong, var(--gacha-surface));
+  border: 1px solid var(--gacha-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  animation: gcUndoToastIn 0.25s ease-out;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+@keyframes gcUndoToastIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.gc-undo-toast-msg {
+  font: 500 12px var(--f-ui);
+  color: var(--gacha-text);
+}
+
+.gc-undo-toast-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 5px 12px;
+  border: 1px solid var(--gacha-accent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--gacha-accent);
+  font: 600 11px var(--f-ui);
+  cursor: pointer;
+  flex-shrink: 0;
+  min-height: 32px;
+}
+
+.gc-undo-toast-btn:hover {
+  background: var(--gacha-accent-soft);
+}
+
+/* ── Bulk Import Dialog ── */
+.gc-bulk-dialog {
+  max-width: 420px !important;
+  width: 95% !important;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.gc-bulk-textarea {
+  min-height: 120px !important;
+  max-height: 200px !important;
+  height: auto !important;
+  font: 400 12px var(--f-ui) !important;
+  line-height: 1.6;
+}
+
+.gc-bulk-error {
+  font: 500 11px var(--f-ui);
+  color: var(--gacha-danger);
+  padding: 6px 0;
+}
+
+.gc-bulk-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font: 500 11px var(--f-ui);
+  color: var(--gacha-text-muted);
+}
+
+.gc-bulk-summary-dup {
+  color: var(--gacha-accent);
+}
+
+.gc-bulk-summary-fix {
+  color: var(--accent-amber, #e8a55a);
+}
+
+.gc-bulk-summary-invalid {
+  color: var(--gacha-danger);
+}
+
+.gc-bulk-dup-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gc-bulk-preview-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.gc-bulk-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font: 400 11px var(--f-ui);
+}
+
+.gc-bulk-preview-item--new {
+  background: transparent;
+}
+
+.gc-bulk-preview-item--duplicate {
+  background: color-mix(in srgb, var(--gacha-accent) 6%, transparent);
+  opacity: 0.7;
+}
+
+.gc-bulk-preview-item--weight-corrected {
+  background: color-mix(in srgb, var(--accent-amber, #e8a55a) 8%, transparent);
+}
+
+.gc-bulk-preview-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--gacha-text);
+}
+
+.gc-bulk-preview-weight {
+  font: 500 10px var(--f-ui);
+  color: var(--gacha-text-muted);
+  flex-shrink: 0;
+}
+
+.gc-bulk-preview-status {
+  font: 500 9px var(--f-ui);
+  color: var(--gacha-text-muted);
+  flex-shrink: 0;
+  min-width: 32px;
+  text-align: right;
+}
+
+.gc-bulk-preview-item--duplicate .gc-bulk-preview-status {
+  color: var(--gacha-accent);
+}
+
+.gc-bulk-preview-item--weight-corrected .gc-bulk-preview-status {
+  color: var(--accent-amber, #e8a55a);
+}
+
+/* ── Responsive ── */
+@media (max-width: 390px) {
+  .gc-pool-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .gc-machine-wrapper {
+    width: 150px;
+    height: 170px;
+  }
+
+  .gc-result-card {
+    max-width: 220px;
+    padding: 12px;
+  }
+
+  .gc-result-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .gc-editor-cover {
+    height: 120px;
+  }
+
+  .gc-editor-footer-btn {
+    font-size: 12px;
+    padding: 12px 12px;
+  }
+
+  .gc-quick-add {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .gc-quick-add-btn {
+    width: 100%;
+  }
+
+  .gc-item-section-actions {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .gc-manage-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gc-manage-toolbar-left,
+  .gc-manage-toolbar-right {
+    justify-content: center;
+  }
+
+  .gc-manage-btn {
+    min-height: 44px;
+    flex: 1;
+  }
+
+  .gc-bulk-dialog {
+    max-height: 90vh !important;
+  }
+
+  .gc-bulk-preview-list {
+    max-height: 150px;
+  }
+
+  .gc-item-title {
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .gc-undo-toast {
+    margin-bottom: 8px;
+  }
+
+  .gc-item-card {
+    flex-wrap: wrap;
+  }
+
+  .gc-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+    padding-top: 4px;
+    border-top: 1px solid var(--gacha-border);
+  }
+}
+
+@media (min-width: 768px) {
+  .gc-pool-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .gc-editor-cover {
+    height: 160px;
+  }
+}
+
+/* ── Context chip actions (編輯 / 重新選擇 / 刪除) ── */
+.gc-chip-menu-wrap { position: relative; display: inline-flex; flex-shrink: 0; }
+.gc-chip-menu-trigger {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gacha-accent);
+  cursor: pointer;
+  padding: 0;
+}
+.gc-chip-menu-trigger:hover { background: color-mix(in srgb, var(--gacha-accent) 14%, transparent); }
+.gc-chip-menu {
+  z-index: 500;
+  display: grid;
+  min-width: 138px;
+  gap: 2px;
+  padding: 5px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 13px;
+  background: var(--gacha-surface);
+  box-shadow: 0 14px 32px rgba(35, 26, 20, 0.18);
+}
+.gc-chip-menu button,
+.gc-chip-sheet button[role="menuitem"] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 9px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--gacha-text);
+  font: 500 12px var(--f-ui);
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.gc-chip-menu button:hover,
+.gc-chip-sheet button[role="menuitem"]:hover { background: var(--gacha-surface-muted); }
+.gc-chip-menu button svg,
+.gc-chip-sheet button[role="menuitem"] svg { width: 13px; height: 13px; flex-shrink: 0; }
+.gc-chip-menu button.is-danger,
+.gc-chip-sheet button[role="menuitem"].is-danger { color: var(--gacha-danger, #c85e5e); }
+
+/* Mobile bottom sheet variant */
+.gc-chip-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 420;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(24, 20, 16, 0.34);
+}
+.gc-chip-sheet {
+  display: grid;
+  width: 100%;
+  gap: 2px;
+  padding: 8px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  border-radius: 20px 20px 0 0;
+  background: var(--gacha-surface);
+}
+.gc-chip-sheet-handle { justify-self: center; width: 36px; height: 4px; margin: 2px 0 6px; border-radius: 999px; background: var(--gacha-border); }
+.gc-chip-sheet-title { margin: 0 0 4px; font: 600 12px var(--f-ui); color: var(--gacha-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gc-chip-sheet button[role="menuitem"] { min-height: 44px; font-size: 14px; }
+.gc-chip-sheet-cancel {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 44px;
+  margin-top: 6px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 12px;
+  background: var(--gacha-surface-muted);
+  color: var(--gacha-text);
+  font: 600 14px var(--f-ui);
+  cursor: pointer;
+}
+
+/* ── Context chip editor ── */
+.gc-chip-editor-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 430;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(24, 20, 16, 0.3);
+  backdrop-filter: blur(3px);
+}
+.gc-chip-editor {
+  display: grid;
+  width: min(360px, 100%);
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 18px;
+  background: var(--gacha-surface);
+  box-shadow: 0 20px 48px rgba(35, 26, 20, 0.22);
+}
+.gc-chip-editor header { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.gc-chip-editor h3 { margin: 0; font: 700 14px var(--f-ui); color: var(--gacha-text); }
+.gc-chip-editor-source { font: 500 11px var(--f-ui); color: var(--gacha-text-muted); }
+.gc-chip-editor label { display: grid; gap: 4px; }
+.gc-chip-editor label > span { font: 600 11px var(--f-ui); color: var(--gacha-text-muted); }
+.gc-chip-editor input,
+.gc-chip-editor textarea {
+  width: 100%;
+  border: 1px solid var(--gacha-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--gacha-surface-muted);
+  color: var(--gacha-text);
+  font: 400 13px var(--f-ui);
+  resize: vertical;
+}
+.gc-chip-editor footer { display: flex; justify-content: flex-end; gap: 8px; }
+.gc-chip-editor footer button {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 999px;
+  background: var(--gacha-surface-muted);
+  color: var(--gacha-text);
+  font: 600 12px var(--f-ui);
+  cursor: pointer;
+}
+.gc-chip-editor footer button:disabled { opacity: .45; cursor: not-allowed; }
+.gc-chip-editor footer .is-primary { border-color: transparent; background: var(--gacha-accent); color: var(--accent-fg, #fff); }
+
+/* ── In-sheet added-context strip & replace banner ── */
+.gc-replace-banner {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  border: 1px dashed var(--gacha-accent);
+  border-radius: 12px;
+  background: var(--gacha-accent-soft);
+  color: var(--gacha-accent);
+  font: 500 12px var(--f-ui);
+}
+.gc-added-strip {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--gacha-border);
+  border-radius: 14px;
+  background: var(--gacha-surface-muted);
+}
+.gc-added-strip-label { font: 600 11px var(--f-ui); color: var(--gacha-text-muted); }
+.gc-added-strip-chips { display: flex; flex-wrap: wrap; gap: 6px; }

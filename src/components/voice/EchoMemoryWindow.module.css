@@ -1,0 +1,333 @@
+.window {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 760;
+  width: min(390px, calc(100vw - 24px));
+  max-height: min(560px, calc(100dvh - 24px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 22px;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.34), transparent 40%),
+    color-mix(in srgb, var(--surface-2) 78%, rgba(216, 124, 76, 0.10));
+  border: 1px solid color-mix(in srgb, var(--border) 58%, rgba(255, 255, 255, 0.22));
+  box-shadow:
+    0 24px 70px rgba(58, 36, 20, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.30);
+  backdrop-filter: blur(26px) saturate(1.2);
+  -webkit-backdrop-filter: blur(26px) saturate(1.2);
+}
+
+.titlebar {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 13px 10px;
+  cursor: grab;
+  user-select: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 48%, transparent);
+}
+
+.titlebar:active {
+  cursor: grabbing;
+}
+
+.titleIdentity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 13px;
+  color: var(--accent);
+  background: rgba(216, 124, 76, 0.10);
+}
+
+.titleIdentity strong,
+.titleIdentity span {
+  display: block;
+}
+
+.titleIdentity strong {
+  font-size: 14px;
+  letter-spacing: -0.02em;
+}
+
+.titleIdentity span {
+  margin-top: 2px;
+  color: var(--text-3);
+  font-size: 11.5px;
+}
+
+.closeButton {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-3);
+  background: transparent;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface-3) 80%, transparent);
+}
+
+.closeButton svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 13px;
+}
+
+.warning {
+  padding: 8px 10px;
+  border-radius: 13px;
+  color: color-mix(in srgb, var(--accent) 78%, var(--text));
+  background: rgba(216, 124, 76, 0.10);
+  border: 1px dashed rgba(216, 124, 76, 0.30);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field span {
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface-1) 70%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  outline: 0;
+}
+
+.field input {
+  min-height: 38px;
+  padding: 0 11px;
+}
+
+.field textarea {
+  min-height: 118px;
+  padding: 10px 11px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border));
+}
+
+.segmentGroup {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-1) 62%, transparent);
+}
+
+.segmentGroup button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-3);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.segmentGroup .activeSegment {
+  color: var(--accent);
+  background: rgba(216, 124, 76, 0.12);
+}
+
+.persistenceBox {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-1) 58%, transparent);
+}
+
+.persistenceTitle {
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.persistenceOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px;
+  border: 1px solid color-mix(in srgb, var(--border) 62%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface-2) 66%, transparent);
+  cursor: pointer;
+}
+
+.persistenceOption input {
+  margin-top: 2px;
+  accent-color: var(--accent);
+}
+
+.persistenceOption span {
+  display: grid;
+  gap: 2px;
+}
+
+.persistenceOption strong {
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.persistenceOption small {
+  color: var(--text-4);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.persistenceOptionDisabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 11px;
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--surface-1) 62%, transparent);
+}
+
+.switchRow span {
+  display: grid;
+  gap: 2px;
+}
+
+.switchRow strong {
+  font-size: 12.5px;
+}
+
+.switchRow small {
+  color: var(--text-4);
+  font-size: 11px;
+}
+
+.switchRow input {
+  accent-color: var(--accent);
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.metaGrid span {
+  min-width: 0;
+  padding: 7px 8px;
+  border-radius: 12px;
+  color: var(--text-3);
+  background: color-mix(in srgb, var(--surface-1) 58%, transparent);
+  font-size: 11px;
+}
+
+.footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 13px 13px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 48%, transparent);
+}
+
+.secondaryButton,
+.primaryButton {
+  min-height: 38px;
+  flex: 1;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  background: transparent;
+  color: var(--text-2);
+}
+
+.primaryButton {
+  border: 0;
+  color: white;
+  background: var(--accent);
+  box-shadow: 0 12px 24px rgba(216, 124, 76, 0.20);
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-theme="dark"] .window {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.08), transparent 40%),
+    rgba(28, 26, 34, 0.78);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+@media (max-width: 520px) {
+  .window {
+    width: calc(100vw - 20px);
+  }
+
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+}

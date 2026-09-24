@@ -1,7 +1,21 @@
 import { useState } from 'react';
 import { useAppStore } from '@/store/useAppStore';
+import { DatePickerSheet } from '@/components/ui/DatePickerSheet';
+import { TimePickerSheet } from '@/components/ui/TimePickerSheet';
+import { ClockIcon } from '@/components/icons/LunartideIcons';
 import { t } from '@/i18n';
 import type { CountdownItem } from '@/types';
+
+function CalIcon() {
+  return (
+    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  );
+}
 
 interface CountdownFormProps {
   onDone: () => void;
@@ -20,6 +34,13 @@ const COLOR_MAP: Record<CountdownItem['type'], string> = {
   project: '#cc785c', custom: '#5db8a6',
 };
 
+function formatZhDate(dateStr: string): string {
+  if (!dateStr) return '選擇日期';
+  const d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return dateStr;
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+}
+
 export function CountdownForm({ onDone }: CountdownFormProps) {
   const addCountdown = useAppStore((s) => s.addCountdown);
   const [title, setTitle] = useState('');
@@ -29,6 +50,8 @@ export function CountdownForm({ onDone }: CountdownFormProps) {
   const [customLabel, setCustomLabel] = useState('');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [timePickerOpen, setTimePickerOpen] = useState(false);
 
   const canSave = title.trim().length > 0 && targetDate.length > 0
     && (type !== 'custom' || customLabel.trim().length > 0);
@@ -58,11 +81,37 @@ export function CountdownForm({ onDone }: CountdownFormProps) {
       <div style={{ display: 'flex', gap: 8 }}>
         <div style={{ flex: 1 }}>
           <label>{t('countdown.formDate')}</label>
-          <input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} />
+          <button
+            type="button"
+            className="drawer-trigger-btn"
+            onClick={() => setDatePickerOpen(true)}
+          >
+            <CalIcon />
+            <span className={targetDate ? '' : 'drawer-trigger-placeholder'}>{formatZhDate(targetDate)}</span>
+          </button>
+          <DatePickerSheet
+            isOpen={datePickerOpen}
+            value={targetDate}
+            onConfirm={(d) => setTargetDate(d)}
+            onCancel={() => setDatePickerOpen(false)}
+          />
         </div>
         <div style={{ flex: 1 }}>
           <label>{t('countdown.formTime')}</label>
-          <input type="time" value={targetTime} onChange={(e) => setTargetTime(e.target.value)} />
+          <button
+            type="button"
+            className="drawer-trigger-btn"
+            onClick={() => setTimePickerOpen(true)}
+          >
+            <ClockIcon size={16} />
+            <span className={targetTime ? '' : 'drawer-trigger-placeholder'}>{targetTime || '選擇時間'}</span>
+          </button>
+          <TimePickerSheet
+            isOpen={timePickerOpen}
+            value={targetTime}
+            onConfirm={(t) => setTargetTime(t)}
+            onCancel={() => setTimePickerOpen(false)}
+          />
         </div>
       </div>
 

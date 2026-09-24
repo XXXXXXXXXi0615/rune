@@ -1,0 +1,62 @@
+/* Exchange (換匯) — Life Utility Phase C standalone utility page shell.
+   The tool keeps its own stylesheet (src/features/exchange/exchange.css); this file
+   only provides the page frame: header + scroll body. */
+
+.exchange-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px 16px 32px;
+}
+
+.exchange-page__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.exchange-page__title {
+  min-width: 0;
+}
+
+.exchange-page__eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--text-3);
+}
+
+.exchange-page__title h1 {
+  margin: 2px 0 0;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.exchange-page__title p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.exchange-page__body {
+  min-width: 0;
+}
+
+/* The tool owns its own padding; inside the page frame it only needs the top seam. */
+.exchange-page__body .ex-layout {
+  padding: 0;
+  max-width: none;
+}
+
+@media (max-width: 640px) {
+  .exchange-page {
+    padding: 12px 12px 28px;
+  }
+
+  .exchange-page__title h1 {
+    font-size: 20px;
+  }
+}

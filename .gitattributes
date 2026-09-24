@@ -1,0 +1,15 @@
+# Whitespace policy — third-party / third-party-derived artwork only.
+#
+# These SVG trees are not repository-authored. Their bytes are sha256-attested
+# against pinned upstream commits by scripts/sync-clawd-pets.mjs, which reports
+# any byte difference as upstream drift (npm run assets:check:clawd exits 1).
+# Whitespace inside the vendored artwork is therefore preserved verbatim and
+# git's whitespace diagnostics are disabled for exactly these three trees.
+#
+# Scope is intentionally narrow: this exception applies ONLY to the three
+# approved asset trees below. It must never be widened to *.svg, src/**,
+# public/** or the repository as a whole.
+
+public/vendor/clawd-pet/pets/*.svg -whitespace
+src/assets/clawd/*.svg -whitespace
+src/assets/stickers/clawd/*.svg -whitespace

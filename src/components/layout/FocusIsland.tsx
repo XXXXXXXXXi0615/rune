@@ -1,22 +1,46 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useFocusIslandStore } from '@/store/useFocusIslandStore';
 import { useFocusWindowStore } from '@/store/useFocusWindowStore';
 import { useFocusSessionStore } from '@/store/useFocusSessionStore';
 import { useTideboundDraftStore } from '@/store/useTideboundDraftStore';
 import { selectActiveMainline, useTideRailStore } from '@/store/useTideRailStore';
 import '@/components/focus/TideboundOrb.css';
+import { MobileShellOverlay } from '@/components/layout/MobileShellOverlay';
 
 const DURATIONS = [15, 25, 40, 60];
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const formatTime = (seconds: number) => `${String(Math.floor(Math.max(0, seconds) / 60)).padStart(2, '0')}:${String(Math.max(0, seconds) % 60).padStart(2, '0')}`;
 
-interface FocusIslandProps {
-  /** When true, omit the idle orb button (Home CTA is the sole idle entry). */
-  hideIdleOrb?: boolean;
-}
+/**
+ * Canonical pet-safe contract for the TIDEBOUND quick panel.
+ *
+ * The quick panel is a shell-portaled sheet (`MobileShellOverlay` → `#app`), so
+ * the reserved-region resolver cannot discover it through either of its generic
+ * paths: `#app main :is(button, a[href], [role="button"])` (wrong subtree) or
+ * `[role="dialog"][aria-modal="true"]` (this sheet did not declare itself modal).
+ * Declaring the surface and each interactive control as a pet-safe region is what
+ * keeps the Rune orb (and the companion pet) from covering a control the user
+ * must click.
+ *
+ * The surface declaration documents ownership; the per-control declarations are
+ * the actionable constraints, because a frame-wide region is intentionally
+ * ignored by the rail resolver (`rect.width < frame.width * 0.96`).
+ */
+const PET_SAFE_INTERACTIVE = { 'data-pet-safe-region': 'interactive' } as const;
+
+/**
+ * The quick panel IS a modal sheet: `MobileShellOverlay` already makes the
+ * workspace `inert` + `aria-hidden` while it is open, and every sibling shell
+ * sheet declares the same (`rune-utility-sheet`, `calendar-canvas-workspace`,
+ * the stash boards). Declaring it is what lets the resolver treat the sheet as
+ * the interaction owner — background controls stop being collision constraints
+ * ("An aria-modal surface owns interaction while open") and the shell's floating
+ * Rune orb stands down instead of hovering over the panel.
+ */
+const MODAL_SHEET_SEMANTICS = { role: 'dialog', 'aria-modal': 'true' } as const;
 
 /** Global TIDEBOUND entry and quick controls. useFocusSessionStore remains the sole timer owner. */
-export function FocusIsland({ hideIdleOrb = false }: FocusIslandProps) {
+export function FocusIsland() {
   const islandState = useFocusIslandStore((state) => state.state);
   const showCompact = useFocusIslandStore((state) => state.showCompact);
   const showExpanded = useFocusIslandStore((state) => state.showExpanded);
@@ -30,17 +54,10 @@ export function FocusIsland({ hideIdleOrb = false }: FocusIslandProps) {
   const draft = useTideboundDraftStore((state) => state);
   const setDraft = useTideboundDraftStore((state) => state.setDraft);
   const mainline = useTideRailStore(selectActiveMainline);
-  const hostRef = useRef<HTMLDivElement>(null);
-  const orbRef = useRef<HTMLButtonElement>(null);
   const isOpen = islandState === 'expanded';
   const isActive = session.status === 'running' || session.status === 'paused';
   const isBreak = isActive && session.phase === 'break';
   const isPaused = session.status === 'paused';
-
-  const totalSeconds = (isBreak ? session.restMinutes : session.durationMinutes) * 60;
-  const progress = totalSeconds > 0 ? clamp(1 - session.remainingSeconds / totalSeconds, 0, 1) : 0;
-  const circumference = 2 * Math.PI * 19;
-  const dashOffset = circumference * (1 - progress);
 
   const statusLabel = useMemo(() => {
     if (session.lastSettlement && session.status === 'idle') return 'TIDEBOUND · 已完成';
@@ -52,7 +69,7 @@ export function FocusIsland({ hideIdleOrb = false }: FocusIslandProps) {
 
   const closePanel = () => {
     showCompact();
-    requestAnimationFrame(() => orbRef.current?.focus());
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('[data-testid="route-status-island"]')?.focus());
   };
 
   const openQuickPanel = (task?: string) => {
@@ -74,14 +91,9 @@ export function FocusIsland({ hideIdleOrb = false }: FocusIslandProps) {
         closePanel();
       }
     };
-    const onOutside = (event: PointerEvent) => {
-      if (!hostRef.current?.contains(event.target as Node)) closePanel();
-    };
     window.addEventListener('keydown', onKeyDown);
-    document.addEventListener('pointerdown', onOutside);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
-      document.removeEventListener('pointerdown', onOutside);
     };
   }, [isOpen]);
 
@@ -105,47 +117,26 @@ export function FocusIsland({ hideIdleOrb = false }: FocusIslandProps) {
 
   if (islandState === 'hidden' || islandState === 'window') return null;
 
-  const orbHidden = hideIdleOrb && !isActive;
-
   return (
-    <div className="tidebound-quick" ref={hostRef} data-open={isOpen || undefined} data-testid="tidebound-host">
-      {!orbHidden && (
-        <button
-          ref={orbRef}
-          type="button"
-          className={`tidebound-orb${isActive ? ' is-active' : ''}${isPaused ? ' is-paused' : ''}${isBreak ? ' is-break' : ''}${session.lastSettlement && session.status === 'idle' ? ' is-settled' : ''}`}
-          onClick={() => openQuickPanel()}
-          aria-label={isOpen ? 'TIDEBOUND 快捷面板已開啟' : `開啟 ${statusLabel}`}
-          aria-haspopup="dialog"
-          aria-expanded={isOpen}
-          data-testid="tidebound-orb"
-        >
-          <svg viewBox="0 0 48 48" aria-hidden="true">
-            <circle className="tidebound-orb__track" cx="24" cy="24" r="19" />
-            <circle className="tidebound-orb__progress" cx="24" cy="24" r="19" strokeDasharray={circumference} strokeDashoffset={dashOffset} />
-            <path className="tidebound-orb__mark" d="M28.8 13.4a12.2 12.2 0 1 0 6.3 21.4 10.7 10.7 0 1 1-6.3-21.4Z" />
-            <path className="tidebound-orb__line" d="M24 17.5V24l4.4 2.6" />
-          </svg>
-        </button>
-      )}
-
+    <div className="tidebound-quick" data-open={isOpen || undefined} data-testid="tidebound-host">
       {isOpen && (
-        <section className="tidebound-quick-panel" role="dialog" aria-label="TIDEBOUND 快捷面板" data-testid="tidebound-quick-panel">
+        <MobileShellOverlay onClose={closePanel} variant="sheet">
+        <section className="tidebound-quick-panel" {...MODAL_SHEET_SEMANTICS} aria-label="TIDEBOUND 快捷面板" data-testid="tidebound-quick-panel" {...PET_SAFE_INTERACTIVE}>
           <header>
             <div><small>TIDEBOUND</small><h2>{statusLabel.replace('TIDEBOUND · ', '')}</h2></div>
-            <button type="button" onClick={closePanel} aria-label="關閉 TIDEBOUND 快捷面板">×</button>
+            <button type="button" {...PET_SAFE_INTERACTIVE} onClick={closePanel} aria-label="關閉 TIDEBOUND 快捷面板">×</button>
           </header>
 
           {!isActive ? (
             <div className="tidebound-quick-panel__body" data-testid="tidebound-idle-controls">
-              <label>任務<input value={draft.task} onChange={(event) => setDraft({ task: event.target.value })} placeholder={mainline?.title || '這一輪要完成什麼？'} /></label>
-              <div className="tidebound-quick-stepper"><span>專注時間</span><div><button type="button" onClick={() => setDraft({ durationMinutes: clamp(draft.durationMinutes - 5, 5, 120) })}>−</button><strong>{draft.durationMinutes} 分</strong><button type="button" onClick={() => setDraft({ durationMinutes: clamp(draft.durationMinutes + 5, 5, 120) })}>+</button></div></div>
-              <div className="tidebound-quick-presets" aria-label="快捷專注時間">{DURATIONS.map((minutes) => <button key={minutes} type="button" className={draft.durationMinutes === minutes ? 'is-active' : ''} onClick={() => setDraft({ durationMinutes: minutes })}>{minutes}</button>)}</div>
+              <label>任務<input {...PET_SAFE_INTERACTIVE} value={draft.task} onChange={(event) => setDraft({ task: event.target.value })} placeholder={mainline?.title || '這一輪要完成什麼？'} /></label>
+              <div className="tidebound-quick-stepper"><span>專注時間</span><div><button type="button" {...PET_SAFE_INTERACTIVE} onClick={() => setDraft({ durationMinutes: clamp(draft.durationMinutes - 5, 5, 120) })}>−</button><strong>{draft.durationMinutes} 分</strong><button type="button" {...PET_SAFE_INTERACTIVE} onClick={() => setDraft({ durationMinutes: clamp(draft.durationMinutes + 5, 5, 120) })}>+</button></div></div>
+              <div className="tidebound-quick-presets" aria-label="快捷專注時間">{DURATIONS.map((minutes) => <button key={minutes} type="button" {...PET_SAFE_INTERACTIVE} className={draft.durationMinutes === minutes ? 'is-active' : ''} onClick={() => setDraft({ durationMinutes: minutes })}>{minutes}</button>)}</div>
               <div className="tidebound-quick-grid">
-                <div><span>休息</span><div><button type="button" onClick={() => setDraft({ breakMinutes: clamp(draft.breakMinutes - 1, 1, 60) })}>−</button><strong>{draft.breakMinutes} 分</strong><button type="button" onClick={() => setDraft({ breakMinutes: clamp(draft.breakMinutes + 1, 1, 60) })}>+</button></div></div>
-                <div><span>輪數</span><div><button type="button" onClick={() => setDraft({ rounds: clamp(draft.rounds - 1, 1, 12) })}>−</button><strong>{draft.rounds}</strong><button type="button" onClick={() => setDraft({ rounds: clamp(draft.rounds + 1, 1, 12) })}>+</button></div></div>
+                <div><span>休息</span><div><button type="button" {...PET_SAFE_INTERACTIVE} onClick={() => setDraft({ breakMinutes: clamp(draft.breakMinutes - 1, 1, 60) })}>−</button><strong>{draft.breakMinutes} 分</strong><button type="button" {...PET_SAFE_INTERACTIVE} onClick={() => setDraft({ breakMinutes: clamp(draft.breakMinutes + 1, 1, 60) })}>+</button></div></div>
+                <div><span>輪數</span><div><button type="button" {...PET_SAFE_INTERACTIVE} onClick={() => setDraft({ rounds: clamp(draft.rounds - 1, 1, 12) })}>−</button><strong>{draft.rounds}</strong><button type="button" {...PET_SAFE_INTERACTIVE} onClick={() => setDraft({ rounds: clamp(draft.rounds + 1, 1, 12) })}>+</button></div></div>
               </div>
-              <button type="button" className="tidebound-quick-primary" onClick={handleStart}>開始這一輪</button>
+              <button type="button" {...PET_SAFE_INTERACTIVE} className="tidebound-quick-primary" onClick={handleStart}>開始這一輪</button>
             </div>
           ) : (
             <div className="tidebound-quick-panel__body tidebound-quick-active" data-phase={session.phase}>
@@ -153,17 +144,18 @@ export function FocusIsland({ hideIdleOrb = false }: FocusIslandProps) {
               <strong className="tidebound-quick-time">{formatTime(session.remainingSeconds)}</strong>
               {!isBreak && <small>第 {session.currentRound} / {session.rounds} 輪</small>}
               <div className="tidebound-quick-actions">
-                {isBreak ? <button type="button" onClick={transitionPhase}>跳過休息</button> : isPaused ? <button type="button" onClick={resumeSession}>恢復</button> : <button type="button" onClick={pauseSession}>暫停</button>}
-                {!isBreak && <button type="button" className="is-danger" onClick={endSession}>結束這一輪</button>}
+                {isBreak ? <button type="button" {...PET_SAFE_INTERACTIVE} onClick={transitionPhase}>跳過休息</button> : isPaused ? <button type="button" {...PET_SAFE_INTERACTIVE} onClick={resumeSession}>恢復</button> : <button type="button" {...PET_SAFE_INTERACTIVE} onClick={pauseSession}>暫停</button>}
+                {!isBreak && <button type="button" {...PET_SAFE_INTERACTIVE} className="is-danger" onClick={endSession}>結束這一輪</button>}
               </div>
             </div>
           )}
 
           <footer>
-            <button type="button" onClick={() => openFullWindow(false)}>完整設定</button>
-            <button type="button" onClick={() => openFullWindow(true)}>專注統計</button>
+            <button type="button" {...PET_SAFE_INTERACTIVE} onClick={() => openFullWindow(false)}>完整設定</button>
+            <button type="button" {...PET_SAFE_INTERACTIVE} onClick={() => openFullWindow(true)}>專注統計</button>
           </footer>
         </section>
+        </MobileShellOverlay>
       )}
     </div>
   );

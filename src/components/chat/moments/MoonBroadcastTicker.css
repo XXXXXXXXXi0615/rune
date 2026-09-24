@@ -1,0 +1,113 @@
+/* 月潮播报 — quiet private broadcast bar (no marquee, no neon). */
+.moon-broadcast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  max-height: 52px;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 16px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 88%, transparent), color-mix(in srgb, var(--surface) 76%, transparent));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.moon-broadcast__title {
+  flex: 0 0 auto;
+  color: var(--text-2);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.moon-broadcast__viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Semantic, single-pass list: visible but visually collapsed (screen-reader
+   and keyboard reachable), the animated duplicates are aria-hidden. */
+.moon-broadcast__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  list-style: none;
+}
+
+.moon-broadcast__sr button {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.moon-broadcast__track {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  width: max-content;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.moon-broadcast__track button {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.moon-broadcast__track small { color: var(--text-3); font-size: 10px; font-weight: 500; }
+
+.moon-broadcast__track[data-animate='true'] {
+  animation-name: moon-broadcast-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.moon-broadcast__track[data-animate='false'] {
+  animation-play-state: paused;
+}
+
+@keyframes moon-broadcast-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moon-broadcast__track { animation: none !important; }
+}
+
+.moon-broadcast__static {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moon-broadcast__static small { color: var(--text-3); font-size: 10px; font-weight: 500; }

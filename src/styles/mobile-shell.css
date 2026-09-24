@@ -1,0 +1,270 @@
+/* One application shell at every viewport: desktop browsers are preview frames. */
+:root {
+  --app-preview-max-width: 430px;
+  --dock-visual-height: 66px;
+  --dock-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --dock-bottom-gap: 6px;
+  --dock-handle-overhang: 48px;
+  --dock-content-gap: 8px;
+  --dock-effective-inset: calc(var(--dock-visual-height) + var(--dock-safe-area-bottom) + var(--dock-bottom-gap) + var(--dock-handle-overhang) + var(--dock-content-gap));
+}
+
+body { overflow: hidden; }
+
+#root {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg) 88%, #111 12%);
+}
+
+#app {
+  width: min(100%, var(--app-preview-max-width));
+  max-width: var(--app-preview-max-width);
+  height: 100dvh;
+  min-height: 100dvh;
+  margin-inline: auto;
+  overflow: hidden;
+  background: var(--bg);
+  border-inline: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  box-shadow: 0 0 50px color-mix(in srgb, #000 18%, transparent);
+}
+
+#app.app--mobile-overlay-open .mobile-dock-host {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mobile-shell-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1680;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: color-mix(in srgb, #171512 34%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+.mobile-shell-overlay--fullscreen { align-items: stretch; }
+.mobile-shell-overlay--sheet { align-items: flex-end; }
+.mobile-shell-overlay--dialog { align-items: center; justify-content: center; padding: 16px; }
+
+#app[data-dock-scale='small'] {
+  --dock-visual-height: 56.76px;
+  --dock-effective-inset: calc(56.76px + var(--dock-safe-area-bottom) + var(--dock-bottom-gap) + var(--dock-handle-overhang) + var(--dock-content-gap));
+}
+#app[data-dock-scale='medium'] {
+  --dock-visual-height: 66px;
+  --dock-effective-inset: calc(66px + var(--dock-safe-area-bottom) + var(--dock-bottom-gap) + var(--dock-handle-overhang) + var(--dock-content-gap));
+}
+#app[data-dock-scale='large'] {
+  --dock-visual-height: 71.28px;
+  --dock-effective-inset: calc(71.28px + var(--dock-safe-area-bottom) + var(--dock-bottom-gap) + var(--dock-handle-overhang) + var(--dock-content-gap));
+}
+#app[data-dock-collapsed='true'] {
+  --dock-visual-height: 44px;
+  --dock-bottom-gap: 0px;
+  --dock-handle-overhang: 0px;
+  --dock-effective-inset: calc(44px + var(--dock-safe-area-bottom) + var(--dock-content-gap));
+}
+
+#app.app--chat-detail {
+  --dock-effective-inset: 0px;
+}
+
+.mobile-dock-host {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.mobile-dock-host { z-index: 100; }
+.mobile-dock-host > * { pointer-events: auto; }
+
+.app-workspace { min-width: 0; height: 100%; display: flex; flex-direction: column; }
+
+.system-top-bar {
+  position: relative;
+  flex: 0 0 auto;
+  min-height: calc(52px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 52%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  z-index: 20;
+  /* Phase D.1: the utility capsule contracts its copy against the FRAME width.
+     The shell is a max-430px frame at every outer viewport, so the bar is the
+     sizing container and viewport media queries are not a valid input here. */
+  container-type: inline-size;
+  container-name: topbar;
+}
+
+/* ── Rune identity anchor — avatar only (Phase D.1) ──────────────────────
+   The wide wordmark capsule was retired from SystemTopBar. Rune identity is a
+   44–48px avatar anchor; when a focus session is running/paused the same anchor
+   becomes the TIDEBOUND control and shows the phase + remaining time. */
+.route-status-island {
+  --route-brand-ink: #655d70;
+  position: relative;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--route-brand-ink) 26%, var(--border));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow:
+    0 2px 8px color-mix(in srgb, var(--text) 6%, transparent),
+    0 0 12px color-mix(in srgb, var(--route-brand-ink) 9%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #fff 42%, transparent);
+  color: var(--route-brand-ink);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
+  appearance: none;
+  font-family: inherit;
+}
+.route-status-island[data-mode^='focus-'] {
+  width: auto;
+  min-width: 46px;
+  padding-inline: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 999px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.route-status-island[data-mode='focus-active'] {
+  border-color: color-mix(in srgb, var(--accent) 52%, transparent);
+  box-shadow:
+    0 2px 10px color-mix(in srgb, var(--accent) 16%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #fff 40%, transparent);
+}
+.route-status-island[data-mode='focus-paused'] { color: var(--text-2); }
+.route-status-island[data-mode='focus-break'] { color: color-mix(in srgb, var(--accent) 72%, var(--text)); }
+
+/* Accessible identity name only — the top bar shows no Rune wordmark. */
+.route-status-identity-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.route-status-timer {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+[data-theme='dark'] .route-status-island {
+  --route-brand-ink: #eee8f3;
+}
+[data-theme='dark'] .route-status-island[data-mode='idle'] {
+  box-shadow:
+    0 2px 9px color-mix(in srgb, #000 28%, transparent),
+    0 0 12px color-mix(in srgb, var(--route-brand-ink) 7%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--route-brand-ink) 10%, transparent);
+}
+.rune-brand-logo {
+  position: relative;
+  display: block;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  overflow: hidden;
+  background: transparent;
+}
+.rune-brand-logo__legacy,
+.rune-brand-logo__image,
+.rune-brand-logo__candidate {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: transparent;
+}
+.rune-brand-logo__image { z-index: 1; }
+.rune-brand-logo__candidate {
+  visibility: hidden;
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .rune-brand-logo {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+}
+/* Utility Island (primary capsule) + appearance toggle — the bar's other two
+   groups. The island owns the middle space; the toggle stays 44px. */
+.stb-utility {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.stb-utility > .usage-ctrl-panel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.stb-utility > .usage-ctrl-panel > .usage-ctrl-island-family {
+  width: 100%;
+  min-width: 0;
+}
+.stb-right { display: flex; align-items: center; gap: 2px; flex: 0 0 auto; }
+.stb-avatar-btn { min-width: 44px; min-height: 44px; display: grid; place-items: center; border: 0; padding: 0; background: transparent; border-radius: 50%; }
+.mobile-header, .desktop-sidebar, .sidebar-overlay, .mobile-sidebar-toggle { display: none !important; }
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-top: 0;
+  padding-bottom: var(--dock-content-gap);
+  margin-bottom: calc(var(--dock-effective-inset) - var(--dock-content-gap));
+  scrollbar-width: none;
+}
+.app-main::-webkit-scrollbar { display: none; }
+.app-main--chat { overflow: hidden; padding-bottom: 0; }
+
+@media (max-width: 430px) {
+  #root { display: block; }
+  #app { width: 100%; max-width: none; border-inline: 0; box-shadow: none; }
+}
+
+/* Rune Calendar Phase 3A-1 — route-scoped wide workspace frame.
+   `/calendar` is the only route that may widen #app (class applied by
+   StandardShell from the route); Home / Chat / Settings / Music keep the
+   canonical 430px frame at every viewport. The desktop tier gate reuses the
+   repo-wide breakpoint (global.css: Desktop >= 1024px); the Calendar's own
+   two-pane layout is measured from its workspace container, never from the
+   viewport. */
+@media (min-width: 1024px) {
+  #app.app--calendar-wide {
+    width: min(100%, 1280px);
+    max-width: 1280px;
+  }
+}

@@ -14,6 +14,13 @@ function formatFull(ts: number): string {
 }
 
 function buildPlainText(entry: MemoryEntry): string {
+  if (entry.cardType === 'forum_bookmark') {
+    return [
+      `${t('memory.sceneLabel')}：${entry.scene || t('forum.bookmarked')}`,
+      `${t('memory.bodyLabel')}：${entry.linkedForumPostContent || entry.bodyThoughts || '—'}`,
+      `${t('memory.copied')}：${formatFull(entry.createdAt)}`,
+    ].join('\n');
+  }
   return [
     `${t('memory.sceneLabel')}：${entry.scene || t('memory.notMarked')}`,
     `${t('memory.triggerLabel')}：${entry.triggerText === '來自聊天' ? t('memory.fromChat') : entry.triggerText || '—'}`,
@@ -68,40 +75,63 @@ export function MemoryDetail({ entry, onBack }: MemoryDetailProps) {
       </div>
 
       <div className="memory-detail">
+        {/* Forum bookmark banner */}
+        {entry.cardType === 'forum_bookmark' && (
+          <div className="memory-detail-forum-badge">
+            <svg viewBox="0 0 24 24" width={14} height={14} fill="currentColor" stroke="none" style={{ color: 'var(--accent)' }}>
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            <span>{t('forum.bookmarked')}</span>
+          </div>
+        )}
+        {entry.linkedForumPostContent && (
+          <div className="memory-detail-field">
+            <div className="memory-detail-field-label">{t('forum.linkedPost')}</div>
+            <div className="memory-detail-field-value" style={{ fontStyle: 'italic', opacity: 0.85 }}>
+              {entry.linkedForumPostContent.slice(0, 120)}{entry.linkedForumPostContent.length > 120 ? '…' : ''}
+            </div>
+          </div>
+        )}
         <div className="memory-detail-field">
           <div className="memory-detail-field-label">{t('memory.sceneLabel')}</div>
           <div className="memory-detail-field-value">{entry.scene || t('memory.notMarked')}</div>
         </div>
 
-        <div className="memory-detail-field">
-          <div className="memory-detail-field-label">{t('memory.triggerLabel')}</div>
-          <div className="memory-detail-field-value">
-            {entry.triggerText === '來自聊天' ? t('memory.fromChat') : entry.triggerText || '—'}
+        {entry.cardType !== 'forum_bookmark' && (
+          <div className="memory-detail-field">
+            <div className="memory-detail-field-label">{t('memory.triggerLabel')}</div>
+            <div className="memory-detail-field-value">
+              {entry.triggerText === '來自聊天' ? t('memory.fromChat') : entry.triggerText || '—'}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="memory-detail-field">
           <div className="memory-detail-field-label">{t('memory.bodyLabel')}</div>
           <div className="memory-detail-field-value">{entry.bodyThoughts || t('memory.notOrganized')}</div>
         </div>
 
-        <div className="memory-detail-field">
-          <div className="memory-detail-field-label">{t('memory.anxietyLabel')}</div>
-          <div className="memory-detail-anxiety">
-            <div className="memory-detail-bar">
-              <div className="memory-detail-bar-fill"
-                style={{ width: `${anxietyPct}%`, background: anxietyColor(entry.anxietyLevel) }} />
+        {entry.cardType !== 'forum_bookmark' && (
+          <>
+            <div className="memory-detail-field">
+              <div className="memory-detail-field-label">{t('memory.anxietyLabel')}</div>
+              <div className="memory-detail-anxiety">
+                <div className="memory-detail-bar">
+                  <div className="memory-detail-bar-fill"
+                    style={{ width: `${anxietyPct}%`, background: anxietyColor(entry.anxietyLevel) }} />
+                </div>
+                <span className="memory-detail-anxiety-label" style={{ color: anxietyColor(entry.anxietyLevel) }}>
+                  {entry.anxietyLevel} / 10
+                </span>
+              </div>
             </div>
-            <span className="memory-detail-anxiety-label" style={{ color: anxietyColor(entry.anxietyLevel) }}>
-              {entry.anxietyLevel} / 10
-            </span>
-          </div>
-        </div>
 
-        <div className="memory-detail-field">
-          <div className="memory-detail-field-label">{t('memory.nextLabel')}</div>
-          <div className="memory-detail-field-value">{entry.nextStep || '—'}</div>
-        </div>
+            <div className="memory-detail-field">
+              <div className="memory-detail-field-label">{t('memory.nextLabel')}</div>
+              <div className="memory-detail-field-value">{entry.nextStep || '—'}</div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

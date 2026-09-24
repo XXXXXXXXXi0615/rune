@@ -1,0 +1,720 @@
+.typography-settings {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.typo-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 4px 16px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.typo-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+}
+.typo-preview--interface { color: var(--preview-text); background: color-mix(in srgb, var(--surface) 88%, transparent); }
+.typo-preview--interface .typo-preview-label, .typo-preview--interface .typo-active-stack { color: var(--preview-text-2); }
+.typo-preview-ui { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border); font-family: var(--font-body); }
+.typo-preview-ui button { border: 0; border-radius: 9px; padding: 9px 12px; background: var(--preview-accent); color: white; font: inherit; font-weight: 700; }
+.typo-preview-ui a { color: var(--preview-accent); font-size: 13px; }.typo-preview-ui input { grid-column: 1 / -1; min-width: 0; padding: 10px; border: 1px solid color-mix(in srgb, var(--preview-text) 28%, transparent); border-radius: 9px; background: var(--surface); color: var(--preview-text); font: inherit; }.typo-preview-focus { grid-column: 1 / -1; width: max-content; padding: 5px 8px; border-radius: 6px; outline: 2px solid var(--preview-accent); outline-offset: 2px; color: var(--preview-text); font-size: 12px; }
+.typo-colors { display: grid; gap: 14px; margin-bottom: 24px; padding: 18px; border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); }.typo-color-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }.typo-color-control { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px; border: 1px solid var(--border); border-radius: 10px; color: var(--text-2); font-size: 12px; }.typo-color-control input { inline-size: 32px; block-size: 28px; border: 0; background: transparent; }.typo-readable-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 4px; }.typo-readable-row div { display: grid; gap: 4px; }.typo-readable-row strong { font-size: 13px; }.typo-readable-row small { color: var(--text-3); line-height: 1.45; }.typo-readable-switch { flex: 0 0 auto; border: 1px solid var(--border); border-radius: 999px; padding: 8px 12px; background: var(--surface-2); color: var(--text-2); font: inherit; font-size: 12px; cursor: pointer; }.typo-readable-switch.is-active { border-color: var(--accent); background: var(--accent); color: white; }
+
+.typo-preview-block {
+  padding: 8px 0;
+}
+
+.typo-preview-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  font-family: var(--f-ui);
+  letter-spacing: 0.03em;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.typo-preview-cjk {
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.typo-preview-latin {
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.typo-preview-digits {
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.typo-preview-body {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.typo-preview-code pre {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  padding: 8px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.typo-active-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-family: var(--f-ui);
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.typo-active-stack-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.typo-active-stack-role {
+  font-weight: 600;
+  color: var(--text-2);
+  min-width: 36px;
+  font-size: 11px;
+}
+
+.typo-active-stack-chain {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--text-4);
+}
+
+.typo-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 2px;
+}
+.typo-tabs::-webkit-scrollbar { display: none; }
+
+.typo-tab {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast);
+}
+.typo-tab:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+.typo-tab.is-active {
+  background: var(--accent);
+  color: var(--on-primary);
+  border-color: var(--accent);
+}
+
+.typo-source-filters {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0 2px;
+}
+.typo-source-filters::-webkit-scrollbar { display: none; }
+
+.typo-source-chip {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.typo-source-chip.is-active {
+  background: var(--surface-cream-strong, var(--surface-3));
+  color: var(--text);
+  border-color: var(--border-hi);
+  font-weight: 600;
+}
+
+.typo-combos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.typo-combo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+  position: relative;
+}
+.typo-combo-card:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+.typo-combo-card.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+
+.typo-combo-name {
+  font-weight: 600;
+  font-size: 14px;
+  font-family: var(--f-ui);
+  color: var(--text);
+}
+
+.typo-combo-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--text-3);
+  font-family: var(--f-ui);
+}
+
+.typo-combo-warning {
+  font-size: 11px;
+  color: var(--warning);
+  font-weight: 500;
+  padding-top: 2px;
+}
+
+.typo-combo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.typo-combo-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.typo-combo-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--bg-2);
+  border-radius: var(--r-xs);
+  color: var(--text);
+  overflow: hidden;
+}
+.typo-combo-preview-cjk {
+  font-size: 18px;
+  line-height: 1.4;
+}
+.typo-combo-preview-latin {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+.typo-combo-preview-punct {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+
+.typo-used-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 2px 8px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: var(--r-full);
+  white-space: nowrap;
+}
+.typo-used-badge::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.typo-font-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.typo-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 32px;
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+.typo-font-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+  cursor: pointer;
+}
+.typo-font-card:hover {
+  border-color: var(--border-hi);
+}
+.typo-font-card:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+.typo-font-card[aria-disabled="true"] {
+  cursor: default;
+}
+.typo-font-card[aria-disabled="true"]:hover {
+  border-color: var(--border);
+}
+.typo-font-card.is-selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.typo-font-card.is-unavailable {
+  opacity: 0.55;
+  cursor: default;
+}
+.typo-font-card.is-unavailable:hover {
+  border-color: var(--border);
+}
+
+.typo-font-card-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.typo-font-card-check::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 10px;
+  border: solid var(--on-primary);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translateY(-1px);
+}
+
+.typo-font-card-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 18px;
+  line-height: 1.3;
+  padding: 8px 10px;
+  background: var(--bg-2);
+  border-radius: var(--r-xs);
+  color: var(--text);
+  overflow: hidden;
+}
+.typo-font-card-preview-cjk {
+  font-size: 18px;
+  line-height: 1.35;
+}
+.typo-font-card-preview-latin {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.typo-font-card-preview-punct {
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text-2);
+}
+
+.typo-font-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.typo-font-card-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.typo-font-card-source {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-4);
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-family: var(--f-ui);
+}
+
+.typo-font-card-info {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: var(--f-ui);
+}
+
+.typo-font-card-license {
+  font-size: 10px;
+  color: var(--text-4);
+  font-family: var(--f-ui);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.typo-font-card-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.typo-status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: var(--r-xs);
+  font-family: var(--f-ui);
+}
+.typo-status-unavailable {
+  color: var(--text-3);
+  background: var(--surface-2);
+}
+.typo-status-failed {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface-2));
+}
+.typo-status-loading {
+  color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 10%, var(--surface-2));
+}
+
+/* ── Status chips: applied / dirty / partial / error ── */
+.typo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  white-space: nowrap;
+  font-family: var(--f-ui);
+  line-height: 1.4;
+}
+.typo-chip--applied {
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+}
+.typo-chip--applied::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.typo-chip--dirty {
+  color: var(--text-2);
+  background: color-mix(in srgb, var(--text-3) 18%, transparent);
+}
+.typo-chip--partial {
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 16%, transparent);
+}
+.typo-chip--error {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+}
+
+.typo-upload-section {
+  margin-bottom: 24px;
+}
+
+.typo-upload-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  border: 2px dashed var(--border);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--dur-fast);
+  background: var(--surface-2);
+}
+.typo-upload-label:hover {
+  border-color: var(--border-hi);
+}
+.typo-upload-label span {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--f-ui);
+}
+.typo-upload-label small {
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: var(--f-ui);
+}
+.typo-upload-label input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.typo-params {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  margin-bottom: 24px;
+}
+
+.typo-params-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  font-family: var(--f-ui);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.typo-param-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.typo-param-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  font-family: var(--f-ui);
+}
+
+.typo-param-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--f-mono);
+}
+
+.typo-param-hint {
+  font-size: 10px;
+  color: var(--warning);
+  font-family: var(--f-ui);
+}
+
+.typo-param-row input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.typo-param-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.typo-param-row input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--surface);
+}
+
+.typo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-fast), opacity var(--dur-fast);
+  font-family: var(--f-ui);
+  white-space: nowrap;
+}
+.typo-btn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+.typo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.typo-btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+.typo-btn-primary {
+  background: var(--accent);
+  color: var(--on-primary);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.typo-btn-danger {
+  color: var(--danger);
+}
+.typo-btn-danger:hover {
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface-2));
+}
+
+.typo-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 12px 4px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.typo-no-cjk-note {
+  font-size: 10px;
+  color: var(--warning);
+  font-family: var(--f-ui);
+  padding-top: 2px;
+}
+
+@media (max-width: 599px) {
+  .typo-preview {
+    padding: 14px;
+    gap: 10px;
+    border-radius: var(--r-md);
+  }
+  .typo-preview-cjk { font-size: 17px; }
+  .typo-preview-latin { font-size: 15px; }
+  .typo-preview-digits { font-size: 15px; }
+  .typo-preview-body { font-size: 14px; }
+
+  .typo-font-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .typo-actions {
+    padding: 12px 4px;
+    justify-content: stretch;
+    flex-wrap: wrap;
+  }
+  .typo-actions .typo-btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .typo-tabs {
+    margin-bottom: 10px;
+  }
+  .typo-tab {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .typo-source-filters {
+    margin-bottom: 10px;
+  }
+  .typo-source-chip {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .typo-params {
+    padding: 14px;
+    gap: 10px;
+  }
+  .typo-color-grid { grid-template-columns: 1fr; }.typo-readable-row { align-items: flex-start; flex-direction: column; }.typo-readable-switch { width: 100%; }
+}

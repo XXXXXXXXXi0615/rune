@@ -1,0 +1,13 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { CLAWD_REST_WAKE_MS, ClawdRestController } from './ClawdRestController';
+
+describe('ClawdRestController', () => {
+  beforeEach(() => vi.useFakeTimers()); afterEach(() => vi.useRealTimers());
+  const make = () => { const states: string[] = []; const controller = new ClawdRestController((state) => states.push(state)); controller.setEligible(true); return { controller, states }; };
+  it('walks the canonical 20s, 60s and 10m thresholds using one next deadline', () => { const {controller}=make(); vi.advanceTimersByTime(19_999); expect(controller.getState()).toBe('awake'); vi.advanceTimersByTime(1); expect(controller.getState()).toBe('quiet'); vi.advanceTimersByTime(40_000); expect(controller.getState()).toBe('yawning'); vi.advanceTimersByTime(540_000); expect(controller.getState()).toBe('sleeping'); });
+  it('never rests while ineligible and resets interaction inactivity', () => { const {controller}=make(); controller.setEligible(false); vi.advanceTimersByTime(700_000); expect(controller.getState()).toBe('awake'); controller.setEligible(true); vi.advanceTimersByTime(20_000); expect(controller.getState()).toBe('quiet'); controller.activity(); expect(controller.getState()).toBe('waking'); vi.advanceTimersByTime(CLAWD_REST_WAKE_MS); expect(controller.getState()).toBe('awake'); });
+  it('wakes normally but critical escalation skips the wake animation', () => { const {controller}=make(); vi.advanceTimersByTime(600_000); controller.activity(); expect(controller.getState()).toBe('waking'); vi.advanceTimersByTime(CLAWD_REST_WAKE_MS); expect(controller.getState()).toBe('awake'); vi.advanceTimersByTime(600_000); controller.activity(true); expect(controller.getState()).toBe('awake'); });
+  it('pauses foreground inactivity while hidden', () => { const {controller}=make(); vi.advanceTimersByTime(10_000); controller.setVisible(false); vi.advanceTimersByTime(600_000); controller.setVisible(true); vi.advanceTimersByTime(9_999); expect(controller.getState()).toBe('awake'); vi.advanceTimersByTime(1); expect(controller.getState()).toBe('quiet'); });
+  it('destroy clears the canonical timer and prevents late callbacks', () => { const {controller,states}=make(); controller.destroy(); vi.advanceTimersByTime(700_000); expect(controller.getState()).toBe('awake'); expect(states).toEqual([]); });
+  it('reload policy is naturally awake because state is not persisted', () => { const first=make(); vi.advanceTimersByTime(600_000); expect(first.controller.getState()).toBe('sleeping'); const second=make(); expect(second.controller.getState()).toBe('awake'); });
+});

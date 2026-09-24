@@ -1,0 +1,287 @@
+/* ── AgentQuickEditor — desktop anchored popover / mobile bottom sheet ── */
+
+.aqe-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(16, 16, 20, 0.35);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.aqe-backdrop--popover {
+  background: transparent;
+}
+
+.agent-quick-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--surface-glass, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.12));
+  border-radius: 18px;
+  padding: 16px;
+  color: var(--text-primary, #eee);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Desktop anchored popover ── */
+.agent-quick-editor--popover {
+  position: fixed;
+  width: 320px;
+  animation: aqe-pop-in 0.16s ease-out;
+}
+
+.agent-quick-editor--advanced.agent-quick-editor--popover {
+  width: min(460px, calc(100vw - 24px));
+}
+
+.aqe-advanced-summary {
+  border-top: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
+  color: var(--text-muted, #888);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.aqe-advanced-summary p { margin: 12px 4px 4px; }
+
+@keyframes aqe-pop-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Mobile bottom sheet ── */
+.agent-quick-editor--sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 520px;
+  border-radius: 20px 20px 0 0;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  animation: aqe-sheet-up 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  max-height: min(92dvh, 760px);
+  overflow-y: auto;
+}
+
+@keyframes aqe-sheet-up {
+  from { opacity: 0.6; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.aqe-handle {
+  display: none;
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 0 auto;
+}
+
+.agent-quick-editor--sheet .aqe-handle {
+  display: block;
+}
+
+/* ── Header ── */
+.aqe-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.aqe-eyebrow {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted, #888);
+  margin: 0 0 2px;
+}
+
+.aqe-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.aqe-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #aaa);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.aqe-close:hover {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+}
+
+/* ── Identity row ── */
+.aqe-identity-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.aqe-identity-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.aqe-name-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.12));
+  background: var(--surface-hover, rgba(255, 255, 255, 0.06));
+  color: var(--text-primary, #ddd);
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+}
+.aqe-name-input:focus {
+  border-color: var(--accent-soft, rgba(255, 140, 0, 0.4));
+}
+.aqe-name-input--error {
+  border-color: #e05555;
+}
+
+.aqe-hint {
+  font-size: 11px;
+  color: var(--text-muted, #777);
+}
+
+.aqe-error {
+  font-size: 11px;
+  color: #e05555;
+}
+
+.aqe-avatar-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.aqe-mini-btn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.12));
+  background: transparent;
+  color: var(--text-secondary, #bbb);
+  font-size: 12px;
+  cursor: pointer;
+}
+.aqe-mini-btn:hover {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.08));
+}
+.aqe-mini-btn--danger:hover {
+  color: #e05555;
+  border-color: rgba(224, 85, 85, 0.3);
+}
+
+/* ── Personality note ── */
+.aqe-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aqe-field-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted, #999);
+}
+
+.aqe-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.12));
+  background: var(--surface-hover, rgba(255, 255, 255, 0.06));
+  color: var(--text-primary, #ddd);
+  font-size: 13px;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+}
+.aqe-textarea:focus {
+  border-color: var(--accent-soft, rgba(255, 140, 0, 0.4));
+}
+
+/* ── Deep links ── */
+.aqe-links {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
+}
+
+.aqe-link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px 4px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-soft, rgba(255, 255, 255, 0.06));
+  color: var(--text-secondary, #bbb);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+.aqe-link-row:hover {
+  color: var(--text-primary, #eee);
+}
+
+/* ── Actions ── */
+.aqe-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.aqe-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.aqe-btn--ghost {
+  background: transparent;
+  border-color: var(--border-soft, rgba(255, 255, 255, 0.1));
+  color: var(--text-secondary, #bbb);
+}
+.aqe-btn--ghost:hover {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.06));
+}
+
+.aqe-btn--primary {
+  background: var(--accent-soft, rgba(255, 140, 0, 0.15));
+  border-color: var(--accent-soft, rgba(255, 140, 0, 0.3));
+  color: var(--accent, #ff8c00);
+}
+.aqe-btn--primary:hover {
+  background: rgba(255, 140, 0, 0.25);
+}
+
+.is-saved .aqe-btn--primary {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-quick-editor--popover,
+  .agent-quick-editor--sheet {
+    animation: none;
+  }
+}

@@ -37,7 +37,7 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
   /* ── 主要導航（桌機側邊欄單列） ── */
   {
     id: 'home',
-    label: '首頁',
+    label: 'Home',
     description: '返回主儀表板',
     icon: 'home',
     route: '/',
@@ -49,13 +49,15 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     showInModuleSettings: false,
     isCore: true,
     isPrimaryNavigation: true,
+    showInLauncher: false,
+    showInDock: true,
     desktopGroup: 'primary',
     desktopOrder: 10,
     activePrefixes: ['/'],
   },
   {
     id: 'chat',
-    label: '聊天',
+    label: 'Chat',
     description: 'AI 對話與夥伴互動',
     icon: 'chat',
     route: '/chat',
@@ -67,13 +69,15 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     showInModuleSettings: false,
     isCore: true,
     isPrimaryNavigation: true,
+    showInLauncher: false,
+    showInDock: true,
     desktopGroup: 'primary',
     desktopOrder: 20,
     activePrefixes: ['/chat'],
   },
   {
     id: 'music',
-    label: '音樂',
+    label: 'Music',
     description: '播放清單與音訊管理',
     icon: 'music',
     route: '/music',
@@ -85,18 +89,20 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     showInModuleSettings: false,
     isCore: true,
     isPrimaryNavigation: true,
+    showInLauncher: true,
+    showInDock: true,
     desktopGroup: 'primary',
     desktopOrder: 40,
     activePrefixes: ['/music'],
   },
   {
-    id: 'moonread',
-    label: '共讀',
-    secondaryLabel: 'MoonRead',
-    description: '與 LUNARIS 一起慢慢讀一本書',
-    icon: 'moonread',
-    route: '/moonread',
-    group: 'entertainment',
+    id: 'stash',
+    label: '素材庫',
+    secondaryLabel: 'Stash',
+    description: '保存、搜尋並快速複製私人素材',
+    icon: 'stash',
+    route: '/stash',
+    group: 'creation',
     order: 5,
     enabled: true,
     showInMobileMore: true,
@@ -104,13 +110,14 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     showInModuleSettings: true,
     isCore: false,
     isPrimaryNavigation: true,
+    showInLauncher: true,
     desktopGroup: 'primary',
     desktopOrder: 50,
-    activePrefixes: ['/moonread'],
+    activePrefixes: ['/stash'],
   },
   {
     id: 'calendar',
-    label: '日曆',
+    label: 'Calendar',
     description: '行事曆、待辦與計時管理',
     icon: 'calendar',
     route: '/calendar',
@@ -122,6 +129,8 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     showInModuleSettings: false,
     isCore: true,
     isPrimaryNavigation: true,
+    showInLauncher: true,
+    showInDock: true,
     desktopGroup: 'primary',
     desktopOrder: 60,
     activePrefixes: ['/calendar'],
@@ -130,7 +139,7 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
   /* ── 生活 ── */
   {
     id: 'quests',
-    label: 'TIDEQUEST',
+    label: 'Quests',
     description: '任務、待辦與日程管理',
     icon: 'quest',
     route: '/quests',
@@ -146,21 +155,23 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     activePrefixes: ['/quests', '/todo', '/todos'],
   },
   {
-    id: 'diet',
-    label: '飲食',
-    description: '餐次、營養與熱量追蹤',
-    icon: 'diet',
-    route: '/diet',
+    id: 'lifeLedger',
+    label: '生活賬本',
+    secondaryLabel: 'Life Ledger',
+    description: '物品 · 飲食 · 花銷 · 生活記錄',
+    icon: 'listChecks',
+    route: '/life-ledger',
     group: 'life',
-    order: 20,
+    order: 25,
     enabled: true,
+    showInLauncher: true,
     showInMobileMore: true,
     showInDesktopSidebar: true,
     showInModuleSettings: true,
     isCore: false,
     desktopGroup: 'secondary',
-    desktopOrder: 10,
-    activePrefixes: ['/diet'],
+    desktopOrder: 15,
+    activePrefixes: ['/life-ledger'],
   },
   {
     id: 'objects',
@@ -172,6 +183,7 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     group: 'life',
     order: 30,
     enabled: true,
+    showInLauncher: false,
     showInMobileMore: true,
     showInDesktopSidebar: false,
     showInModuleSettings: true,
@@ -182,8 +194,8 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
   },
   {
     id: 'moonlex',
-    label: '單詞本',
-    secondaryLabel: 'MoonLex · 月潮詞冊',
+    label: 'Lexicon',
+    secondaryLabel: 'MoonLex',
     description: '收藏語彙並用互動牌組練習',
     icon: 'moonlex',
     route: '/moonlex',
@@ -199,24 +211,9 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     activePrefixes: ['/moonlex'],
   },
   /* ── 工具與管理 ── */
-  {
-    id: 'ledger',
-    label: '潮汐賬本',
-    secondaryLabel: 'Tide Ledger',
-    description: '訂閱、支出與週期性帳目',
-    icon: 'ledger',
-    route: '/ledger',
-    group: 'tools',
-    order: 10,
-    enabled: true,
-    showInMobileMore: true,
-    showInDesktopSidebar: true,
-    showInModuleSettings: true,
-    isCore: false,
-    desktopGroup: 'secondary',
-    desktopOrder: 30,
-    activePrefixes: ['/ledger', '/subscriptions'],
-  },
+  // Phase D: the Tide Ledger module (潮汐賬本, /ledger) is retired — Moon Dew lives in
+  // the Home 報備 window and Exchange is the standalone /exchange utility. The module id
+  // stays in AppModuleId only so legacy module preferences keep remapping cleanly.
   {
     id: 'storage',
     label: '儲存空間管理',
@@ -229,6 +226,7 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     showInMobileMore: true,
     showInDesktopSidebar: true,
     showInModuleSettings: true,
+    showInLauncher: false,
     isCore: false,
     desktopGroup: 'secondary',
     desktopOrder: 50,
@@ -272,25 +270,6 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     desktopOrder: 70,
     activePrefixes: ['/inspiration'],
   },
-  {
-    id: 'focus',
-    label: '月潮航程',
-    secondaryLabel: 'Lunartide Voyage',
-    description: '今日主線、健康與長期旅程',
-    icon: 'focus',
-    route: '/focus',
-    group: 'creation',
-    order: 30,
-    enabled: true,
-    showInMobileMore: true,
-    showInDesktopSidebar: true,
-    showInModuleSettings: true,
-    isCore: true,
-    desktopGroup: 'secondary',
-    desktopOrder: 80,
-    activePrefixes: ['/focus'],
-  },
-
   /* ── 賬號與系統 ── */
   {
     id: 'profile',
@@ -301,6 +280,7 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     group: 'account',
     order: 10,
     enabled: true,
+    showInLauncher: false,
     showInMobileMore: true,
     showInDesktopSidebar: false,
     showInModuleSettings: true,
@@ -324,7 +304,7 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
   },
   {
     id: 'about',
-    label: '關於月潮',
+    label: '關於 Rune',
     description: '版本資訊與本機資料說明',
     icon: 'about',
     route: '/settings/about',
@@ -334,13 +314,31 @@ export const APP_MODULES: readonly AppModuleDefinition[] = [
     showInMobileMore: true,
     showInDesktopSidebar: false,
     showInModuleSettings: false,
+    showInLauncher: false,
     isCore: false,
     activePrefixes: ['/settings/about'],
   },
   {
+    id: 'tidewatch',
+    label: '觀測站',
+    secondaryLabel: 'TIDEWATCH',
+    description: '行動觀測、提醒與里程碑',
+    icon: 'tidewatch',
+    route: '/tidewatch',
+    group: 'tools',
+    order: 30,
+    enabled: true,
+    showInMobileMore: true,
+    showInDesktopSidebar: false,
+    showInModuleSettings: false,
+    showInLauncher: true,
+    isCore: false,
+    activePrefixes: ['/tidewatch'],
+  },
+  {
     id: 'modules',
-    label: '功能與模塊',
-    description: '管理月潮中的工具、入口與顯示方式',
+    label: '應用管理',
+    description: '管理 Rune 中的工具、入口與顯示方式',
     icon: 'settings',
     route: '/settings/modules',
     group: 'account',
@@ -369,6 +367,14 @@ export function getModuleById(id: AppModuleId): AppModuleDefinition | undefined 
 }
 
 /** 取得所有「更多」入口應顯示的模組（根據偏好過濾） */
+/** Fixed secondary destinations for the mobile dock's More sheet (Phase 1.1). */
+export const MOBILE_MORE_SECONDARY_IDS: ReadonlySet<AppModuleId> = new Set<AppModuleId>([
+  'tidewatch',
+  'stash',
+  'moonlex',
+  'settings',
+]);
+
 export function getMobileMoreModules(
   hiddenIds: readonly AppModuleId[] = [],
   visibleOverrides: readonly AppModuleId[] = [],
@@ -379,6 +385,11 @@ export function getMobileMoreModules(
     .filter((module) => !dockIds.has(module.id))
     // CLAWD/TIDEBOUND 固定顯示於頁面頂部（global-status-pill），不在 More 出現
     .filter((m) => !m.entryMode || m.entryMode === 'more-sheet')
+    // Rune Navigation Phase 1.1: the mobile More sheet is a FIXED secondary
+    // set (Tidewatch / Rune Stash / Lexicon / Settings). Quests, LifeLedger,
+    // Chat, Music and Calendar have their own canonical entries and must not
+    // re-enter the dock's secondary surface.
+    .filter((m) => MOBILE_MORE_SECONDARY_IDS.has(m.id))
     // 顯示條件：showInMobileMore=true 且未被隱藏，或 showInMobileMore=false 但在 visibleOverrides 中
     .filter((m) => {
       if (m.showInMobileMore) {
@@ -394,10 +405,26 @@ export function getMobileMoreModules(
     });
 }
 
-/** Canonical five-slot mobile IA uses these four Registry modules plus the synthetic More action. */
+/** Canonical phone dock. Home is the complete app index, so there is no More action. */
 export function getMobileDockModules(): AppModuleDefinition[] {
-  const ids: readonly AppModuleId[] = ['home', 'chat', 'music', 'calendar'];
-  return ids.map((id) => getModuleById(id)).filter((module): module is AppModuleDefinition => Boolean(module?.enabled && !module.deprecated));
+  return getEnabledModules().filter((module) => module.showInDock);
+}
+
+/** Canonical Home launcher entries. */
+export function getHomeLauncherModules(): AppModuleDefinition[] {
+  return getEnabledModules()
+    .filter((module) => module.showInLauncher ?? module.showInMobileMore)
+    .sort((a, b) => a.order - b.order || a.label.localeCompare(b.label, 'zh-Hant'));
+}
+
+/** Rune Utility 的直接 App Launcher；仍由同一份 Registry 派生。 */
+export function getRuneUtilityModules(hiddenIds: readonly AppModuleId[] = []): AppModuleDefinition[] {
+  const excluded = new Set<AppModuleId>(['home', 'profile', 'about', 'modules', 'storage']);
+  return getEnabledModules()
+    .filter((module) => !excluded.has(module.id))
+    .filter((module) => module.showInRuneUtility !== false)
+    .filter((module) => module.isCore || !hiddenIds.includes(module.id))
+    .sort((a, b) => a.order - b.order || a.label.localeCompare(b.label, 'zh-Hant'));
 }
 
 /** 取得「功能與模塊」設置頁應顯示的模組 */

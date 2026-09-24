@@ -1,11 +1,1388 @@
-/* ── MoonRead animations ── */
+/** MoonRead Human-AI Co-reading — Phase 1 styles */
 
-@keyframes moonread-slideUp {
-  from { transform: translateX(-50%) translateY(100%); opacity: 0; }
-  to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+/* Phase 2 bookshelf and paged reader */
+.moonread-page { max-width: 1320px; background: transparent; }
+.moonread-shelf-sections { display: grid; gap: 30px; }
+.moonread-shelf-row { padding: 18px 20px 22px; border-radius: 22px; background: color-mix(in srgb, #faf9f5 82%, transparent); border: 1px solid rgba(235, 230, 223, 0.72); box-shadow: 0 8px 28px rgba(35,27,18,.045); }
+[data-theme="dark"] .moonread-shelf-row { background: color-mix(in srgb, #1f1e1b 78%, transparent); border-color: rgba(255,255,255,0.07); }
+.moonread-shelf-heading { display: flex; align-items: baseline; gap: 9px; margin-bottom: 15px; }
+.moonread-shelf-heading h3 { margin: 0; font-family: Georgia, 'Noto Serif TC', serif; font-size: 19px; }
+.moonread-shelf-heading span,.moonread-shelf-empty { color: var(--text-3); font-size: 12px; padding: 4px 0; }
+.moonread-shelf-row:has(.moonread-shelf-empty) { padding: 14px 20px 16px; }
+.moonread-view-toggle { display: flex; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--surface-2) 75%, transparent); }
+.moonread-view-toggle button { border: 0; border-radius: 8px; padding: 6px 10px; background: none; color: var(--text-2); cursor: pointer; }
+.moonread-view-toggle button.active { background: var(--surface); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.moonread-shelf-sections.is-covers .moonread-bookshelf { display: flex; gap: 18px; overflow-x: auto; padding: 4px 3px 10px; }
+.moonread-shelf-sections.is-covers .moonread-book-card { min-width: 210px; max-width: 240px; flex-direction: column; }
+.moonread-shelf-sections.is-covers .moonread-book-cover .moonread-cover,
+.moonread-shelf-sections.is-covers .moonread-book-cover .moonread-cover-img { width: 100%; height: 210px; object-fit: cover; border-radius: 12px; }
+.moonread-shelf-sections.is-spines .moonread-bookshelf { display: flex; gap: 5px; align-items: flex-end; overflow-x: auto; padding-top: 12px; }
+.moonread-shelf-sections.is-spines .moonread-book-card { position: relative; min-width: 52px; width: 52px; height: 210px; padding: 8px 6px; border-radius: 4px 9px 9px 4px; writing-mode: vertical-rl; display: block; overflow: visible; }
+.moonread-shelf-sections.is-spines .moonread-book-cover,.moonread-shelf-sections.is-spines .moonread-book-author,.moonread-shelf-sections.is-spines .moonread-book-meta-row,.moonread-shelf-sections.is-spines .moonread-book-progress,.moonread-shelf-sections.is-spines .moonread-book-last-read { display:none; }
+.moonread-shelf-sections.is-spines .moonread-book-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: 165px; }
+.moonread-shelf-sections.is-spines .moonread-book-more { position:absolute; bottom:6px; left:8px; }
+
+.moonread-reader { background: #e6ddcf; color: #29251f; }
+.moonread-reader-bar { min-height: 58px; background: rgba(246,241,233,.9); color:#29251f; border-color:rgba(62,49,34,.12); }
+.moonread-reader-heading { min-width:0; text-align:center; display:flex; flex-direction:column; }
+.moonread-reader-heading span { color:#766e64; font-size:11px; margin-top:2px; }
+.moonread-reader-actions button { border:1px solid rgba(60,48,34,.15); background:#fffaf2; border-radius:9px; min-height:32px; color:#433a30; }
+.moonread-book-stage { flex:1; min-height:0; display:grid; grid-template-columns:44px minmax(0,1040px) 44px; align-items:center; justify-content:center; gap:12px; padding:24px; }
+.moonread-open-book { height:min(76vh,720px); display:grid; grid-template-columns:1fr 1fr; filter:drop-shadow(0 20px 34px rgba(58,43,25,.2)); }
+.moonread-paper { position:relative; overflow:hidden; padding:clamp(32px,4.2vw,64px); background:linear-gradient(90deg,#fffdf7 0%,#fbf5e9 91%,#e0d4c2 100%); color:#29251f; border-radius:12px 2px 2px 12px; font-family:Georgia,'Noto Serif TC','Songti TC',serif; font-size:var(--reader-font-size); line-height:1.85; letter-spacing:.035em; }
+.moonread-paper.is-right { background:linear-gradient(90deg,#ded1be 0%,#fbf5e9 9%,#fffdf7 100%); border-radius:2px 12px 12px 2px; }
+.moonread-paper p { margin:0 0 1.15em; text-indent:2em; text-align:justify; }
+.moonread-paper h2 { margin:0 0 1.2em; font-size:1.45em; line-height:1.35; }
+.moonread-paper-number { position:absolute; bottom:18px; left:50%; transform:translateX(-50%); color:#8b8173; font-size:11px; }
+.moonread-page-turn { width:42px; height:58px; border:0; border-radius:18px; background:rgba(255,255,255,.48); color:#655a4d; font-size:28px; cursor:pointer; }
+.moonread-image-page { height:100%; margin:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; }
+.moonread-image-page img { display:block; max-width:100%; max-height:calc(100% - 28px); width:auto; height:auto; object-fit:contain; image-rendering:auto; }
+.moonread-image-page figcaption { color:#7b7063; font-size:11px; }
+.moonread-reader-footer { height:34px; display:flex; justify-content:center; gap:22px; color:#786e61; font-size:12px; }
+.moonread-coreading-panel { position:fixed; z-index:106; right:22px; top:76px; width:min(320px,calc(100vw - 32px)); display:grid; gap:10px; padding:16px; border-radius:16px; background:#fffaf2; box-shadow:0 18px 50px rgba(50,37,22,.24); }
+.moonread-coreading-panel > div { display:flex; justify-content:space-between; }.moonread-coreading-panel textarea { min-height:80px; resize:vertical; }
+
+@media (max-width:699px) {
+  .moonread-page { padding:14px; overflow-x:hidden; }
+  .moonread-header { align-items:center; }.moonread-header h1 { font-size:22px; }
+  .moonread-library-toolbar { align-items:stretch; }.moonread-search-sort { flex-wrap:wrap; }.moonread-search { min-width:0; }
+  .moonread-shelf-row { padding:14px 12px 17px; }
+  .moonread-shelf-sections.is-covers .moonread-book-card { min-width:152px; max-width:152px; }
+  .moonread-shelf-sections.is-covers .moonread-book-cover .moonread-cover,.moonread-shelf-sections.is-covers .moonread-book-cover .moonread-cover-img { height:176px; }
+  .moonread-reader-bar { padding:8px; gap:6px; }.moonread-reader-heading strong { max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }.moonread-reader-actions { gap:3px; }.moonread-reader-actions button { padding:4px 6px; font-size:11px; }
+  .moonread-book-stage { grid-template-columns:28px minmax(0,1fr) 28px; gap:3px; padding:10px 4px; }
+  .moonread-open-book.is-mobile { display:block; width:100%; height:calc(100dvh - 126px); }
+  .moonread-paper { height:100%; padding:30px 24px 42px; border-radius:10px; background:#fffdf7; }
+  .moonread-page-turn { width:28px; height:52px; background:transparent; padding:0; }
 }
 
-@keyframes moonread-blink {
-  0%, 100% { opacity: 0.25; }
-  50%      { opacity: 1; }
+.moonread-page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--text);
 }
+
+.moonread-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.moonread-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.moonread-subtitle {
+  margin: 4px 0 0;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.moonread-import-btn {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.moonread-import-btn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.moonread-import-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.moonread-toast {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.25);
+  color: var(--danger, #ff6b6b);
+  font-size: 13px;
+}
+
+.moonread-hero {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 24px;
+  background: var(--surface, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  margin-bottom: 32px;
+  align-items: center;
+}
+
+.moonread-hero-cover {
+  flex-shrink: 0;
+}
+
+.moonread-hero-cover .moonread-cover {
+  width: 120px;
+  height: 172px;
+  border-radius: 12px;
+}
+
+.moonread-hero-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.moonread-hero-eyebrow {
+  font-size: 12px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.moonread-hero-title {
+  margin: 6px 0 8px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.moonread-hero-meta {
+  margin: 0 0 14px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.moonread-progress-bar,
+.moonread-book-progress {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.moonread-progress-fill,
+.moonread-book-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.moonread-continue-btn {
+  margin-top: 16px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.moonread-continue-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.moonread-library h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.moonread-library-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.moonread-search-sort {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.moonread-search,
+.moonread-sort {
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+
+.moonread-search {
+  width: 180px;
+}
+
+.moonread-search:focus,
+.moonread-sort:focus {
+  border-color: var(--accent);
+}
+
+.moonread-empty {
+  text-align: center;
+  padding: 56px 24px;
+  border-radius: 24px;
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  border: 1px dashed var(--border, rgba(255, 255, 255, 0.1));
+}
+
+.moonread-empty-icon {
+  color: var(--text-3);
+  margin-bottom: 14px;
+}
+
+.moonread-empty-title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.moonread-empty-hint {
+  margin: 0 0 18px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.moonread-bookshelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.moonread-book-card {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--surface, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.06));
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.moonread-book-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.moonread-book-cover .moonread-cover {
+  width: 72px;
+  height: 104px;
+  border-radius: 10px;
+}
+
+.moonread-book-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.moonread-book-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moonread-book-author {
+  margin: 0 0 8px;
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.moonread-book-meta {
+  margin: 0 0 auto;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.moonread-book-progress {
+  margin-top: 12px;
+}
+
+.moonread-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.moonread-cover-initial {
+  font-size: 36px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .moonread-page {
+    padding: calc(14px + env(safe-area-inset-top)) 14px calc(90px + env(safe-area-inset-bottom));
+    overflow-x: clip;
+  }
+
+  .moonread-header {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .moonread-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .moonread-hero-cover .moonread-cover {
+    width: 88px;
+    height: 126px;
+  }
+
+  .moonread-library-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .moonread-search-sort {
+    width: 100%;
+  }
+
+  .moonread-search {
+    flex: 1;
+  }
+
+  .moonread-bookshelf {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ════════════════════════════════════════
+   Reader
+   ════════════════════════════════════════ */
+
+.moonread-reader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: var(--reader-bg, var(--bg, #0b0d14));
+  color: var(--reader-text, var(--text, #f2f4f8));
+}
+
+.moonread-reader-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+}
+
+.moonread-reader-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.moonread-reader-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moonread-reader-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.moonread-reader-action {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.moonread-reader-body {
+  flex: 1;
+  overflow: auto;
+  padding: 32px 24px;
+}
+
+.moonread-reader-scroll {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 17px;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+}
+
+.moonread-reader-scroll p {
+  margin: 0 0 1.4em;
+}
+
+.moonread-reader-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: var(--text-2);
+}
+
+.moonread-reader-empty h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.moonread-reader-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 101;
+}
+
+.moonread-reader-progress > div {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s;
+}
+
+.moonread-reader-clawd {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 102;
+}
+
+.moonread-annotations {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.moonread-annotations h3 {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.moonread-annotation-item {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface, rgba(255, 255, 255, 0.04));
+  border-left: 3px solid var(--accent);
+}
+
+.moonread-annotation-item blockquote {
+  margin: 0 0 6px;
+  font-style: italic;
+  color: var(--text-2);
+}
+
+.moonread-annotation-item p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.moonread-annotation-panel {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  width: min(360px, calc(100vw - 32px));
+  z-index: 104;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--surface, rgba(20, 22, 30, 0.95));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(14px);
+}
+
+.moonread-annotation-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.moonread-annotation-panel-head button {
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.moonread-annotation-quote {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.moonread-annotation-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 14px;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+.moonread-annotation-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.moonread-annotation-colors {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.moonread-color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.moonread-color-dot.active {
+  border-color: var(--text);
+}
+
+.moonread-color-dot:nth-child(1) { background: #FFD700; }
+.moonread-color-dot:nth-child(2) { background: #FF6B6B; }
+.moonread-color-dot:nth-child(3) { background: #4ECDC4; }
+.moonread-color-dot:nth-child(4) { background: #95E1D3; }
+.moonread-color-dot:nth-child(5) { background: #A8D8EA; }
+.moonread-color-dot:nth-child(6) { background: #D4A5A5; }
+.moonread-color-dot:nth-child(7) { background: #C9B1FF; }
+.moonread-color-dot:nth-child(8) { background: #F7DC6F; }
+
+@media (max-width: 640px) {
+  .moonread-reader-body {
+    padding: 24px 18px;
+  }
+
+  .moonread-reader-scroll {
+    font-size: 16px;
+  }
+
+  .moonread-reader-title {
+    font-size: 13px;
+  }
+}
+
+/* ════════════════════════════════════════
+   EPUB Processing Card
+   ════════════════════════════════════════ */
+
+.moonread-processing-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.moonread-processing-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: moonread-spin 0.8s linear infinite;
+}
+
+@keyframes moonread-spin {
+  to { transform: rotate(360deg); }
+}
+
+.moonread-processing-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.moonread-processing-status {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.moonread-processing-name {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* ════════════════════════════════════════
+   EPUB Cover Image
+   ════════════════════════════════════════ */
+
+.moonread-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* ════════════════════════════════════════
+   EPUB Content
+   ════════════════════════════════════════ */
+
+.moonread-epub-content {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.moonread-epub-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.moonread-epub-content a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.moonread-epub-content blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 16px;
+  margin: 12px 0;
+  color: var(--text-2);
+}
+
+.moonread-epub-content pre,
+.moonread-epub-content code {
+  font-family: var(--f-mono, monospace);
+  font-size: 0.9em;
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.moonread-epub-content pre {
+  padding: 12px;
+  overflow-x: auto;
+}
+
+/* Image placeholder for missing/blocked images */
+.moonread-img-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  min-height: 80px;
+  max-width: 100%;
+  margin: 8px 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--surface-2, rgba(255, 255, 255, 0.06));
+  border: 1px dashed var(--border, rgba(255, 255, 255, 0.15));
+  color: var(--text-3, rgba(255, 255, 255, 0.4));
+  font-size: 13px;
+  font-style: italic;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.moonread-img-placeholder span {
+  display: block;
+  line-height: 1.4;
+}
+
+/* ════════════════════════════════════════
+   TOC Sidebar
+   ════════════════════════════════════════ */
+
+.moonread-toc {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100%;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.moonread-toc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.moonread-toc-header button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-2);
+}
+
+.moonread-toc-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.moonread-toc-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.moonread-toc-item:hover {
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+}
+
+.moonread-toc-item.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ════════════════════════════════════════
+   Chapter Navigation
+   ════════════════════════════════════════ */
+
+.moonread-chapter-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.moonread-chapter-btn {
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.moonread-chapter-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+}
+
+.moonread-chapter-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.moonread-chapter-indicator {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.moonread-chapter-title {
+  font-size: 12px;
+  color: var(--text-3);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════
+   Font Controls
+   ════════════════════════════════════════ */
+
+.moonread-font-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.moonread-font-btn {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.moonread-font-btn:hover {
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+}
+
+/* ════════════════════════════════════════
+   Bookshelf Card Layout (v2)
+   ════════════════════════════════════════ */
+
+.moonread-bookshelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.moonread-book-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  background: var(--surface, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.06));
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.moonread-book-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.moonread-book-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.moonread-book-cover {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 18px 18px 0 0;
+}
+
+.moonread-book-cover .moonread-cover,
+.moonread-book-cover .moonread-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.moonread-book-info {
+  flex: 1;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.moonread-book-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.moonread-book-author {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moonread-book-meta-row {
+  display: flex;
+  gap: 8px;
+  color: var(--text-3);
+  font-size: 11px;
+  margin-top: auto;
+}
+
+.moonread-book-progress {
+  margin-top: 8px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.moonread-book-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.2s;
+}
+
+.moonread-book-last-read {
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+
+.moonread-book-more {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  color: white;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.moonread-book-card:hover .moonread-book-more,
+.moonread-book-card:focus-within .moonread-book-more {
+  opacity: 1;
+}
+
+/* ════════════════════════════════════════
+   Bookshelf Context Menu
+   ════════════════════════════════════════ */
+
+.bookshelf-context-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 360;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.bookshelf-context-sheet {
+  width: min(100%, 400px);
+  max-height: 70dvh;
+  overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bookshelf-context-handle {
+  width: 38px;
+  height: 5px;
+  margin: 9px auto 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-3) 36%, transparent);
+}
+
+.bookshelf-context-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.bookshelf-context-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookshelf-context-author {
+  display: block;
+  font-size: 12px;
+  color: var(--text-2);
+  margin-top: 2px;
+}
+
+.bookshelf-context-popover {
+  width: 220px;
+  border-radius: 12px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.bookshelf-context-menu {
+  padding: 4px;
+}
+
+.bookshelf-context-divider {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--border);
+}
+
+.bookshelf-context-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.bookshelf-context-item:hover {
+  background: var(--surface-2);
+}
+
+.bookshelf-context-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.bookshelf-context-item.is-destructive {
+  color: var(--danger, #ff6b6b);
+}
+
+.bookshelf-context-item.is-destructive:hover {
+  background: color-mix(in srgb, var(--danger, #ff6b6b) 12%, transparent);
+}
+
+/* ════════════════════════════════════════
+   MoonRead Dialogs
+   ════════════════════════════════════════ */
+
+.moonread-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 370;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 16px;
+}
+
+.moonread-dialog {
+  width: min(100%, 420px);
+  max-height: 80dvh;
+  overflow-y: auto;
+  border-radius: 20px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+}
+
+.moonread-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.moonread-dialog-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.moonread-dialog-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.moonread-dialog-close:hover {
+  background: var(--surface-2);
+}
+
+.moonread-dialog-body {
+  padding: 20px;
+}
+
+.moonread-dialog-message {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.moonread-dialog-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.moonread-dialog-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.moonread-dialog-option:hover {
+  background: var(--surface-2);
+}
+
+.moonread-dialog-option input[type="radio"] {
+  margin-top: 2px;
+}
+
+.moonread-dialog-option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.moonread-dialog-option-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.moonread-dialog-option-label--danger {
+  color: var(--danger, #ff6b6b);
+}
+
+.moonread-dialog-option-desc {
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.moonread-dialog-field {
+  margin-bottom: 16px;
+}
+
+.moonread-dialog-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+
+.moonread-dialog-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.moonread-dialog-input:focus {
+  border-color: var(--accent);
+}
+
+.moonread-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.moonread-dialog-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.moonread-dialog-btn--cancel {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-2);
+}
+
+.moonread-dialog-btn--cancel:hover {
+  background: var(--surface-2);
+}
+
+.moonread-dialog-btn--confirm {
+  border: none;
+  background: var(--accent);
+  color: white;
+}
+
+.moonread-dialog-btn--confirm:hover {
+  opacity: 0.9;
+}
+
+.moonread-dialog-btn--danger {
+  background: var(--danger, #ff6b6b);
+}
+
+/* ════════════════════════════════════════
+   Mobile Responsive (updated)
+   ════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .moonread-bookshelf {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .moonread-book-more {
+    opacity: 1;
+  }
+}
+
+/* MoonRead Phase 2.1 acceptance overrides */
+.moonread-page { position:relative; z-index:1; max-width:1320px; color:var(--text); background:transparent; }
+.moonread-shelf-row { background:color-mix(in srgb,#faf9f5 86%,transparent); border-color:rgba(235,230,223,.78); }
+[data-theme="dark"] .moonread-shelf-row { background:color-mix(in srgb,#1f1e1b 82%,transparent); border-color:rgba(255,255,255,.08); }
+.moonread-shelf-sections.is-covers .moonread-bookshelf { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); overflow:visible; gap:16px; }
+.moonread-shelf-sections.is-covers .moonread-book-card { min-width:0; max-width:none; width:auto; }
+.moonread-book-card { display:flex; position:relative; padding:0; }
+.moonread-book-open { display:flex; flex:1; gap:14px; min-width:0; padding:14px; border:0; border-radius:inherit; background:transparent; color:inherit; text-align:left; cursor:pointer; }
+.moonread-shelf-sections.is-covers .moonread-book-open { flex-direction:column; }
+.moonread-shelf-sections.is-covers .moonread-book-cover .moonread-cover,.moonread-shelf-sections.is-covers .moonread-book-cover .moonread-cover-img { width:100%; height:210px; }
+.moonread-shelf-sections.is-spines .moonread-shelf-row { padding-bottom:0; overflow:hidden; }
+.moonread-shelf-sections.is-spines .moonread-bookshelf { display:flex; flex-wrap:wrap; align-content:flex-start; align-items:flex-end; gap:8px 5px; overflow:visible; padding:16px 12px 22px; border-bottom:14px solid #8a6548; box-shadow:inset 0 -4px 0 #5f412f,0 9px 12px rgba(49,33,22,.18); }
+.moonread-shelf-sections.is-spines .moonread-book-card { flex:0 0 var(--moonread-spine-width); width:var(--moonread-spine-width); min-width:var(--moonread-spine-width); height:210px; padding:0; border-radius:4px 9px 9px 4px; writing-mode:vertical-rl; overflow:visible; }
+.moonread-shelf-sections.is-spines .moonread-book-open { display:block; width:100%; padding:12px 8px 38px; writing-mode:vertical-rl; }
+.moonread-shelf-sections.is-spines .moonread-book-title { display:block; height:150px; margin:0; color:inherit; }
+.moonread-shelf-sections.is-spines .moonread-book-card:hover::after,.moonread-shelf-sections.is-spines .moonread-book-card:focus-within::after { content:'完整書籍資料'; position:absolute; z-index:4; left:50%; bottom:calc(100% + 10px); transform:translateX(-50%); writing-mode:horizontal-tb; white-space:nowrap; padding:8px 10px; border-radius:8px; background:#29251f; color:#fff; font-size:12px; }
+.moonread-removed-books { margin-top:24px; padding:14px 18px; border:1px solid var(--border); border-radius:16px; }.moonread-removed-books ul{display:grid;gap:8px;padding:10px 0 0;margin:0;list-style:none}.moonread-removed-books li{display:flex;justify-content:space-between;align-items:center;gap:12px}.moonread-removed-books button{min-height:36px}
+.moonread-open-book { position:relative; }
+.moonread-paper { box-sizing:border-box; height:100%; overflow:visible; padding:clamp(32px,4.2vw,64px) clamp(32px,4.2vw,64px) calc(clamp(32px,4.2vw,64px) + 24px); }
+.moonread-paper > p:last-of-type,.moonread-paper > h2:last-of-type { margin-bottom:0; }
+.moonread-page-measurer { position:fixed; left:-200vw; top:0; visibility:hidden; width:calc(min(1040px,calc(100vw - 160px)) / 2); height:min(76vh,720px); filter:none; pointer-events:none; }
+.moonread-margin-mark { float:right; width:22px; height:22px; margin-right:-28px; border:0; background:transparent; color:#cc785c; cursor:pointer; }
+.moonread-reader-focus { flex:0 0 auto; padding:5px 8px; border-radius:999px; background:rgba(90,78,62,.1); color:#685e52; font-size:10px; }.moonread-reader-focus.is-active{background:rgba(93,184,166,.2);color:#246f63}
+.moonread-settings-backdrop { position:fixed; inset:0; z-index:120; display:flex; align-items:flex-end; background:rgba(18,16,13,.35); }
+.moonread-settings-sheet { width:100%; padding:16px max(18px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left)); border-radius:22px 22px 0 0; background:#fffaf2; color:#29251f; box-shadow:0 -12px 36px rgba(0,0,0,.2); }
+.moonread-settings-head { display:flex; justify-content:space-between; align-items:center; }.moonread-settings-head button,.moonread-settings-actions button{min-width:44px;min-height:44px}.moonread-settings-actions{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}.moonread-settings-sheet p{text-align:center;color:#776c60;font-size:12px}
+.moonread-delete-warning { padding:10px; border-radius:10px; background:rgba(198,69,69,.1); color:#a52f2f; font-size:12px; }
+@media(max-width:699px){
+  .moonread-page{padding:calc(14px + env(safe-area-inset-top)) 14px calc(90px + env(safe-area-inset-bottom));overflow-x:clip}
+  .moonread-header{padding-top:38px}.moonread-library-toolbar{display:grid;grid-template-columns:1fr}.moonread-search-sort{display:grid;grid-template-columns:1fr 1fr;width:100%}.moonread-view-toggle{grid-column:1/-1}.moonread-search{width:100%;min-width:0}.moonread-sort{width:100%;min-width:0}
+  .moonread-shelf-sections.is-covers .moonread-bookshelf{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.moonread-shelf-sections.is-covers .moonread-book-card{width:auto;min-width:0;max-width:none}.moonread-shelf-sections.is-covers .moonread-book-cover .moonread-cover,.moonread-shelf-sections.is-covers .moonread-book-cover .moonread-cover-img{height:168px}
+  .moonread-reader-bar{min-height:calc(96px + env(safe-area-inset-top));padding:calc(40px + env(safe-area-inset-top)) 8px 0;display:grid;grid-template-columns:52px minmax(0,1fr) 48px;gap:4px}.moonread-reader-back,.moonread-reader-settings-btn{min-width:44px;min-height:44px}.moonread-reader-heading strong{max-width:none}.moonread-reader-heading span{display:none}.moonread-reader-actions{display:block}body.moonread-reader-active .focus-island:not(.focus-island--expanded){left:50%;right:auto;transform:translateX(-50%) scale(.65);transform-origin:top center}
+  .moonread-open-book.is-mobile{height:calc(100dvh - 172px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}.moonread-paper{overflow:visible;padding:28px 22px 50px}.moonread-page-measurer{width:calc(100vw - 72px);height:calc(100dvh - 172px - env(safe-area-inset-top) - env(safe-area-inset-bottom));}
+  .moonread-page-turn{min-width:32px;color:#453c32;background:rgba(255,255,255,.76);font-weight:700}.moonread-book-stage{touch-action:pan-y;padding-inline:4px}.moonread-reader-footer{padding-bottom:env(safe-area-inset-bottom)}
+}
+.moonread-header-actions{display:flex;gap:10px;align-items:center}
+.moonread-comic-import-btn{flex-shrink:0;padding:10px 18px;border-radius:999px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s,transform .15s}
+.moonread-comic-import-btn:hover:not(:disabled){opacity:.88;transform:translateY(-1px)}
+.moonread-comic-import-btn:disabled{opacity:.6;cursor:wait}
+.moonread-memories-link{min-height:44px;border:1px solid var(--border);border-radius:12px;background:transparent;color:var(--text-2);padding:0 14px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s,color .15s}
+.moonread-memories-link:hover{background:color-mix(in srgb,var(--surface) 40%,transparent);color:var(--text)}
+@media(max-width:600px){.moonread-header-actions{display:grid;grid-template-columns:1fr 1fr;width:100%;grid-column:1/-1;gap:6px}.moonread-memories-link{grid-column:1/-1;justify-self:stretch;text-align:center;padding:0 8px}.moonread-comic-import-btn{padding:8px 12px;font-size:13px}}
+.comic-import-dialog{max-width:760px}.comic-import-pages{max-height:52vh;overflow:auto;display:grid;gap:8px;margin:14px 0}.comic-import-pages>div{display:grid;grid-template-columns:54px 34px minmax(100px,1fr) repeat(4,auto);align-items:center;gap:7px}.comic-import-pages img{width:48px;height:64px;object-fit:cover}.comic-import-dialog>label{display:grid;gap:5px;margin:10px 0}@media(max-width:600px){.comic-import-pages>div{grid-template-columns:44px 28px minmax(70px,1fr) repeat(2,auto)}.comic-import-pages>div button:nth-of-type(3),.comic-import-pages>div button:nth-of-type(4){grid-column:auto}.comic-import-pages img{width:40px;height:54px}}

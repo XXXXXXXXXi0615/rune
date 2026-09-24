@@ -1,0 +1,309 @@
+/* ═══════════════════════════════════════════
+   MobileTabBar — Floating Glass Tab Bar
+   Shared Active Pill Motion via framer-motion
+   ═══════════════════════════════════════════ */
+
+/* ── Design tokens ── */
+:root {
+  --mtb-height: 66px;
+  --mtb-bottom-offset: calc(env(safe-area-inset-bottom, 0px) + 6px);
+  --mtb-pill-inset-tb: 7px;
+  --mtb-pill-inset-lr: 5px;
+  --mtb-icon-size: 24px;
+  --mtb-border-radius: 22px;
+  --mobile-edge-inline: 10px;
+  --mobile-dock-gap: 6px;
+}
+
+/* ── Shell ── */
+.mobile-tab-bar {
+  --dock-scale-factor: 1;
+  position: absolute;
+  bottom: var(--mtb-bottom-offset);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: min(calc(100% - var(--mobile-edge-inline) * 2), calc(390px * var(--dock-scale-factor)));
+  height: calc(var(--mtb-height) * var(--dock-scale-factor));
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+  animation: dock-expand-in var(--rune-motion-standard) var(--rune-spring-control);
+}
+.mobile-tab-bar[data-dock-scale='small'] { --dock-scale-factor: .86; --mtb-icon-size: 21px; --mtb-border-radius: 19px; }
+.mobile-tab-bar[data-dock-scale='large'] { --dock-scale-factor: 1.08; --mtb-icon-size: 26px; --mtb-border-radius: 24px; }
+
+/* Suppress the mobile dock while a full-screen call is on screen */
+body.cc-call-active .mobile-tab-bar,
+body.cc-call-active .mobile-dock-reveal {
+  display: none !important;
+}
+
+.mobile-dock-reveal{position:absolute;z-index:100;left:50%;bottom:env(safe-area-inset-bottom,0px);transform:translateX(-50%);display:grid;width:72px;height:44px;place-items:center;padding:0;border:1px solid color-mix(in srgb,var(--glass-edge) 38%,transparent);border-radius:18px;background:var(--glass-bg-strong);color:var(--text-3);box-shadow:0 5px 18px rgba(40,31,24,.12),inset 0 1px 0 rgba(255,255,255,.28);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);cursor:var(--rune-cursor-pointer,pointer);animation:dock-collapse-in var(--rune-motion-standard) var(--rune-spring-control)}
+.mobile-dock-reveal svg,.mobile-tab-bar__item[data-tab-id='collapse'] svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mobile-dock-reveal:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 62%,transparent);outline-offset:2px}
+
+@keyframes dock-collapse-in { from { opacity:0; transform:translateX(-50%) scaleX(1.24) } to { opacity:1; transform:translateX(-50%) scaleX(1) } }
+@keyframes dock-expand-in { from { opacity:0; transform:translateX(-50%) scaleX(.82) } to { opacity:1; transform:translateX(-50%) scaleX(1) } }
+
+/* ── Glass surface ── */
+.mobile-tab-bar__surface {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--mtb-border-radius);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid color-mix(in srgb, var(--glass-edge) 36%, rgba(255, 255, 255, 0.06));
+  box-shadow:
+    0 2px 20px rgba(0, 0, 0, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Items row — CSS grid, 5 equal-width columns ── */
+.mobile-tab-bar__items {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  height: 100%;
+  padding: 2px;
+  gap: 0;
+}
+
+.mobile-tab-bar__chat-orb {
+  position: relative;
+  z-index: 5;
+  align-self: center;
+  justify-self: center;
+  display: grid;
+  width: clamp(110px, 27.4vw, 118px);
+  height: clamp(110px, 27.4vw, 118px);
+  min-width: 44px;
+  min-height: 44px;
+  margin-top: -48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: var(--rune-cursor-pointer, pointer);
+  filter: drop-shadow(0 7px 12px rgba(72, 74, 132, .16));
+  transition: transform 150ms ease, filter 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-tab-bar__chat-orb img { display:block;width:100%;height:100%;object-fit:contain;aspect-ratio:1;pointer-events:none;user-select:none; }
+.mobile-tab-bar__chat-orb.is-active { filter:drop-shadow(0 0 11px rgba(118,166,255,.37)) drop-shadow(0 6px 11px rgba(193,145,75,.15)); }
+.mobile-tab-bar__chat-orb:active { transform:scale(.94); }
+.mobile-tab-bar__chat-orb:focus-visible { outline:2px solid color-mix(in srgb,#88b8ff 72%,var(--accent));outline-offset:2px; }
+
+
+/* ── Individual tab button ── */
+.mobile-tab-bar__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: var(--rune-cursor-pointer, pointer);
+  font-family: inherit;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.18s ease;
+  touch-action: manipulation;
+}
+
+.mobile-tab-bar__item.is-active {
+  color: var(--text);
+}
+
+.mobile-tab-bar__item.is-active .mobile-tab-bar__icon {
+  color: color-mix(in srgb, var(--accent) 88%, var(--text));
+}
+
+/* Small bottom indicator — CURRENT ROUTE marker, far quieter than the orb. */
+.mobile-tab-bar__pill::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent) 62%, transparent);
+  transform: translateX(-50%);
+}
+
+.mobile-tab-bar__item:focus-visible {
+  outline: 2px solid rgba(83, 199, 202, 0.78);
+  outline-offset: -3px;
+  border-radius: 14px;
+}
+
+/* ── Press feedback: icon scale on :active ── */
+.mobile-tab-bar__item:active .mobile-tab-bar__icon {
+  transform: scale(0.92);
+  transition: transform 0.09s ease;
+}
+
+.mobile-tab-bar__item.is-active:active .mobile-tab-bar__icon {
+  transform: scale(0.94);
+  transition: transform 0.09s ease;
+}
+
+.mobile-tab-bar__item:active .mobile-tab-bar__pill {
+  transform: scale(0.96);
+  transition: transform 0.09s ease;
+}
+
+/* ── Pill — absolutely positioned behind icon/label, animated via layoutId ── */
+.mobile-tab-bar__pill {
+  position: absolute;
+  inset: var(--mtb-pill-inset-tb) var(--mtb-pill-inset-lr);
+  z-index: 0;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--accent) 5%, var(--glass-bg-soft));
+  border: 1px solid color-mix(in srgb, var(--accent) 7%, rgba(255, 255, 255, 0.03));
+  pointer-events: none;
+}
+
+
+/* ── Icon ── */
+.mobile-tab-bar__icon {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 28px;
+  transition: color 0.18s ease;
+}
+
+.mobile-tab-bar__icon.is-rotated {
+  transform: rotate(90deg);
+  transition: transform 0.22s ease;
+}
+
+.mobile-tab-bar__icon svg {
+  width: var(--mtb-icon-size);
+  height: var(--mtb-icon-size);
+  display: block;
+}
+
+/* ── Label (only visible on active tab) ── */
+.mobile-tab-bar__label {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+/* ═══════════════════════════
+   Light theme overrides
+   ═══════════════════════════ */
+[data-theme='light'] .mobile-tab-bar__surface {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 247, 242, 0.88));
+  border-color: color-mix(in srgb, var(--glass-edge) 32%, rgba(210, 200, 186, 0.14));
+  box-shadow:
+    0 -8px 28px rgba(58, 46, 34, 0.07),
+    0 1px 0 rgba(255, 255, 255, 0.70),
+    0 4px 18px rgba(58, 46, 34, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.64);
+}
+
+[data-theme='light'] .mobile-tab-bar__pill {
+  background: color-mix(in srgb, var(--accent) 6%, rgba(255, 255, 255, 0.18));
+  border-color: color-mix(in srgb, var(--accent) 7%, rgba(180, 195, 215, 0.08));
+}
+
+/* ═══════════════════════════
+   Dark theme overrides
+   ═══════════════════════════ */
+[data-theme='dark'] .mobile-tab-bar__surface {
+  background: rgba(28, 28, 36, 0.52);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.20),
+    0 1px 3px rgba(0, 0, 0, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .mobile-tab-bar__pill {
+  background: color-mix(in srgb, var(--accent) 4%, rgba(255, 255, 255, 0.03));
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ═══════════════════════════
+   No backdrop-filter fallback
+   ═══════════════════════════ */
+@supports not (backdrop-filter: blur(1px)) {
+  .mobile-tab-bar__surface {
+    background: var(--glass-bg-strong);
+  }
+
+  .mobile-tab-bar__pill {
+    background: var(--glass-bg-soft);
+    box-shadow: none;
+  }
+}
+
+/* ═══════════════════════════
+   Reduced motion — disable spring & slide animations
+   ═══════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-tab-bar__item,
+  .mobile-tab-bar__icon,
+  .mobile-tab-bar__label {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .mobile-tab-bar__item:active .mobile-tab-bar__icon,
+  .mobile-tab-bar__item:active .mobile-tab-bar__pill {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .mobile-tab-bar__pill {
+    animation-duration: 0s !important;
+    transition: none !important;
+  }
+
+  .mobile-tab-bar__label {
+    opacity: 1 !important;
+  }
+  .mobile-tab-bar__chat-orb { transition:none!important; }
+  .mobile-tab-bar,.mobile-dock-reveal { animation:none!important;transition:opacity var(--rune-motion-instant)!important; }
+}
+
+/* ═══════════════════════════
+   390px & smaller — ensure no horizontal overflow
+   ═══════════════════════════ */
+@media (max-width: 390px) {
+  .mobile-tab-bar {
+    width: min(calc(100% - 16px), calc(390px * var(--dock-scale-factor)));
+  }
+}
+
+/* ═══════════════════════════
+   Tablet — 601–1023px wider dock
+   ═══════════════════════════ */
+html.keyboard-open .mobile-tab-bar{display:none}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-tab-bar, .mobile-dock-reveal { transition: opacity 200ms ease, transform 200ms ease; }
+}

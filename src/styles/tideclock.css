@@ -1,0 +1,621 @@
+/* ════════════════════════════════════════
+   TIDECLOCK — Status Bar (Home)
+   ════════════════════════════════════════ */
+
+.tc-status-layer {
+  padding: 0;
+}
+
+.tc-status-bar {
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--amber, #d4a053) 8%, transparent), transparent 60%),
+    color-mix(in srgb, var(--surface-2) 60%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+  transition: border-color var(--dur-fast);
+}
+
+.tc-status-bar[data-status="completed"] {
+  border-color: color-mix(in srgb, var(--teal, #6bb5a0) 30%, var(--border));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--teal, #6bb5a0) 8%, transparent), transparent 60%),
+    color-mix(in srgb, var(--surface-2) 60%, transparent);
+}
+
+.tc-status-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  color: var(--text);
+  transition: background var(--dur-fast);
+}
+
+.tc-status-main:active {
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.tc-status-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--amber, #d4a053) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber, #d4a053) 20%, transparent);
+  color: var(--amber, #d4a053);
+}
+
+.tc-status-bar[data-status="completed"] .tc-status-icon {
+  background: color-mix(in srgb, var(--teal, #6bb5a0) 14%, transparent);
+  border-color: color-mix(in srgb, var(--teal, #6bb5a0) 20%, transparent);
+  color: var(--teal, #6bb5a0);
+}
+
+.tc-status-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tc-status-label {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.tc-status-meta {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.tc-status-action {
+  flex-shrink: 0;
+  color: var(--text-3);
+}
+
+/* ════════════════════════════════════════
+   TIDECLOCK — Machine Overlay
+   ════════════════════════════════════════ */
+
+.tc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 340;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: tc-fade-in 200ms ease-out;
+}
+
+@keyframes tc-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tc-machine {
+  position: relative;
+  width: min(92vw, 400px);
+  max-height: min(85dvh, 560px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(120% 80% at 30% 0%, color-mix(in srgb, var(--amber, #d4a053) 10%, transparent), transparent 50%),
+    color-mix(in srgb, var(--surface-3) 88%, transparent);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(32px) saturate(160%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
+  animation: tc-machine-in 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes tc-machine-in {
+  from { transform: translateY(24px) scale(0.96); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.tc-machine-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+.tc-machine-title {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tc-machine-close {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.tc-machine-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.tc-machine-slot {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  border: 2px dashed color-mix(in srgb, var(--amber, #d4a053) 30%, var(--border));
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.tc-machine-slot-label {
+  position: absolute;
+  top: 8px;
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+
+.tc-machine-card {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: transform 0.1s ease-out;
+}
+
+.tc-machine-card--dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+.tc-machine-card--swiping {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+}
+
+.tc-machine-card-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--amber, #d4a053) 25%, var(--border));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--amber, #d4a053) 12%, transparent), transparent 70%),
+    var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tc-machine-card-hint {
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: 400;
+}
+
+.tc-machine-stamp {
+  display: grid;
+  place-items: center;
+  padding: 8px;
+}
+
+.tc-machine-stamp--animate {
+  animation: tc-stamp-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tc-stamp-in {
+  0% { transform: scale(2) rotate(-15deg); opacity: 0; }
+  60% { transform: scale(0.9) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.tc-machine-receipt {
+  width: 100%;
+  animation: tc-receipt-out 0.4s ease-out;
+}
+
+@keyframes tc-receipt-out {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.tc-machine-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.tc-machine-done-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--teal, #6bb5a0);
+}
+
+.tc-machine-done-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.tc-machine-done-stats strong {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tc-machine-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--danger, #e55) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger, #e55) 20%, transparent);
+  font-size: 12px;
+  color: var(--danger, #e55);
+}
+
+.tc-machine-error button {
+  font: 600 11px/1 var(--f-ui, sans-serif);
+  color: var(--danger, #e55);
+  border: 1px solid currentColor;
+  border-radius: var(--r-full);
+  padding: 4px 10px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tc-machine-punch-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--r-full);
+  border: none;
+  background:
+    radial-gradient(circle at 30% 30%, color-mix(in srgb, #fff 20%, var(--amber, #d4a053)), var(--amber, #d4a053));
+  color: #fff;
+  font: 700 15px/1 var(--f-ui, sans-serif);
+  cursor: pointer;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--amber, #d4a053) 30%, transparent);
+  transition: transform var(--dur-fast), opacity var(--dur-fast);
+}
+
+.tc-machine-punch-btn:active {
+  transform: scale(0.97);
+}
+
+.tc-machine-punch-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tc-machine-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+.tc-machine-dismiss,
+.tc-machine-view-records {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--r-full);
+  font: 600 13px/1 var(--f-ui, sans-serif);
+  cursor: pointer;
+  transition: transform var(--dur-fast);
+}
+
+.tc-machine-dismiss:active,
+.tc-machine-view-records:active {
+  transform: scale(0.97);
+}
+
+.tc-machine-dismiss {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  color: var(--text-2);
+}
+
+.tc-machine-view-records {
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ════════════════════════════════════════
+   TIDECLOCK — Ticket
+   ════════════════════════════════════════ */
+
+.tc-ticket {
+  width: 100%;
+  border: 1px dashed color-mix(in srgb, var(--amber, #d4a053) 30%, var(--border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  padding: 14px;
+  font-size: 12px;
+}
+
+.tc-ticket--compact {
+  padding: 8px 12px;
+}
+
+.tc-ticket-compact-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.tc-ticket-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+
+.tc-ticket-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--amber, #d4a053);
+  letter-spacing: 0.06em;
+}
+
+.tc-ticket-subtitle {
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.tc-ticket-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tc-ticket-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tc-ticket-row--footer {
+  margin-top: 4px;
+}
+
+.tc-ticket-label {
+  font-size: 11px;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.tc-ticket-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tc-ticket-value--task {
+  max-width: 160px;
+}
+
+.tc-ticket-value--mono {
+  font-family: var(--f-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.tc-ticket-value--dew {
+  color: var(--teal, #6bb5a0);
+}
+
+.tc-ticket-divider {
+  height: 1px;
+  margin: 4px 0;
+  border-bottom: 1px dashed color-mix(in srgb, var(--border) 40%, transparent);
+}
+
+.tc-ticket-status--ontime {
+  color: var(--teal, #6bb5a0);
+}
+
+.tc-ticket-status--late {
+  color: var(--amber, #d4a053);
+}
+
+.tc-ticket-status--makeup {
+  color: var(--text-3);
+}
+
+.tc-ticket-date {
+  color: var(--text-2);
+}
+
+.tc-ticket-time {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tc-ticket-streak {
+  color: var(--amber, #d4a053);
+  font-weight: 600;
+}
+
+.tc-ticket-stamp {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+/* ════════════════════════════════════════
+   TIDECLOCK — Heatmap Metric Toggle
+   ════════════════════════════════════════ */
+
+/* ── Activity Heatmap view-mode SVG segmented control ── */
+.activity-view-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 36px);
+  gap: 0;
+  padding: 3px;
+  height: 36px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  border: 1px solid var(--border);
+}
+
+.activity-view-switch__pill {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--teal, #6bb5a0) 22%, var(--surface));
+  transition: transform 0.2s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.activity-view-switch[data-active="check_in"] .activity-view-switch__pill {
+  transform: translateX(36px);
+}
+
+.activity-view-segment {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: transform 0.09s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.activity-view-segment:not(.is-active):hover {
+  background: color-mix(in srgb, var(--text-3) 10%, transparent);
+}
+
+.activity-view-segment.is-active {
+  color: color-mix(in srgb, var(--teal, #6bb5a0) 72%, #14302a);
+}
+
+.activity-view-segment:active {
+  transform: scale(0.96);
+}
+
+.activity-view-segment:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity-view-switch__pill {
+    transition: none;
+  }
+  .activity-view-segment:active {
+    transform: none;
+  }
+}
+
+/* ════════════════════════════════════════
+   TIDECLOCK — Heatmap cell (check-in mode)
+   ════════════════════════════════════════ */
+
+.activity-heatmap-cell.ci-on_time {
+  background: color-mix(in srgb, var(--teal, #6bb5a0) 50%, transparent);
+}
+
+.activity-heatmap-cell.ci-late {
+  background: color-mix(in srgb, var(--amber, #d4a053) 50%, transparent);
+}
+
+.activity-heatmap-cell.ci-makeup {
+  background: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--text-3) 25%, transparent),
+    color-mix(in srgb, var(--text-3) 25%, transparent) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+
+.activity-heatmap-cell.ci-missed {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--danger, #e55) 40%, transparent);
+}
+
+.activity-heatmap-cell.ci-today {
+  box-shadow: 0 0 0 2px var(--amber, #d4a053);
+}
+
+/* ════════════════════════════════════════
+   REDUCED MOTION
+   ════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .tc-overlay,
+  .tc-machine,
+  .tc-machine-stamp--animate,
+  .tc-machine-receipt {
+    animation: none !important;
+  }
+}

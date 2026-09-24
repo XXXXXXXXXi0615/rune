@@ -1,0 +1,3 @@
+import { describe,expect,it } from 'vitest';
+import { isSupportedComicEntry,naturalComicSort,parseComicInfo } from './importComic';
+describe('comic import',()=>{it('sorts pages naturally',()=>expect(['10.jpg','2.jpg','1.jpg'].sort(naturalComicSort)).toEqual(['1.jpg','2.jpg','10.jpg']));it('filters system and unsupported files',()=>expect(['1.jpg','__MACOSX/2.png','.hidden.webp','notes.txt','Thumbs.db'].filter(isSupportedComicEntry)).toEqual(['1.jpg']));it('parses ComicInfo without blocking malformed XML',()=>{expect(parseComicInfo('<ComicInfo><Title>Tide</Title><Writer>Luna</Writer><Number>2</Number></ComicInfo>')).toMatchObject({title:'Tide',author:'Luna',volume:'2'});expect(parseComicInfo('<bad')).toEqual({});});});

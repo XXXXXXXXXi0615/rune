@@ -1,12 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  FLOW_LEVELS, PERIOD_MOODS,
   createPeriodRecord, deletePeriodRecord, loadPeriodRecords, savePeriodRecord,
   type PeriodMood, type PeriodRecord,
 } from '@/utils/periodStorage';
-import { mergeSymptomTags, parseSymptomTags } from '@/features/period/symptomTagParser';
+import { autoGenerateTicketForRecord } from '@/features/period/ticketStorage';
+import { deleteTicketsForRecord } from '@/features/period/ticketStorage';
+import { getCycleDateProjection } from '@/features/period/getCycleSnapshot';
+import { getCyclePhaseLabel } from '@/features/period/periodLabels';
+import type { GeneratedPeriodTicket } from '@/features/period/ticketTypes';
 import { CalendarCreateSheet } from '@/components/calendar/CalendarCreateSheet';
 import { PeriodFlowOrbSelector } from '@/components/period/PeriodFlowOrbSelector';
+import { PeriodMoodSlider } from '@/components/period/PeriodMoodSlider';
+import { PeriodTicketReveal } from '@/components/period/PeriodTicketReveal';
+import { PeriodTicketModal } from '@/components/period/PeriodTicketModal';
 import { DateWheelPicker } from '@/components/ui/DateWheelPicker';
 import { PickerField } from '@/components/ui/PickerField';
 import { formatDateLabel } from '@/components/ui/pickerUtils';
@@ -25,15 +31,14 @@ export function PeriodRecordSheet({ open, date, record, onClose, onChanged }: {
   const [endDate, setEndDate] = useState(date);
   const [flowLevel, setFlowLevel] = useState('');
   const [mood, setMood] = useState<PeriodMood | undefined>();
-  const [symptoms, setSymptoms] = useState<string[]>([]);
-  const [symptomRawText, setSymptomRawText] = useState('');
-  const [symptomTags, setSymptomTags] = useState<string[]>([]);
-  const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [duplicate, setDuplicate] = useState<PeriodRecord | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [datePickerTarget, setDatePickerTarget] = useState<'start' | 'end' | null>(null);
   const [triggerRect, setTriggerRect] = useState<DOMRect | undefined>();
+  const [reveal, setReveal] = useState<GeneratedPeriodTicket | null>(null);
+  const [revealFailed, setRevealFailed] = useState(false);
+  const [revealViewOpen, setRevealViewOpen] = useState(false);
   const startDateRef = useRef<HTMLButtonElement>(null);
   const endDateRef = useRef<HTMLButtonElement>(null);
 
@@ -43,27 +48,41 @@ export function PeriodRecordSheet({ open, date, record, onClose, onChanged }: {
     setEndDate(record?.endDate ?? date);
     setFlowLevel(record?.flowLevel ?? '');
     setMood(record?.mood);
-    setSymptoms(record?.symptoms ?? []);
-    setSymptomRawText(record?.symptomRawText ?? '');
-    setSymptomTags(record?.symptomTags ?? []);
-    setNotes(record?.notes ?? '');
     setError(''); setDuplicate(null); setDeleteConfirm(false);
     setDatePickerTarget(null);
+    setReveal(null); setRevealFailed(false); setRevealViewOpen(false);
   }, [date, open, record]);
 
-  const dirty = useMemo(() => JSON.stringify({ startDate, endDate, flowLevel, mood, symptoms, symptomRawText, symptomTags, notes }) !== JSON.stringify({
+  const dirty = useMemo(() => JSON.stringify({ startDate, endDate, flowLevel, mood }) !== JSON.stringify({
     startDate: record?.startDate ?? date, endDate: record?.endDate ?? date, flowLevel: record?.flowLevel ?? '', mood: record?.mood,
-    symptoms: record?.symptoms ?? [], symptomRawText: record?.symptomRawText ?? '', symptomTags: record?.symptomTags ?? [], notes: record?.notes ?? '',
-  }), [date, endDate, flowLevel, mood, notes, record, startDate, symptomRawText, symptomTags, symptoms]);
+  }), [date, endDate, flowLevel, mood, record, startDate]);
 
-  if (!open) return null;
+  if (!open) {
+    if (!reveal && !revealFailed) return null;
+    return (
+      <>
+        <PeriodTicketReveal
+          ticket={reveal}
+          failed={revealFailed}
+          onDismiss={() => { setReveal(null); setRevealFailed(false); setRevealViewOpen(false); }}
+          onOpenTicket={() => setRevealViewOpen(true)}
+        />
+        {revealViewOpen && reveal && (
+          <PeriodTicketModal
+            ticket={reveal}
+            onClose={() => setRevealViewOpen(false)}
+          />
+        )}
+      </>
+    );
+  }
 
   const validate = () => {
     if (!startDate || !endDate) return '請選擇開始與結束日期';
     if (startDate > endDate) return '結束日期不能早於開始日期';
     return null;
   };
-  const payload = () => ({ startDate, endDate, flowLevel, mood, symptoms, symptomRawText, symptomTags, notes, tideLevel: record?.tideLevel ?? '平潮' });
+  const payload = () => ({ startDate, endDate, flowLevel, mood, tideLevel: record?.tideLevel ?? '平潮' });
   const finish = () => {
     const next = loadPeriodRecords();
     window.dispatchEvent(new CustomEvent('period-records-updated'));
@@ -77,14 +96,36 @@ export function PeriodRecordSheet({ open, date, record, onClose, onChanged }: {
     const collision = records.find((item) => item.startDate === startDate && item.endDate === endDate && item.id !== record?.id);
     if (collision && !choice) { setDuplicate(collision); return; }
     const next = payload();
+    let committed: PeriodRecord | null = null;
     if (choice === 'update-existing' && collision) savePeriodRecord({ ...collision, ...next });
-    else if (choice === 'merge-edit' && collision && record) { savePeriodRecord({ ...collision, ...next }); deletePeriodRecord(record.id); }
+    else if (choice === 'merge-edit' && collision && record) { savePeriodRecord({ ...collision, ...next }); deleteTicketsForRecord(record.id); deletePeriodRecord(record.id); }
     else if (record) savePeriodRecord({ ...record, ...next });
-    else savePeriodRecord(createPeriodRecord(startDate, endDate, symptoms, notes, mood, '平潮', flowLevel, { symptomRawText, symptomTags }));
+    else {
+      const created = createPeriodRecord(startDate, endDate, [], '', mood, '平潮', flowLevel);
+      savePeriodRecord(created);
+      committed = created;
+    }
+    // Phase 3C: auto-generate ONLY for brand-new records, AFTER commit success.
+    // Edit commits never overwrite an existing ticket (stale contract applies).
+    if (committed) {
+      const projection = getCycleDateProjection(committed.startDate);
+      try {
+        setReveal(autoGenerateTicketForRecord(committed, {
+          cycleDay: projection.cycleDay ?? undefined,
+          phaseLabel: getCyclePhaseLabel(projection.phase),
+        }));
+        setRevealFailed(false);
+      } catch {
+        // Ticket generation/storage failure — canonical record stays saved.
+        setReveal(null);
+        setRevealFailed(true);
+      }
+    }
     finish();
   };
   const remove = () => {
     if (!record) return;
+    deleteTicketsForRecord(record.id);
     deletePeriodRecord(record.id);
     finish();
   };
@@ -102,7 +143,7 @@ export function PeriodRecordSheet({ open, date, record, onClose, onChanged }: {
       onConfirm={() => commit()}
       typeLabel="Period Record"
       title={record ? '編輯生理周期' : '記錄生理周期'}
-      subtitle="記下這段時間的身體狀態。"
+      subtitle="記下今天的周期狀態。"
       confirmLabel="儲存"
       confirmDisabled={!dirty || dateInvalid}
       dirty={dirty}
@@ -168,30 +209,8 @@ export function PeriodRecordSheet({ open, date, record, onClose, onChanged }: {
       </div>
 
       <div className="pc-field">
-        <span className="pc-label" id="pc-mood-label">心情</span>
-        <div className="pc-chip-row" role="radiogroup" aria-labelledby="pc-mood-label">
-          {PERIOD_MOODS.map((item) => (
-            <button key={item.key} type="button" role="radio" aria-checked={mood === item.key} className="pc-chip" onClick={() => setMood(mood === item.key ? undefined : item.key)}>{item.label}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="pc-field">
-        <label className="pc-label" htmlFor="pc-body-state">身體狀態</label>
-        <textarea id="pc-body-state" className="pc-textarea" rows={3} value={symptomRawText} onChange={(e) => setSymptomRawText(e.target.value)} placeholder="今天身體有什麼感受？" />
-        <div className="pc-body-state-actions">
-          <button type="button" className="pc-extract-btn" onClick={() => setSymptomTags((current) => mergeSymptomTags(current, parseSymptomTags(symptomRawText), 'merge'))}>整理描述重點</button>
-        </div>
-        {symptomTags.length > 0 && (
-          <div className="pc-tags" data-testid="derived-tags">
-            {symptomTags.map((tag) => <button type="button" key={tag} onClick={() => setSymptomTags((items) => items.filter((item) => item !== tag))}>{tag} ×</button>)}
-          </div>
-        )}
-      </div>
-
-      <div className="pc-field">
-        <label className="pc-label" htmlFor="pc-notes">備註</label>
-        <textarea id="pc-notes" className="pc-textarea" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="其他想記下的內容" />
+        <span className="pc-label" id="pc-mood-label">情緒刻度</span>
+        <PeriodMoodSlider value={mood} onChange={setMood} label="心情" />
       </div>
 
       {error && <p role="alert" className="pc-error">{error}</p>}

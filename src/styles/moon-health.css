@@ -1,0 +1,287 @@
+.moon-health-page{width:min(calc(100% - 48px),1180px);margin:0 auto;padding:28px 0 120px;color:var(--text)}.moon-health-hero{padding:28px;border-radius:28px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 14%,var(--surface)),rgba(255,255,255,.3));border:1px solid var(--border)}.moon-health-hero span{font-size:11px;letter-spacing:.18em;color:var(--text-3)}.moon-health-hero h1{margin:7px 0;font-size:32px}.moon-health-hero p{margin:0;color:var(--text-2)}.moon-health-tabs{display:flex;gap:8px;padding:18px 0}.moon-health-tabs a,.health-type-tabs button,.unit-toggle button{padding:9px 16px;border-radius:999px;border:1px solid var(--border);background:color-mix(in srgb,var(--surface) 74%,transparent);color:var(--text-2);text-decoration:none}.moon-health-tabs a.active,.health-type-tabs button.active,.unit-toggle button.active{background:var(--accent);color:#fff;border-color:transparent}.moon-health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.moon-health-card{padding:20px;border:1px solid var(--border);border-radius:22px;background:color-mix(in srgb,var(--surface) 80%,transparent);box-shadow:0 12px 30px rgba(40,25,20,.05)}.moon-health-card h2{font-size:16px;margin:0 0 10px}.moon-health-card>strong{font-size:32px}.moon-health-card p{color:var(--text-2)}.moon-health-card a{color:var(--accent)}.moon-health-permissions{margin-top:14px}.moon-health-permissions label{display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--border)}.moon-health-page>.moon-health-card:last-child{margin-top:14px}.moon-health-body{display:grid;grid-template-columns:minmax(300px,440px) 1fr;gap:16px}.health-record-form{display:flex;flex-direction:column;gap:12px;align-self:start}.health-record-form label{display:grid;gap:6px;font-size:12px;color:var(--text-2)}.health-record-form input{width:100%;box-sizing:border-box;padding:11px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text)}.health-type-tabs,.unit-toggle,.health-form-actions{display:flex;gap:6px;flex-wrap:wrap}.health-type-tabs button,.unit-toggle button{cursor:pointer}.health-form-actions{justify-content:flex-end}.health-form-actions button,.health-record-list button{padding:9px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);cursor:pointer}.health-form-actions button:last-child{background:var(--accent);color:#fff}.health-error{color:var(--danger)!important}.health-record-list{display:grid;gap:10px}.health-record-list article{display:flex;justify-content:space-between;align-items:center}.health-record-list article span{display:block;font-size:12px;color:var(--text-3);margin-top:4px}.moon-health-empty{color:var(--text-3)}
+@media(max-width:767px){.moon-health-page{width:calc(100% - 28px);padding-top:14px}.moon-health-grid,.moon-health-body{grid-template-columns:1fr}.moon-health-tabs{overflow-x:auto}.moon-health-tabs a{white-space:nowrap}.moon-health-hero{padding:20px}.moon-health-hero h1{font-size:27px}}
+body.pet-recede .global-desktop-pet-host,body:has(.moon-health-body) .global-desktop-pet-host{opacity:.22!important;pointer-events:none!important}body:has(.moon-health-body) .global-desktop-pet-host *,body.pet-recede .global-desktop-pet-host *{pointer-events:none!important}.moon-health-body{position:relative;z-index:2}
+.health-period-page{display:grid;gap:16px}.health-period-hero{--period-phase:var(--accent);display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:24px;padding:28px;border:1px solid color-mix(in srgb,var(--period-phase) 32%,var(--border));border-radius:26px;background:linear-gradient(135deg,color-mix(in srgb,var(--period-phase) 14%,var(--surface)),color-mix(in srgb,var(--surface) 88%,transparent))}.health-period-eyebrow{font-size:11px;letter-spacing:.16em;color:var(--text-3)}.health-period-hero h1{margin:8px 0;font-size:clamp(30px,5vw,54px);color:var(--text)}.health-period-hero p{margin:5px 0}.health-period-cycle-day{font-size:20px!important;color:var(--text)!important}.health-period-hero__actions{display:grid;gap:12px;align-content:center}.health-period-prediction{padding:16px;border-radius:18px;background:color-mix(in srgb,var(--surface) 76%,transparent);border:1px solid var(--border)}.health-period-prediction span,.health-period-prediction small{display:block;color:var(--text-3)}.health-period-prediction strong{display:block;margin:5px 0;font-size:22px}.health-period-prediction p{color:var(--text-2)}.health-period-hero button,.health-period-records header>button{min-height:44px;padding:10px 16px;border:0;border-radius:14px;background:var(--accent);color:#fff;cursor:pointer}.health-period-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.health-period-metrics article span{display:block;color:var(--text-3);font-size:12px}.health-period-metrics article strong{display:block;margin-top:8px;font-size:20px}.health-period-trend>header,.health-period-records>header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}.health-period-trend h2,.health-period-records h2{margin:4px 0 0}.health-period-view-tabs{display:flex;gap:6px}.health-period-view-tabs button{min-height:40px;padding:8px 14px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);cursor:pointer}.health-period-view-tabs button[aria-selected=true]{background:var(--accent);color:#fff}.health-period-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.health-period-week-grid>div{min-height:62px;padding:8px;border-radius:12px;border:1px solid color-mix(in srgb,var(--period-cell) 35%,var(--border));background:color-mix(in srgb,var(--period-cell) 12%,var(--surface));box-sizing:border-box}.health-period-week-grid>div.is-today{outline:2px solid var(--accent);outline-offset:2px}.health-period-week-grid span,.health-period-week-grid small{display:block}.health-period-week-grid small{margin-top:5px;color:var(--text-2);font-size:10px}.health-period-records ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}.health-period-records li button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);text-align:left;cursor:pointer}.health-period-records li small{color:var(--text-3)}.health-period-empty,.health-period-boundary{color:var(--text-3)}.health-period-boundary a{margin-left:8px;color:var(--accent)}
+@media(max-width:767px){.health-period-hero{grid-template-columns:1fr;padding:20px}.health-period-metrics{grid-template-columns:1fr}.health-period-trend>header,.health-period-records>header{align-items:flex-start;flex-direction:column}.health-period-week-grid{gap:5px}.health-period-week-grid>div{min-height:52px;padding:6px}.health-period-week-grid small{font-size:9px}.health-period-records li button{align-items:flex-start;flex-direction:column}.health-period-page,.health-period-page>*{min-width:0}}
+
+/* ══════════════════════════════════════════
+   Calendar Health Hub — embedded workspaces
+   ══════════════════════════════════════════ */
+
+.calendar-health-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.calendar-health-overview .moon-health-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* Calendar / Health Phase 2A — mixed-density living hub. */
+.health-overview-panel {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  color: var(--text);
+}
+
+.health-overview-panel > section { min-width: 0; }
+
+.health-overview-heading {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 4px 12px;
+  padding: 2px 2px 0;
+}
+
+.health-overview-heading > span {
+  grid-column: 1 / -1;
+  color: var(--accent);
+  font: 700 10px/1 var(--f-ui);
+  letter-spacing: .16em;
+}
+
+.health-overview-heading h2 { margin: 0; font-size: clamp(25px, 5vw, 34px); }
+.health-overview-heading time { color: var(--text-2); font-size: 13px; padding-bottom: 4px; }
+
+.health-summary-card,
+.health-surface-card,
+.health-life-action {
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--text) 10%, var(--border));
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--text) 6%, transparent);
+  backdrop-filter: blur(15px) saturate(112%);
+  -webkit-backdrop-filter: blur(15px) saturate(112%);
+}
+
+.health-summary-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 13%, var(--surface)), color-mix(in srgb, var(--surface) 68%, transparent));
+}
+
+.health-summary-card span,
+.health-core-card > span,
+.health-core-card div > span { display: block; color: var(--text-2); font-size: 12px; }
+.health-summary-card strong { display: block; margin-top: 3px; font-size: 20px; }
+.health-summary-card p { grid-column: 1; margin: 0; color: var(--text-2); font-size: 13px; line-height: 1.55; }
+.health-summary-actions { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+.health-summary-actions a,
+.health-core-card a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--surface) 68%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.health-summary-actions a:focus-visible,
+.health-core-card a:focus-visible,
+.health-copy-card button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.health-section-title { margin: 0 0 10px 2px; font-size: 16px; }
+.health-core-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+.health-core-card {
+  min-width: 0;
+  min-height: 126px;
+  padding: 16px;
+  border-radius: 21px;
+}
+
+.health-core-card--wide { grid-column: 1 / -1; }
+.health-core-card--water { min-height: 154px; background: linear-gradient(145deg, color-mix(in srgb, #bcebf2 24%, var(--surface)), color-mix(in srgb, var(--surface) 70%, transparent)); }
+.health-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.health-card-head small { color: var(--accent); font-weight: 700; }
+.health-core-card > strong,
+.health-core-card div > strong { display: block; margin-top: 10px; font-size: clamp(20px, 5vw, 29px); overflow-wrap: anywhere; }
+.health-core-card > strong small { font-size: 13px; color: var(--text-2); font-weight: 600; }
+.health-core-card p { margin: 10px 0 0; color: var(--text-3); font-size: 11px; }
+.health-core-card--compact { display: flex; flex-direction: column; }
+.health-core-card--compact a { align-self: flex-start; margin-top: auto; }
+
+.health-water-meter { height: 6px; margin-top: 14px; overflow: hidden; border-radius: 99px; background: color-mix(in srgb, var(--text-3) 15%, transparent); }
+.health-water-meter span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #9bdded, var(--accent)); transition: width .2s ease; }
+
+.health-core-card--period {
+  min-height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, color-mix(in srgb, #f1cfd8 18%, var(--surface)), color-mix(in srgb, #c8ebf3 16%, var(--surface)));
+}
+
+.health-core-card--period div > strong { font-size: 18px; }
+.health-life-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.health-life-action { min-height: 72px; padding: 13px 14px; border-radius: 18px; }
+.health-life-action span,
+.health-life-action small { display: block; }
+.health-life-action span { font-weight: 700; }
+.health-life-action small { margin-top: 5px; color: var(--text-3); font-size: 11px; }
+
+.health-trend-card { display: flex; align-items: center; gap: 14px; min-height: 90px; padding: 16px 18px; border-radius: 21px; }
+.health-trend-mark { flex: 0 0 44px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 15px; background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); font-size: 25px; }
+.health-trend-card strong { font-size: 14px; }
+.health-trend-card p { margin: 5px 0 0; color: var(--text-2); font-size: 12px; line-height: 1.55; }
+
+.health-copy-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 18px; align-items: center; padding: 16px 18px; border-radius: 22px; }
+.health-copy-card h3 { margin: 0; font-size: 17px; }
+.health-copy-card__content > p { margin: 5px 0 0; color: var(--text-2); font-size: 12px; line-height: 1.5; }
+.health-copy-card__content .health-copy-card__empty { color: var(--text-3); }
+.health-copy-card__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.health-copy-card button { min-height: 44px; padding: 0 14px; border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border)); border-radius: 999px; background: color-mix(in srgb, var(--surface) 72%, transparent); color: var(--accent); font: 700 12px/1 var(--f-ui); cursor: pointer; }
+.health-copy-card button:last-child { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); }
+.health-copy-card button:disabled { cursor: not-allowed; opacity: .46; }
+.health-copy-card__status { grid-column: 1 / -1; min-height: 18px; margin: -5px 0 0; color: var(--accent); font-size: 12px; font-weight: 700; }
+
+@media (max-width: 640px) {
+  .health-summary-card { grid-template-columns: 1fr; padding: 16px; }
+  .health-summary-card p,
+  .health-summary-actions { grid-column: 1; grid-row: auto; }
+  .health-summary-actions { justify-content: flex-start; }
+  .health-summary-actions a { flex: 1 1 130px; }
+  .health-core-card { padding: 14px; }
+    .health-life-action { padding-inline: 11px; }
+  .health-copy-card { grid-template-columns: 1fr; }
+  .health-copy-card__actions { justify-content: flex-start; }
+  .health-copy-card button { flex: 1 1 145px; }
+}
+
+@media (max-width: 370px) {
+  .health-life-actions { grid-template-columns: 1fr; }
+  .health-life-action { min-height: 58px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .health-water-meter span { transition: none; }
+}
+
+.health-workspace-boundary {
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.health-workspace-boundary b { color: var(--text-2); }
+
+
+@media (max-width: 640px) {
+  .calendar-health-overview .moon-health-grid { grid-template-columns: 1fr; }
+}
+
+/* MoonHealth body records: compact read/action panel; CalendarCreateSheet owns editing. */
+.moon-health-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.health-record-list { min-width: 0; display: grid; gap: 8px; }
+.health-record-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 2px 8px;
+}
+.health-record-list-head h2 { margin: 0; color: var(--text); font-size: 18px; }
+.health-panel-meta { margin: 3px 0 0; color: var(--text-3); font-size: 11px; line-height: 1.4; }
+.health-panel-meta b { color: var(--text-2); font-weight: 600; }
+.health-record-list-head > button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fff;
+  font: 700 13px/1 var(--f-ui);
+}
+.health-record-main { min-width: 0; }
+.health-record-main strong { display: block; font-size: 14px; }
+.health-record-main span { display: block; margin-top: 2px; font-size: 11px; color: var(--text-3); }
+.health-record-actions { display: flex; flex: 0 0 auto; gap: 6px; }
+.health-record-actions button { min-height: 44px; padding: 0 12px; color: var(--text-2); font-size: 12px; }
+.health-record-count { margin: 0; padding: 2px 2px 0; color: var(--text-3); font-size: 11px; }
+.health-panel-footnote { margin: 2px 0 0; color: var(--text-3); font-size: 11px; line-height: 1.5; opacity: .82; }
+
+.cal-create-sheet.body-record-composer {
+  width: min(420px, calc(100vw - 32px));
+  max-height: min(720px, calc(100dvh - 48px));
+  border-radius: 26px;
+}
+.body-record-composer .cal-create-close-btn { top: 12px; right: 12px; width: 44px; height: 44px; font-size: 19px; }
+.body-record-composer .health-record-form { width: 100%; min-width: 0; }
+.body-record-composer .health-type-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  flex-wrap: nowrap;
+  width: 100%;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-2) 58%, transparent);
+}
+.body-record-composer .health-type-tabs button {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.body-record-composer .health-type-tabs button.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+.body-record-composer .unit-toggle { flex-wrap: nowrap; }
+.body-record-composer .unit-toggle button { flex: 1; min-height: 44px; }
+.body-record-composer .health-record-form input { min-width: 0; min-height: 44px; }
+.body-record-composer .health-sleep-date { margin: 0; color: var(--text-3); font-size: 12px; }
+.body-record-composer .health-sleep-date b { color: var(--text-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 640px) {
+  .cal-create-backdrop:has(.body-record-composer) {
+    align-items: center;
+    padding: 16px;
+    background: rgb(20 18 17 / .22);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+  .cal-create-sheet.body-record-composer {
+    width: min(420px, calc(100vw - 32px));
+    max-width: none;
+    max-height: min(76dvh, 680px);
+    padding-bottom: 0;
+    border-radius: 24px;
+  }
+  .body-record-composer .cal-create-header { padding: 16px 18px 6px; }
+  .body-record-composer .cal-create-body { padding: 8px 18px 12px; overflow-x: hidden; }
+  .body-record-composer .cal-create-footer { padding: 10px 18px 16px; }
+  .health-record-list article { align-items: flex-start; gap: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cal-create-sheet.body-record-composer { animation: none; }
+}

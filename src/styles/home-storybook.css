@@ -82,30 +82,6 @@
   color: var(--text-2);
 }
 
-/* Presence pill: clean style */
-.home-view--apple-health .home-presence-pill {
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
-  color: var(--text-2);
-  backdrop-filter: none;
-}
-
-.home-view--apple-health .home-presence-pill::before {
-  content: none;
-}
-
-.home-view--apple-health .home-presence-pill strong {
-  color: var(--text);
-  font-family: inherit;
-}
-
-.home-view--apple-health .home-presence-pill-sep {
-  color: var(--text-3);
-  opacity: 0.6;
-}
-
 /* Workspace: clean toolbar */
 .home-view--apple-health .hwg-toolbar-v3 {
   position: relative;
@@ -224,6 +200,20 @@
     transition: none !important;
     animation: none !important;
   }
+  .home-view--apple-health .daily-checkin-welcome,
+  .home-view--apple-health .daily-checkin-welcome.is-collapsing,
+  .home-view--apple-health .daily-checkin-welcome__success {
+    animation: daily-checkin-reduced-fade 100ms linear both !important;
+    transform: none !important;
+  }
+  .home-view--apple-health .daily-checkin-welcome.is-collapsing {
+    animation-direction: reverse !important;
+  }
+}
+
+@keyframes daily-checkin-reduced-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ═════════════════════════════════════════════════════════
@@ -251,19 +241,34 @@
   --home-radius-sm: 12px;
   --home-accent: var(--accent);
 
-  background: var(--home-bg);
+  background:
+    radial-gradient(ellipse at 50% -8%, rgba(255,232,180,0.16), transparent 58%),
+    radial-gradient(ellipse at 18% 18%, rgba(210,185,145,0.07), transparent 50%),
+    radial-gradient(ellipse at 88% 32%, rgba(255,228,200,0.06), transparent 52%),
+    var(--home-bg);
   color: var(--home-text-primary);
+}
+
+/* Mobile status-island closure: remove the legacy page-header breathing room. */
+.home-view--apple-health.home-view--minimal {
+  padding-top: 4px;
+  gap: 0;
 }
 
 [data-theme="dark"] .home-view--minimal {
   --home-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
   --home-shadow-pressed: 0 1px 1px rgba(0, 0, 0, 0.16);
+  background:
+    radial-gradient(ellipse at 50% -8%, rgba(90,70,45,0.18), transparent 60%),
+    radial-gradient(ellipse at 18% 18%, rgba(60,52,38,0.12), transparent 52%),
+    radial-gradient(ellipse at 88% 32%, rgba(80,65,45,0.08), transparent 55%),
+    var(--bg);
 }
 
 /* Hero: quiet clock card — V2 density */
 .home-view--minimal .home-fixed-zone {
-  gap: 14px;
-  padding-top: 12px;
+  gap: 10px;
+  padding-top: 6px;
 }
 
 .home-view--minimal .home-fixed-clock-section {
@@ -299,24 +304,8 @@
   color: var(--home-text-secondary);
 }
 
-/* Presence pill: compact, quiet, aligned with Hero */
-.home-view--minimal .home-presence-pill {
-  border: 1px solid var(--home-border);
-  border-radius: var(--home-radius-sm);
-  background: var(--home-surface);
-  box-shadow: var(--home-shadow);
-  color: var(--home-text-secondary);
-}
-
-.home-view--minimal .home-presence-pill strong {
-  color: var(--home-text-primary);
-  font-weight: 600;
-}
-
-.home-view--minimal .home-presence-pill-sep {
-  color: var(--home-text-muted);
-  opacity: 0.6;
-}
+/* Presence pill: compact, quiet, aligned with Hero
+   (Duo Presence owns its surface tokens in home-presence-pill.css) */
 
 /* Workspace toolbar: quiet typography */
 .home-view--minimal .hwg-toolbar-v3-title {
@@ -374,17 +363,19 @@
 }
 
 [data-theme="dark"] .home-view--minimal .moon-glass-clock,
-[data-theme="dark"] .home-view--minimal .hwg-cell,
-[data-theme="dark"] .home-view--minimal .home-presence-pill {
+[data-theme="dark"] .home-view--minimal .hwg-cell {
   background: var(--home-surface);
   border-color: var(--home-border);
 }
 
 /* Mobile density — 390×844 */
 @media (max-width: 767px) {
+  .home-view--apple-health.home-view--minimal {
+    padding-top: 2px;
+  }
   .home-view--minimal .home-fixed-zone {
-    gap: 10px;
-    padding-top: 10px;
+    gap: 4px;
+    padding-top: 4px;
   }
 
   .home-view--minimal .home-fixed-clock-section {
@@ -392,11 +383,11 @@
   }
 }
 
-/* Desktop hero envelope — reduce redundant vertical breathing space
-   (pure spacing; Ganzhi glyph sizes untouched, mobile untouched) */
+/* Desktop hero envelope — reduced vertical breathing space for the
+   compact clock composition (pure spacing; Ganzhi glyph sizes untouched) */
 @media (min-width: 768px) {
   .home-view--minimal .home-clock-zone {
-    min-height: clamp(245px, 26vw, 286px);
+    min-height: clamp(150px, 16vw, 190px);
   }
 }
 
@@ -422,6 +413,21 @@ html[data-wallpaper-image='true'] .home-view--minimal .home-fixed-clock-section:
   pointer-events: none;
   z-index: 0;
 }
+
+/* Flow Day 2x2 closure — shell-relative inline margins at every outer viewport. */
+.home-view--minimal .home-fixed-zone {
+  width: min(calc(100% - 40px), var(--period-content-max, 1180px));
+  margin-inline: auto;
+}
+.home-view--minimal .home-fixed-clock-section.has-flow-day-clock {
+  padding-inline: 0;
+  padding-top: 24px;
+}
+
+/* The manual-only companion has no active safe-region resolver. Home fills the
+   shell with interactive clock/launcher geometry, so suspend presentation here
+   without mutating the persisted companion position or runtime algorithms. */
+/* Phase 3A.1: Home registers its HUD/hotspots with the global safe resolver. */
 
 html[data-wallpaper-image='true'] .home-view--minimal .home-clock-zone,
 html[data-wallpaper-image='true'] .home-view--minimal .moon-glass-clock {

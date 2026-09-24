@@ -1,13 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   getDailyEntries,
   getDailyTotal,
   getLatestEntryOfDay,
   useHydrationStore,
+  HYDRATION_MAX_ENTRY_ML,
   type HydrationEntry,
 } from '@/store/useHydrationStore';
 import { toLocalDateString } from '@/utils/date';
 import { deriveWaterProgress } from '@/features/home/dailyRitualPresentation';
+import { WheelPicker } from '@/components/ui/WheelPicker';
 
 const SOURCE_LABEL: Record<HydrationEntry['source'], string> = {
   quick_add: '快捷',
@@ -33,7 +35,28 @@ function formatTime(ts: number): string {
  * presets persist immediately; the quick-amounts editor keeps an explicit
  * draft → 儲存 / 取消 flow, so the footer reads the neutral 「設定已同步」.
  */
+/**
+ * Phase 2 — quick-amount picker:
+ *   the settings quick section lists the canonical `quickAmounts` as touch
+ *   chips; tapping one (or ＋) opens an in-surface wheel picker whose draft is
+ *   only written on 完成 (`setQuickAmounts`) — 取消 never writes. The wheel
+ *   steps by 50 ml up to the owner's single-entry cap; an existing off-grid
+ *   value is kept representable inside its own picker session.
+ */
 const GOAL_PRESETS = [1500, 2000, 2500] as const;
+const QUICK_AMOUNT_STEP = 50;
+/** Mirrors `useHydrationStore.setQuickAmounts`'s six-entry cap (owner validation). */
+const QUICK_AMOUNT_MAX_COUNT = 6;
+const QUICK_AMOUNT_ADD_FALLBACKS = [500, 250, 100, 750, 1000, 150];
+
+function buildQuickAmountOptions(current: number): number[] {
+  const options: number[] = [];
+  for (let amount = QUICK_AMOUNT_STEP; amount <= HYDRATION_MAX_ENTRY_ML; amount += QUICK_AMOUNT_STEP) {
+    options.push(amount);
+  }
+  if (current > 0 && !options.includes(current)) options.push(current);
+  return options.sort((a, b) => a - b);
+}
 
 export function HydrationTabContent() {
   const entries = useHydrationStore((s) => s.entries);
@@ -63,8 +86,7 @@ export function HydrationTabContent() {
   const [showAllEntries, setShowAllEntries] = useState(false);
   const [customGoalOpen, setCustomGoalOpen] = useState(false);
   const [goalInput, setGoalInput] = useState(String(goal));
-  const [editingQuick, setEditingQuick] = useState(false);
-  const [quickInput, setQuickInput] = useState(settings.quickAmounts.join(', '));
+  const [quickPicker, setQuickPicker] = useState<{ index: number | null; value: number; removed: boolean; options: number[] } | null>(null);
 
   const submitCustom = () => {
     const value = Number(customAmount);
@@ -99,21 +121,52 @@ export function HydrationTabContent() {
     setCustomGoalOpen(false);
   };
 
-  const applyQuick = () => {
-    const amounts = quickInput
-      .split(/[,，、\s]+/)
-      .map((s) => Number(s.trim()))
-      .filter((n) => Number.isFinite(n) && n > 0 && n <= 3000);
-    setQuickAmounts(amounts);
-    setQuickInput(amounts.join(', '));
-    setEditingQuick(false);
+  const openQuickPicker = (index: number | null, value: number) => {
+    setQuickPicker({ index, value, removed: false, options: buildQuickAmountOptions(value) });
   };
+
+  const pickerOpen = quickPicker !== null;
+  /**
+   * The wheel positions itself inside its own mount frame, before the browser
+   * has laid the new subtree out, so that first assignment would be clamped to
+   * the top (and the snap event would rewrite the draft). Mount it on one frame
+   * with index 0, then move it to the real index on the next frame.
+   */
+  const [quickWheelPhase, setQuickWheelPhase] = useState<'idle' | 'mounted' | 'positioned'>('idle');
+  useEffect(() => {
+    if (!pickerOpen) {
+      setQuickWheelPhase('idle');
+      return undefined;
+    }
+    setQuickWheelPhase('mounted');
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setQuickWheelPhase('positioned'));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, [pickerOpen]);
+
+  const confirmQuickPicker = () => {
+    if (!quickPicker) return;
+    const { index, value, removed } = quickPicker;
+    const next = removed && index !== null
+      ? settings.quickAmounts.filter((_, i) => i !== index)
+      : index === null
+        ? [...settings.quickAmounts, value]
+        : settings.quickAmounts.map((amount, i) => (i === index ? value : amount));
+    setQuickAmounts(next.filter((amount, i) => next.indexOf(amount) === i));
+    setQuickPicker(null);
+  };
+
+  const defaultAddAmount = QUICK_AMOUNT_ADD_FALLBACKS.find((amount) => !settings.quickAmounts.includes(amount)) ?? QUICK_AMOUNT_STEP;
 
   const handleResetSettings = () => {
     resetSettings();
     setGoalInput(String(2000));
-    setQuickInput([100, 250, 500].join(', '));
-    setEditingQuick(false);
+    setQuickPicker(null);
     setCustomGoalOpen(false);
   };
 
@@ -183,25 +236,68 @@ export function HydrationTabContent() {
 
           <div className="hyd-section">
             <div className="hyd-section__title">快捷補水設定</div>
-            <p className="hyd-settings__current" data-testid="hyd-quick-summary">
-              目前 {settings.quickAmounts.map((amount) => `+${amount}`).join(' · ')} ml
-            </p>
-            {editingQuick ? (
-              <div className="hyd-quick-edit">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={quickInput}
-                  onChange={(e) => setQuickInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') applyQuick(); }}
-                  aria-label="快捷補水金額（ml，逗號分隔）"
-                  data-testid="hyd-quick-input"
-                />
-                <button type="button" className="hyd-mini-btn" onClick={applyQuick} data-testid="hyd-quick-save">儲存</button>
-                <button type="button" className="hyd-mini-btn hyd-mini-btn--ghost" onClick={() => { setEditingQuick(false); setQuickInput(settings.quickAmounts.join(', ')); }}>取消</button>
+            {!quickPicker ? (
+              <div className="hyd-quick-chips" data-testid="hyd-quick-chips">
+                {settings.quickAmounts.map((amount, index) => (
+                  <button
+                    key={amount}
+                    type="button"
+                    className="hyd-quick-chip"
+                    data-testid={`hyd-quick-chip-${amount}`}
+                    onClick={() => openQuickPicker(index, amount)}
+                  >
+                    +{amount}<small>ml</small>
+                  </button>
+                ))}
+                {settings.quickAmounts.length < QUICK_AMOUNT_MAX_COUNT && (
+                  <button
+                    type="button"
+                    className="hyd-quick-chip hyd-quick-chip--add"
+                    data-testid="hyd-quick-add"
+                    aria-label="新增快捷量"
+                    onClick={() => openQuickPicker(null, defaultAddAmount)}
+                  >＋</button>
+                )}
               </div>
             ) : (
-              <button type="button" className="hyd-section__link" onClick={() => { setEditingQuick(true); setQuickInput(settings.quickAmounts.join(', ')); }} data-testid="hyd-quick-edit-toggle">編輯快捷金額</button>
+              <div className="hyd-quick-picker" data-testid="hyd-quick-picker" data-hyd-picker-phase={quickWheelPhase}>
+                {quickPicker.removed && quickPicker.index !== null ? (
+                  <p className="hyd-quick-picker__remove" data-testid="hyd-quick-picker-remove-note">
+                    將移除 +{settings.quickAmounts[quickPicker.index]} ml
+                  </p>
+                ) : (
+                  <>
+                    <p className="hyd-settings__current" data-testid="hyd-quick-picker-value">{quickPicker.value} ml</p>
+                    {quickWheelPhase !== 'idle' && <WheelPicker
+                      height={216}
+                      separators={['ml']}
+                      columns={[{
+                        items: quickPicker.options.map((amount) => String(amount)),
+                        selectedIndex: quickWheelPhase === 'positioned'
+                          ? Math.max(0, quickPicker.options.indexOf(quickPicker.value))
+                          : 0,
+                        onChange: (optionIndex) => setQuickPicker((current) => (
+                          current ? { ...current, value: current.options[optionIndex] } : current
+                        )),
+                        ariaLabel: '快捷補水量（ml）',
+                      }]}
+                    />}
+                  </>
+                )}
+                <div className="hyd-quick-picker__actions">
+                  {quickPicker.index !== null && (
+                    <button
+                      type="button"
+                      className={`hyd-mini-btn hyd-mini-btn--ghost${quickPicker.removed ? ' is-armed' : ''}`}
+                      aria-pressed={quickPicker.removed}
+                      data-testid="hyd-quick-picker-delete"
+                      onClick={() => setQuickPicker((current) => (current ? { ...current, removed: !current.removed } : current))}
+                    >{quickPicker.removed ? '取消移除' : '刪除'}</button>
+                  )}
+                  <button type="button" className="hyd-mini-btn hyd-mini-btn--ghost" data-testid="hyd-quick-picker-cancel" onClick={() => setQuickPicker(null)}>取消</button>
+                  <button type="button" className="hyd-mini-btn hyd-mini-btn--primary" data-testid="hyd-quick-picker-save" onClick={confirmQuickPicker}>完成</button>
+                </div>
+              </div>
             )}
           </div>
 

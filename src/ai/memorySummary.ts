@@ -67,7 +67,9 @@ export function detectMemoryCategory(content: string, source?: string): MemoryCa
 
   // Source-based hints
   if (source === 'moonread' || /月讀|閱讀|看書|書|moonread/i.test(trimmed)) return 'reading';
+  if (source === 'forum_bookmark' || /論壇收藏|forum.?collect/i.test(trimmed)) return 'forum_collect';
   if (source === 'system' || /系統|更新|部署|構建|build|完成|實作|建立|新增功能/i.test(trimmed)) return 'system';
+  if (/潮位|潮痕|今日心情|tide/i.test(trimmed) || /潮位|潮痕|今日心情|tide/i.test(source || '')) return 'crash';
 
   // Intent-based
   switch (intent) {
@@ -171,7 +173,9 @@ export function computeMemoryStats(
 export function formatStatsSummary(stats: MemoryStats): string {
   const parts: string[] = [];
   if (stats.thisWeek > 0) parts.push(`本週新增 ${stats.thisWeek} 條記憶`);
-  if (stats.dominantEmotion) parts.push(`最近情緒以「${stats.dominantEmotion}」為主`);
+  if (stats.thisWeek >= 3 && stats.dominantEmotion) {
+    parts.push(`最近情緒以「${stats.dominantEmotion}」為主`);
+  }
   if (parts.length === 0) parts.push('尚無記憶記錄');
   return parts.join(' · ');
 }

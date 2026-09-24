@@ -1,0 +1,1091 @@
+/* ================================================================
+   Focus Room — TIDEBOUND 內嵌像素房間
+   ================================================================ */
+
+.focus-room-panel {
+  --focus-tile: clamp(26px, 7.3vw, 34px);
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 6%, rgba(238, 178, 112, 0.12), transparent 34%),
+    radial-gradient(circle at 82% 18%, rgba(121, 95, 150, 0.16), transparent 38%),
+    linear-gradient(180deg, #251a24 0%, #322133 46%, #463229 100%);
+  color: #f5e7d4;
+  padding: 10px;
+  gap: 12px;
+}
+
+.focus-room-scene {
+  --room-width: calc(var(--room-cols) * var(--focus-tile));
+  --room-height: calc(var(--room-rows) * var(--focus-tile));
+  position: relative;
+  width: min(var(--room-width), 100%);
+  flex: 0 0 auto;
+  margin: 0 auto;
+  aspect-ratio: 12 / 9;
+  min-height: calc(var(--focus-tile) * 7.2);
+  overflow: hidden;
+  image-rendering: pixelated;
+  border: 3px solid #181019;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, #3f2a38 0 calc(var(--focus-tile) * 1), transparent calc(var(--focus-tile) * 1)),
+    radial-gradient(ellipse at 22% 42%, rgba(255, 192, 112, 0.1), transparent 28%),
+    radial-gradient(ellipse at 78% 25%, rgba(92, 149, 176, 0.1), transparent 24%),
+    #5b4235;
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 236, 196, 0.05);
+  isolation: isolate;
+}
+
+.focus-room-scene[data-room-status="running"] {
+  border-color: rgba(78, 216, 128, 0.35);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.28),
+    0 0 20px rgba(78, 216, 128, 0.15),
+    inset 0 0 0 1px rgba(255, 236, 196, 0.05);
+}
+
+.focus-room-scene[data-room-status="break"] {
+  border-color: rgba(232, 165, 90, 0.35);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.28),
+    0 0 18px rgba(232, 165, 90, 0.12),
+    inset 0 0 0 1px rgba(255, 236, 196, 0.05);
+}
+
+.focus-room-scene[data-room-status="completed"] {
+  border-color: rgba(93, 184, 114, 0.45);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.28),
+    0 0 24px rgba(93, 184, 114, 0.2),
+    inset 0 0 0 1px rgba(255, 236, 196, 0.05);
+}
+
+.focus-room-scene[data-room-status="interrupted"] {
+  border-color: rgba(198, 69, 69, 0.3);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.28),
+    0 0 16px rgba(198, 69, 69, 0.1),
+    inset 0 0 0 1px rgba(255, 236, 196, 0.05);
+}
+
+/* ── Ambient ── */
+.focus-room-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 33% 44%, rgba(255, 188, 108, 0.14), transparent 30%),
+    radial-gradient(circle at 78% 25%, rgba(119, 162, 247, 0.1), transparent 24%),
+    linear-gradient(180deg, rgba(33, 20, 33, 0.14), rgba(15, 10, 14, 0.22));
+  mix-blend-mode: screen;
+}
+
+.focus-room-scene[data-room-status="running"] .focus-room-ambient {
+  background:
+    radial-gradient(circle at 78% 25%, rgba(78, 216, 128, 0.12), transparent 30%),
+    radial-gradient(circle at 33% 44%, rgba(255, 188, 108, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(33, 20, 33, 0.14), rgba(15, 10, 14, 0.22));
+}
+
+.focus-room-scene[data-room-status="break"] .focus-room-ambient {
+  background:
+    radial-gradient(circle at 22% 42%, rgba(255, 188, 108, 0.22), transparent 32%),
+    radial-gradient(circle at 78% 25%, rgba(119, 162, 247, 0.06), transparent 24%),
+    linear-gradient(180deg, rgba(33, 20, 33, 0.1), rgba(15, 10, 14, 0.16));
+}
+
+/* ── Window ── */
+.focus-room-window {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--focus-tile) * 0.18);
+  left: calc(var(--focus-tile) * 0.8);
+  width: calc(var(--focus-tile) * 1.65);
+  height: calc(var(--focus-tile) * 0.92);
+  border: 2px solid #211522;
+  background:
+    linear-gradient(90deg, transparent calc(50% - 1px), #211522 calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(180deg, #172236, #0e1421);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), 0 3px 0 #2a1d24;
+}
+
+.focus-room-moon {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffe7b5;
+  box-shadow: 0 0 10px rgba(255, 231, 181, 0.45);
+}
+
+.focus-room-window i {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fef4d4;
+  opacity: 0.4;
+}
+
+.focus-room-window i:nth-of-type(1) { top: 12px; left: 12px; }
+.focus-room-window i:nth-of-type(2) { top: 26px; left: 34px; }
+.focus-room-window i:nth-of-type(3) { top: 18px; left: 48px; }
+
+/* ── Lamp ── */
+.focus-room-lamp {
+  position: absolute;
+  z-index: 4;
+  left: calc(var(--focus-tile) * 4.45);
+  top: calc(var(--focus-tile) * 1.58);
+  width: calc(var(--focus-tile) * 0.58);
+  height: calc(var(--focus-tile) * 1.18);
+  pointer-events: none;
+}
+
+.focus-room-lamp::before {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 24px;
+  height: 16px;
+  transform: translateX(-50%);
+  background: #f3b95f;
+  box-shadow: inset 0 -4px #c98345, 0 0 16px rgba(255, 190, 104, 0.45);
+  content: '';
+}
+
+.focus-room-lamp::after {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  width: 5px;
+  height: 22px;
+  transform: translateX(-50%);
+  background: #65402f;
+  box-shadow: 0 18px 0 8px #4b3028;
+  content: '';
+}
+
+.focus-room-lamp span {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  width: calc(var(--focus-tile) * 3.5);
+  height: calc(var(--focus-tile) * 2.8);
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(255, 186, 96, 0.18), transparent 70%);
+}
+
+/* Status-based lamp glow */
+.focus-room-scene[data-room-status="running"] .focus-room-lamp::before {
+  background: #79d8a0;
+  box-shadow: inset 0 -4px #4a9e6e, 0 0 20px rgba(78, 216, 128, 0.5);
+}
+
+.focus-room-scene[data-room-status="break"] .focus-room-lamp::before {
+  background: #e8a55a;
+  box-shadow: inset 0 -4px #b8793e, 0 0 20px rgba(232, 165, 90, 0.5);
+}
+
+.focus-room-scene[data-room-status="completed"] .focus-room-lamp::before {
+  background: #5db872;
+  box-shadow: inset 0 -4px #3d8a52, 0 0 22px rgba(93, 184, 114, 0.55);
+}
+
+.focus-room-scene[data-room-status="interrupted"] .focus-room-lamp::before {
+  background: #c64545;
+  box-shadow: inset 0 -4px #8a2e2e, 0 0 18px rgba(198, 69, 69, 0.4);
+}
+
+/* ── Tile layers ── */
+.focus-room-tile-layer,
+.focus-room-furniture-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.focus-room-tile-layer { z-index: 1; }
+.focus-room-furniture-layer { z-index: 3; }
+
+.focus-room-tile {
+  position: absolute;
+  left: calc(var(--tile-x) * var(--focus-tile));
+  top: calc(var(--tile-y) * var(--focus-tile));
+  width: var(--focus-tile);
+  height: var(--focus-tile);
+  background:
+    linear-gradient(135deg, rgba(255, 238, 193, 0.04) 0 25%, transparent 25% 50%, rgba(0, 0, 0, 0.03) 50% 75%, transparent 75%),
+    #5b4235;
+  box-sizing: border-box;
+}
+
+.focus-room-tile::after {
+  position: absolute;
+  inset: 0;
+  border-right: 1px solid rgba(30, 18, 20, 0.12);
+  border-bottom: 1px solid rgba(30, 18, 20, 0.12);
+  content: '';
+}
+
+.focus-room-tile--wall {
+  background:
+    linear-gradient(90deg, rgba(255, 226, 174, 0.04), transparent),
+    repeating-linear-gradient(90deg, #3f2a38 0 16px, #392431 16px 18px);
+}
+
+.focus-room-tile--rug {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 239, 186, 0.1) 0 3px, transparent 3px 6px),
+    repeating-linear-gradient(0deg, rgba(42, 22, 28, 0.08) 0 5px, transparent 5px 10px),
+    #7b4d56;
+}
+
+.focus-room-tile--shadow {
+  background:
+    linear-gradient(135deg, rgba(255, 238, 193, 0.03), transparent),
+    #4c372f;
+}
+
+/* ── Furniture ── */
+.focus-room-object {
+  position: absolute;
+  left: calc(var(--tile-x) * var(--focus-tile));
+  top: calc(var(--tile-y) * var(--focus-tile));
+  width: calc(var(--tile-w) * var(--focus-tile));
+  height: calc(var(--tile-h) * var(--focus-tile));
+  image-rendering: pixelated;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  background: transparent;
+}
+
+.focus-room-object--selectable {
+  cursor: pointer;
+  touch-action: manipulation;
+  outline: none;
+  transition: filter 140ms ease, transform 140ms ease;
+}
+
+.focus-room-object--selectable:hover,
+.focus-room-object--selectable:focus-visible {
+  z-index: 5;
+  filter: brightness(1.14) drop-shadow(0 0 8px rgba(255, 211, 137, 0.3));
+  transform: translateY(-2px);
+}
+
+.focus-room-object--selectable:focus-visible {
+  box-shadow: 0 0 0 2px #f4b866, 0 0 0 4px rgba(244, 184, 102, 0.22);
+}
+
+.focus-room-object--selected {
+  z-index: 5;
+  filter: brightness(1.15) drop-shadow(0 0 10px rgba(244, 184, 102, 0.5));
+}
+
+.focus-room-object--selected::after {
+  position: absolute;
+  inset: -4px;
+  border: 2px solid rgba(244, 184, 102, 0.78);
+  box-shadow: 0 0 0 2px rgba(65, 37, 35, 0.7), 0 0 12px rgba(244, 184, 102, 0.32);
+  content: '';
+  pointer-events: none;
+}
+
+.focus-room-object-caption {
+  position: absolute !important;
+  z-index: 8;
+  left: 50%;
+  bottom: -18px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transform: translateX(-50%);
+  padding: 3px 5px;
+  border: 1px solid rgba(255, 232, 189, 0.2);
+  background: rgba(25, 16, 23, 0.82);
+  color: #ffe8bd;
+  font: 700 8px/1 "Courier New", monospace;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.focus-room-object-caption b,
+.focus-room-object-caption small {
+  position: static;
+  font: inherit;
+}
+
+.focus-room-object-caption small {
+  color: rgba(255, 232, 189, 0.62);
+}
+
+.focus-room-object * {
+  position: absolute;
+}
+
+/* ── Bed ── */
+.focus-room-object--bed {
+  filter: drop-shadow(0 10px 0 rgba(27, 13, 13, 0.2));
+}
+
+.focus-room-object--bed.focus-room-object--active {
+  filter:
+    drop-shadow(0 10px 0 rgba(27, 13, 13, 0.2))
+    drop-shadow(0 0 14px rgba(255, 205, 142, 0.22));
+}
+
+.focus-room-bed {
+  inset: 0;
+}
+
+.focus-room-bed-headboard {
+  inset: 0 auto 0 0;
+  width: calc(var(--focus-tile) * 0.45);
+  background: linear-gradient(180deg, rgba(255, 222, 170, 0.07), transparent), #6d462f;
+  box-shadow: inset 4px 0 #8a5a3d, inset -3px 0 #4f3024, 3px 0 0 rgba(30, 14, 14, 0.18);
+}
+
+.focus-room-bed-mattress {
+  inset: 3px 4px 4px calc(var(--focus-tile) * 0.38);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 44%), #dfc18d;
+  box-shadow: inset 0 0 0 2px #a97958, inset -7px -7px #c19872, 0 3px 0 rgba(37, 20, 16, 0.24);
+}
+
+.focus-room-bed-pillow {
+  top: 7px;
+  left: calc(var(--focus-tile) * 0.58);
+  width: calc(var(--focus-tile) * 0.65);
+  height: calc(var(--focus-tile) * 0.45);
+  background: #fff3d7;
+  box-shadow: inset -3px -2px #e8d1af, 1px 1px 0 rgba(53, 30, 24, 0.12);
+}
+
+.focus-room-bed-blanket {
+  right: 6px;
+  bottom: 7px;
+  width: calc(var(--focus-tile) * 1.55);
+  height: calc(var(--focus-tile) * 1.05);
+  background: linear-gradient(90deg, transparent 0 14%, rgba(255, 255, 255, 0.1) 14% 20%, transparent 20% 54%, rgba(255, 255, 255, 0.07) 54% 60%, transparent 60%), linear-gradient(180deg, #b97878, #96545f);
+  box-shadow: inset -4px -4px #74404d, inset 3px 3px rgba(255, 226, 181, 0.14);
+}
+
+.focus-room-object--bed.focus-room-object--active .focus-room-bed-blanket {
+  box-shadow: inset -4px -4px #74404d, inset 3px 3px rgba(255, 226, 181, 0.14), 0 0 12px rgba(255, 212, 150, 0.2);
+}
+
+/* ── Desk / Computer ── */
+.focus-room-object--desk::before {
+  position: absolute;
+  left: calc(var(--focus-tile) * -0.3);
+  top: calc(var(--focus-tile) * -0.25);
+  z-index: -1;
+  width: calc(var(--focus-tile) * 3.5);
+  height: calc(var(--focus-tile) * 2.6);
+  background: radial-gradient(ellipse, rgba(83, 177, 146, 0.12), transparent 68%);
+  content: '';
+  pointer-events: none;
+}
+
+.focus-room-object--desk.focus-room-object--active::before {
+  background: radial-gradient(ellipse, rgba(78, 216, 128, 0.2), transparent 68%);
+}
+
+.focus-room-desk {
+  inset: 0;
+}
+
+.focus-room-desk-table {
+  left: 0;
+  right: 0;
+  top: 7px;
+  height: calc(var(--focus-tile) * 0.55);
+  background: linear-gradient(180deg, #966846, #704933);
+  box-shadow: inset 0 4px #ad7950, inset 0 -4px #4d3025, 0 6px 0 rgba(28, 15, 12, 0.26);
+}
+
+.focus-room-desk-chair {
+  left: calc(var(--focus-tile) * 0.8);
+  bottom: -1px;
+  width: calc(var(--focus-tile) * 0.7);
+  height: calc(var(--focus-tile) * 0.58);
+  background: linear-gradient(180deg, #5e7891, #3f536d);
+  box-shadow: inset 0 -5px #2d394d, 0 4px 0 rgba(22, 12, 16, 0.24);
+}
+
+.focus-room-desk-monitor {
+  top: 2px;
+  left: calc(var(--focus-tile) * 0.6);
+  width: calc(var(--focus-tile) * 1.1);
+  height: calc(var(--focus-tile) * 0.64);
+  padding: 5px 4px;
+  background: #1d2430;
+  box-shadow: inset 0 0 0 3px #2e3c4d, 0 3px 0 #121820;
+}
+
+.focus-room-object--desk.focus-room-object--active .focus-room-desk-monitor {
+  box-shadow:
+    inset 0 0 0 3px #2e3c4d,
+    0 3px 0 #121820,
+    0 0 16px rgba(78, 216, 128, 0.3);
+}
+
+.focus-room-desk-monitor b {
+  display: block;
+  width: 68%;
+  height: 2px;
+  margin-bottom: 4px;
+  background: #77d897;
+  opacity: 0.4;
+}
+
+.focus-room-object--desk.focus-room-object--active .focus-room-desk-monitor b {
+  opacity: 0.7;
+}
+
+.focus-room-desk-monitor b:nth-child(2) { width: 52%; }
+.focus-room-desk-monitor b:nth-child(3) { width: 78%; }
+
+/* ── Deep work station ── */
+.focus-room-workbench {
+  inset: 0;
+}
+
+.focus-room-workbench-shelf {
+  left: 3px;
+  right: 3px;
+  top: 0;
+  height: 9px;
+  background: repeating-linear-gradient(90deg, #6d4b62 0 7px, #b88465 7px 10px, #536a82 10px 15px);
+  box-shadow: inset 0 -3px #3f2935, 0 3px 0 rgba(22, 13, 18, 0.3);
+}
+
+.focus-room-workbench-table {
+  left: 0;
+  right: 0;
+  bottom: 5px;
+  height: calc(var(--focus-tile) * 0.55);
+  background: linear-gradient(180deg, #79546d, #4f344c);
+  box-shadow: inset 0 4px #986c80, inset 0 -4px #342232, 0 5px 0 rgba(18, 10, 16, 0.28);
+}
+
+.focus-room-workbench-screen {
+  left: calc(var(--focus-tile) * 1.05);
+  bottom: calc(var(--focus-tile) * 0.42);
+  width: calc(var(--focus-tile) * 0.9);
+  height: calc(var(--focus-tile) * 0.62);
+  background: #171b2c;
+  box-shadow: inset 0 0 0 3px #45486a, 0 0 12px rgba(151, 138, 255, 0.25);
+}
+
+.focus-room-workbench-screen b {
+  position: static;
+  display: block;
+  width: 62%;
+  height: 2px;
+  margin: 7px 5px -3px;
+  background: #b9a6ff;
+}
+
+.focus-room-workbench-screen b:last-child { width: 42%; }
+
+/* ── Espresso station ── */
+.focus-room-coffee {
+  inset: 0;
+}
+
+.focus-room-coffee-counter {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--focus-tile) * 0.58);
+  background: #7b4b34;
+  box-shadow: inset 0 4px #aa7249, inset 0 -5px #4e2f27;
+}
+
+.focus-room-coffee-machine {
+  left: 7px;
+  bottom: calc(var(--focus-tile) * 0.45);
+  width: calc(var(--focus-tile) * 0.62);
+  height: calc(var(--focus-tile) * 0.62);
+  background: linear-gradient(180deg, #c4b5aa, #70646a);
+  box-shadow: inset -4px -4px #4b4249, 0 3px 0 rgba(24, 14, 15, 0.25);
+}
+
+.focus-room-coffee-machine::after {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 6px;
+  height: 4px;
+  background: #e18a58;
+  content: '';
+}
+
+.focus-room-coffee-cup {
+  right: 7px;
+  bottom: calc(var(--focus-tile) * 0.48);
+  width: 10px;
+  height: 9px;
+  background: #f2d4ad;
+  box-shadow: inset -2px -2px #bd8f72;
+}
+
+/* ── Toilet ── */
+.focus-room-object--toilet {
+  opacity: 0.78;
+  filter: saturate(0.72) brightness(0.9);
+}
+
+.focus-room-object--toilet.focus-room-object--active {
+  opacity: 1;
+  filter: saturate(0.9) brightness(1.05) drop-shadow(0 0 6px rgba(185, 210, 217, 0.14));
+}
+
+.focus-room-toilet {
+  inset: 0;
+  transform: translateY(3px) scale(0.88);
+}
+
+.focus-room-toilet-tank {
+  top: 1px;
+  left: 4px;
+  right: 4px;
+  height: 12px;
+  background: #d9d0c6;
+  box-shadow: inset -2px -2px #cdbfaf, 0 2px 0 rgba(29, 18, 18, 0.15);
+}
+
+.focus-room-toilet-bowl {
+  left: 6px;
+  right: 6px;
+  bottom: 3px;
+  height: 18px;
+  border-radius: 1px 1px 6px 6px;
+  background: #e9e0d8;
+  box-shadow: inset -3px -3px #d2c4b6, inset 0 4px #b9d2d9;
+}
+
+/* ── Gacha decoration (decorative only, gacha moved to chat) ── */
+.focus-room-gacha-stand {
+  position: absolute;
+  left: calc(var(--tile-x) * var(--focus-tile));
+  top: calc(var(--tile-y) * var(--focus-tile));
+  width: calc(var(--tile-w) * var(--focus-tile));
+  height: calc(var(--tile-h) * var(--focus-tile));
+  image-rendering: pixelated;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.focus-room-gacha-decoration {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.focus-room-gacha-decoration::before {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  top: 0;
+  height: calc(var(--focus-tile) * 0.5);
+  border: 2px solid #321b2a;
+  border-bottom: 0;
+  border-radius: 14px 14px 3px 3px;
+  background: rgba(180, 224, 235, 0.3);
+  box-shadow: inset -3px -3px rgba(63, 91, 117, 0.25), inset 2px 2px rgba(255, 255, 255, 0.15);
+  content: '';
+}
+
+.focus-room-gacha-decoration::after {
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 3px;
+  height: calc(var(--focus-tile) * 0.7);
+  border: 2px solid #321b2a;
+  background: linear-gradient(180deg, rgba(240, 160, 94, 0.3), rgba(189, 95, 92, 0.3));
+  box-shadow: inset -5px -5px rgba(134, 61, 82, 0.3);
+  content: '';
+}
+
+/* ── Label ── */
+.focus-room-label {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: 8px;
+  max-width: calc(100% - 28px);
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 229, 178, 0.16);
+  background: rgba(24, 16, 22, 0.68);
+  color: #ffe8bd;
+  font: 700 10px/1.25 "Courier New", monospace;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ── Setup dock ── */
+.focus-room-setup-dock {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(255, 231, 190, 0.1);
+  border-radius: 14px;
+  background: rgba(24, 16, 23, 0.68);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.focus-room-setup-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.focus-room-setup-heading div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.focus-room-setup-heading strong {
+  font: 700 13px/1.2 var(--f-ui);
+  color: #fff0d7;
+}
+
+.focus-room-setup-heading div span {
+  font: 400 10px/1.35 var(--f-ui);
+  color: rgba(255, 232, 211, 0.62);
+}
+
+.focus-room-selected-mode {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(244, 184, 102, 0.12);
+  color: #f4b866;
+  font: 700 10px/1 var(--f-ui);
+}
+
+.focus-room-config-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.focus-room-config-row > label {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 240, 215, 0.72);
+  font: 600 10px/1 var(--f-ui);
+}
+
+.focus-room-stepper {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  gap: 4px;
+}
+
+.focus-room-stepper button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 232, 189, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffe8bd;
+  cursor: pointer;
+}
+
+.focus-room-stepper b {
+  color: #fff0d7;
+  font: 700 11px/1 var(--f-ui);
+  text-align: center;
+}
+
+/* ── Status overlay ── */
+.focus-room-overlay {
+  position: absolute;
+  z-index: 8;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, rgba(20, 13, 18, 0.78), transparent);
+  pointer-events: none;
+}
+
+.focus-room-overlay-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.focus-room-overlay-icon {
+  font-size: 14px;
+  color: #ffe8bd;
+}
+
+.focus-room-overlay-title {
+  font: 700 11px/1.2 var(--f-ui);
+  color: #fff0d7;
+  letter-spacing: 0.04em;
+}
+
+.focus-room-overlay-task {
+  font: 400 10px/1.2 var(--f-ui);
+  color: rgba(255, 232, 189, 0.7);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.focus-room-overlay-timer,
+.focus-room-overlay-elapsed {
+  margin-left: auto;
+  font: 700 16px/1 "Courier New", monospace;
+  color: #fff0d7;
+}
+
+.focus-room-overlay-timer small {
+  font: 700 10px/1 "Courier New", monospace;
+  color: rgba(255, 232, 189, 0.6);
+}
+
+/* ── Dark translucent gacha stand: fully decorative ── */
+.focus-room-scene[data-room-status="running"] .focus-room-gacha-stand {
+  opacity: 0.15;
+}
+
+.focus-room-scene[data-room-status="completed"] .focus-room-gacha-stand {
+  opacity: 0.3;
+  filter: brightness(1.15);
+}
+
+/* ── prefers-reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .focus-room-scene,
+  .focus-room-scene * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── Responsive ── */
+@media (min-width: 760px) {
+  .focus-room-panel {
+    --focus-tile: 32px;
+  }
+}
+
+@media (max-width: 420px) {
+  .focus-room-panel {
+    --focus-tile: clamp(24px, 7vw, 28px);
+    padding: 8px;
+  }
+
+  .focus-room-overlay-inner {
+    gap: 4px;
+  }
+
+  .focus-room-overlay-timer {
+    font-size: 13px;
+  }
+}
+
+/* ================================================================
+   Pixel Setup v1 correction — one data-driven renderer, four rooms
+   ================================================================ */
+.focus-room-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100%;
+  overflow: visible;
+  padding: 12px;
+  gap: 12px;
+}
+
+.focus-room-scene,
+.focus-room-scene[data-room-status] {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  aspect-ratio: auto;
+  background: transparent;
+  box-shadow: none;
+  isolation: auto;
+}
+
+.focus-room-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.focus-room-card {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid rgba(82, 57, 45, 0.78);
+  border-radius: 13px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.035);
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.focus-room-card:hover,
+.focus-room-card:focus-visible {
+  border-color: rgba(244, 184, 102, 0.42);
+  background: rgba(244, 184, 102, 0.07);
+}
+
+.focus-room-card--selected {
+  border-color: #c79a58;
+  background: rgba(244, 184, 102, 0.1);
+  box-shadow: none;
+}
+
+.focus-room-card-scene {
+  position: relative;
+  display: block;
+  width: 88%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: var(--room-cols) / var(--room-rows);
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(37, 23, 23, 0.92);
+  border-radius: 2px;
+  background: #574033;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+
+.focus-room-card-tile {
+  position: absolute;
+  left: calc(var(--tile-x) * 100% / var(--room-cols));
+  top: calc(var(--tile-y) * 100% / var(--room-rows));
+  width: calc(100% / var(--room-cols));
+  height: calc(100% / var(--room-rows));
+  border-right: 1px solid rgba(30, 18, 20, 0.1);
+  border-bottom: 1px solid rgba(30, 18, 20, 0.1);
+  background: linear-gradient(135deg, rgba(255, 238, 193, 0.035), transparent 55%), #594135;
+}
+
+.focus-room-card-tile:nth-child(-n + 6) {
+  background: #3e2a38;
+}
+
+.focus-room-card[data-room="toilet"] .focus-room-card-tile {
+  background: #48545a;
+}
+
+.focus-room-spawn {
+  position: absolute;
+  z-index: 2;
+  left: calc((var(--spawn-x) + 0.25) * 100% / var(--room-cols));
+  top: calc((var(--spawn-y) + 0.55) * 100% / var(--room-rows));
+  width: calc(0.5 * 100% / var(--room-cols));
+  height: calc(0.22 * 100% / var(--room-rows));
+  border-radius: 50%;
+  background: rgba(19, 12, 17, 0.28);
+}
+
+.focus-room-prop {
+  position: absolute;
+  z-index: 3;
+  left: calc(var(--object-x) * 100% / var(--room-cols));
+  top: calc(var(--object-y) * 100% / var(--room-rows));
+  width: calc(var(--object-w) * 100% / var(--room-cols));
+  height: calc(var(--object-h) * 100% / var(--room-rows));
+  display: block;
+  image-rendering: pixelated;
+}
+
+.focus-room-prop i { position: absolute; display: block; }
+
+.focus-room-prop--computer-desk,
+.focus-room-prop--counter {
+  background: #765039;
+  box-shadow: inset 0 4px #a36e48, inset 0 -5px #432a24, 0 4px 0 rgba(20, 12, 14, 0.25);
+}
+
+.focus-room-prop--monitor {
+  border: 3px solid #344458;
+  background: repeating-linear-gradient(180deg, #74d69a 0 2px, #17232e 2px 6px);
+  box-shadow: 0 0 9px rgba(92, 215, 146, 0.3);
+}
+
+.focus-room-prop--keyboard { background: #b9aa9e; box-shadow: inset 0 -2px #685d5d; }
+.focus-room-prop--chair { background: #405673; box-shadow: inset 0 -5px #29364d; }
+
+.focus-room-prop--desk-lamp::before,
+.focus-room-prop--bed-lamp::before {
+  position: absolute; inset: 0 15% 45%; background: #efb45d; box-shadow: 0 0 9px rgba(239, 180, 93, 0.5); content: '';
+}
+.focus-room-prop--desk-lamp::after,
+.focus-room-prop--bed-lamp::after {
+  position: absolute; left: 45%; top: 45%; width: 12%; height: 50%; background: #704c37; content: '';
+}
+
+.focus-room-prop--coffee-machine { background: #9a9392; box-shadow: inset -5px -5px #55505a, inset 0 5px #c9c2b8; }
+.focus-room-prop--coffee-machine::after { position: absolute; left: 20%; right: 20%; top: 25%; height: 16%; background: #e58c58; content: ''; }
+.focus-room-prop--cup { background: #f1d2ad; box-shadow: inset -3px -3px #b88269; }
+.focus-room-prop--shelf { background: repeating-linear-gradient(180deg, #6e4650 0 8px, #b57d58 8px 11px); }
+
+.focus-room-prop--toilet { border-radius: 4px 4px 45% 45%; background: #e6ddd3; box-shadow: inset -5px -6px #bfb4aa, inset 0 6px #a8c5ce; }
+.focus-room-prop--sink { background: #d8d5ce; box-shadow: inset 0 6px #8eb1bb, inset -4px -4px #aaa49d; }
+.focus-room-prop--paper { background: repeating-linear-gradient(180deg, #f1ebe2 0 3px, #cfc5ba 3px 4px); }
+.focus-room-prop--small-window,
+.focus-room-prop--moon-window { border: 3px solid #251827; background: linear-gradient(180deg, #17243a, #0d1524); }
+.focus-room-prop--small-window::after,
+.focus-room-prop--moon-window::after { position: absolute; right: 18%; top: 18%; width: 24%; aspect-ratio: 1; border-radius: 50%; background: #ffe6aa; box-shadow: 0 0 8px #ffe6aa; content: ''; }
+
+.focus-room-prop--bed { background: linear-gradient(90deg, #f0dab2 0 25%, #a76270 25%); box-shadow: inset 0 0 0 3px #734455, inset -6px -6px #74404d; }
+.focus-room-prop--bed::after { position: absolute; left: 9%; top: 14%; width: 24%; height: 34%; background: #fff1d2; box-shadow: inset -3px -3px #d9c3a3; content: ''; }
+.focus-room-prop--nightstand { background: #765039; box-shadow: inset 0 4px #a36e48, inset 0 -4px #432a24; }
+
+.focus-room-card-copy {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  text-align: left;
+}
+
+.focus-room-card-copy > span { display: grid; gap: 2px; min-width: 0; }
+.focus-room-card-copy b { color: #fff0d7; font: 700 12px/1.1 var(--f-ui); }
+.focus-room-card-copy small { color: rgba(255, 232, 211, 0.58); font: 500 9px/1.2 var(--f-ui); }
+
+.focus-room-suggestion {
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 232, 211, 0.54);
+  font: 600 8px/1 var(--f-ui);
+  cursor: pointer;
+}
+
+.focus-room-suggestion:hover { color: #f4b866; background: rgba(244, 184, 102, 0.12); }
+
+.focus-room-timer-section,
+.focus-room-task-section,
+.focus-room-more-settings {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.focus-room-career-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.focus-room-career-strip>span{min-width:0;padding:10px 12px;border:1px solid var(--tb-border);border-radius:14px;background:rgba(255,255,255,.035)}.focus-room-career-strip small,.focus-room-career-strip strong{display:block}.focus-room-career-strip small{font-size:10px;color:var(--tb-text-3)}.focus-room-career-strip strong{margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:var(--tb-text)}
+
+.focus-room-timer-section {
+  justify-items: center;
+  padding: 8px 10px 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.focus-room-section-label,
+.focus-room-task-section label {
+  justify-self: start;
+  color: rgba(255, 232, 211, 0.62);
+  font: 600 10px/1 var(--f-ui);
+}
+
+.focus-room-timer-section > strong {
+  color: #fff0d7;
+  font: 700 30px/1 "SFMono-Regular", Consolas, monospace;
+  letter-spacing: -0.04em;
+}
+
+.focus-room-timer-section .tb-duration { width: 100%; }
+.focus-room-timer-section .tb-duration-value { min-width: 66px; }
+
+.focus-room-more-settings {
+  padding: 10px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.focus-room-start-footer {
+  position: static;
+  z-index: 16;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 70px;
+  margin: 0;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255, 230, 191, 0.1);
+  background: rgba(27, 18, 26, 0.94);
+  backdrop-filter: blur(18px);
+}
+
+.tidebound-setup-footer {
+  grid-row: 3;
+  width: 100%;
+  min-width: 0;
+}
+
+.focus-room-start-footer > div { display: grid; gap: 2px; min-width: 0; }
+.focus-room-start-footer > div span { color: #fff0d7; font: 700 11px/1 var(--f-ui); }
+.focus-room-start-footer > div small { overflow: hidden; color: rgba(255, 232, 211, 0.56); font: 500 9px/1.2 var(--f-ui); text-overflow: ellipsis; white-space: nowrap; }
+.focus-room-start-footer .tb-cta { width: auto; min-width: 132px; margin: 0; }
+
+.focus-room-scene--active .focus-room-grid { grid-template-columns: minmax(0, 1fr); }
+.focus-room-scene--active .focus-room-card { cursor: default; padding: 12px; }
+.focus-room-scene--active .focus-room-card-scene { width: min(90%, 520px); }
+.focus-room-scene--active .focus-room-suggestion { display: none; }
+.focus-room-scene--active .focus-room-card-copy { justify-content: center; text-align: center; }
+.focus-room-scene--active .focus-room-card-copy > span { justify-items: center; }
+
+.focus-room-active-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+.tidebound-header-side-spacer {
+  display: block;
+  width: 40px;
+  flex: 0 0 40px;
+}
+
+@media (max-width: 420px) {
+  .focus-room-grid { gap: 7px; }
+  .focus-room-card { gap: 6px; padding: 6px; }
+  .focus-room-card-scene { width: 90%; }
+  .focus-room-card-copy { align-items: flex-start; flex-direction: column; }
+  .focus-room-suggestion { align-self: flex-start; }
+  .focus-room-start-footer .tb-cta { min-width: 118px; padding-inline: 12px; }
+}

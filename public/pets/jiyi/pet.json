@@ -1,0 +1,13 @@
+{
+  "id": "jiyi",
+  "displayName": "吉伊",
+  "description": "TIDEBOUND 房間裡的陪伴寵物。",
+  "spritesheetPath": "spritesheet.webp",
+  "atlasPath": "atlas.json",
+  "defaultAnimation": "idle-calm",
+  "defaultScale": 1,
+  "anchorX": 0.5,
+  "anchorY": 1,
+  "availableEmotions": ["happy", "calm", "sad", "tired"],
+  "availableActions": ["idle", "work", "walk", "cheer", "cry", "rest", "sleep"]
+}

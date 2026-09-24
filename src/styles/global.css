@@ -4,6 +4,36 @@
 
 @import './tokens.css';
 
+:root {
+  --bottom-dock-height: 84px;
+  --bottom-dock-safe-offset: 112px;
+  --focus-island-reserved-height: 0px;
+  --music-mini-player-height: 64px;
+  --music-dock-height: 64px;
+  --music-fixed-stack-gap: 10px;
+  --floating-utility-safe-right: 112px;
+  --floating-utility-safe-top: 64px;
+  --music-bottom-pad: calc(var(--music-mini-player-height) + var(--music-fixed-stack-gap) + var(--music-dock-height) + 32px + env(safe-area-inset-bottom, 0px));
+}
+@media (max-width: 640px) { :root { --floating-utility-safe-right: 0px; --floating-utility-safe-top: 52px; } }
+
+body.has-focus-island {
+  --focus-island-reserved-height: 56px;
+}
+
+/* ════════════════════════════════════════════
+   OVERLAY LAYER SYSTEM (z-index)
+   ════════════════════════════════════════════
+   Messages    = 0   (scrollable content area)
+   Chat Input  = 50  (above messages, below dock)
+   BottomNav   = 100 (bottom navigation bar)
+   Dropdown    = 200 (menus, popovers, tooltips)
+   Drawer      = 300 (bottom sheets, slide-up panels)
+   Modal       = 400 (confirmation dialogs, forms)
+   Printer     = 500 (receipt printers, pickers)
+   Fullscreen  = 1000 (fullscreen panels, prompt studio)
+   ════════════════════════════════════════════ */
+
 /* ================================================================
    RESET
    ================================================================ */
@@ -14,6 +44,19 @@
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+}
+
+/* ── Focus policy ──
+   Pointer clicks never leave a persistent browser focus ring;
+   keyboard navigation keeps a clear tide-teal focus-visible outline. */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(83, 199, 202, 0.78);
+  outline-offset: 3px;
 }
 
 html,
@@ -41,6 +84,14 @@ body {
   justify-content: center;
 }
 
+#bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--bg);
+}
+
 #app {
   position: relative;
   z-index: 2;
@@ -59,8 +110,46 @@ body {
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text) 14%, transparent) transparent;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: calc(var(--bottom-dock-safe-offset) + env(safe-area-inset-bottom));
+}
+
+.app-main::-webkit-scrollbar,
+.clawd-workspace::-webkit-scrollbar,
+.clawd-panel::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.app-main::-webkit-scrollbar-track,
+.clawd-workspace::-webkit-scrollbar-track,
+.clawd-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.app-main::-webkit-scrollbar-thumb,
+.clawd-workspace::-webkit-scrollbar-thumb,
+.clawd-panel::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.app-main::-webkit-scrollbar-thumb:hover,
+.clawd-workspace::-webkit-scrollbar-thumb:hover,
+.clawd-panel::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--text) 22%, transparent);
+  background-clip: padding-box;
+}
+
+.clawd-workspace,
+.clawd-panel {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text) 14%, transparent) transparent;
 }
 
 .app-main--chat {
@@ -68,7 +157,8 @@ body {
   padding-bottom: 0;
 }
 
-.app-main--settings {
+.app-main--settings,
+.app-main--gacha {
   padding-bottom: 0;
 }
 
@@ -100,6 +190,59 @@ svg.icon {
   stroke-linejoin: round;
   fill: none;
   flex-shrink: 0;
+}
+
+/* ================================================================
+   SHARED SCROLL TABS — horizontal pill navigation
+   ================================================================ */
+.scroll-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 22px 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-tabs::-webkit-scrollbar { display: none; }
+.scroll-tab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all var(--dur-normal);
+  white-space: nowrap;
+  font-family: inherit;
+}
+.scroll-tab:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.scroll-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-primary);
+}
+.scroll-tab-count {
+  font-size: 10px;
+  font-weight: 500;
+  background: rgba(255,255,255,0.2);
+  padding: 0 6px;
+  border-radius: 999px;
+  line-height: 16px;
+}
+.scroll-tab.active .scroll-tab-count {
+  background: rgba(255,255,255,0.25);
 }
 
 /* ================================================================
@@ -201,104 +344,175 @@ header {
   position: relative; padding-left: 58px;
 }
 
+/* ── Unified Page Back Button ── */
+.page-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.page-back-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-hi);
+}
+.page-back-btn:active {
+  transform: scale(0.96);
+  background: var(--surface);
+}
+.page-back-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* ── Page Header Row ── */
+.page-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+}
+.page-header-row .page-title,
+.page-header-row h1 {
+  flex: 1;
+  font-family: var(--font-display, inherit);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
 /* ================================================================
    BOTTOM NAVIGATION — solid surface, tighter radius
    ================================================================ */
-/* ── Mini Player (global, above BottomNav) ── */
-/* ── Mini Player — compact bar above BottomNav ── */
-.mini-player {
-  position: fixed;
-  width: calc(100% - 32px); max-width: 390px;
-  z-index: 99;
-  background: color-mix(in srgb, var(--surface-3, #2d2328) 90%, transparent);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-  touch-action: none;
-}
-.mini-player-grip {
-  position: absolute;
-  cursor: grab;
-}
-.mini-player-progress {
-  height: 2px; background: var(--border);
-}
-.mini-player-progress-fill {
-  height: 100%; background: var(--accent);
-  transition: width 0.2s linear;
-}
-.mini-player-body {
-  display: flex; align-items: center; gap: 8px;
-  padding: 4px 10px;
-}
-.mini-player-cover {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--accent-soft); border: none;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--accent); flex-shrink: 0;
-}
-.mini-player-info {
-  flex: 1; min-width: 0; background: none; border: none; cursor: pointer;
-  text-align: left; padding: 0; font-family: inherit;
-}
-.mini-player-title {
-  font-size: var(--fs-label); font-weight: 600; color: var(--text);
-  display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.mini-player-meta {
-  font-size: 10px; color: var(--text-3); display: block;
-}
-.mini-player-actions {
-  display: flex; align-items: center; gap: 2px; flex-shrink: 0;
-}
-.mini-player-btn {
-  width: 26px; height: 26px; border-radius: 50%;
-  background: transparent; border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-2); transition: color 0.15s, background 0.15s;
-}
-.mini-player-btn:hover { color: var(--text); background: var(--surface-2); }
-.mini-player-btn.play {
-  background: var(--accent); color: #fff; width: 28px; height: 28px;
-}
-.mini-player-btn.play:hover { background: var(--accent-hover, var(--accent)); }
-
+/* ── Liquid Glass Dock (macOS-style) ── */
 .bottom-nav {
-  position: fixed; bottom: 12px; left: 50%;
+  position: fixed;
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 40px); max-width: 390px; height: 56px;
-  background: var(--nav-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--r-xl);
-  display: flex; justify-content: space-around; align-items: center;
+  width: fit-content;
+  max-width: calc(100% - 24px);
+  min-height: 52px;
+  padding: 4px 6px;
+  background: color-mix(in srgb, var(--nav-bg, var(--surface)) 72%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid color-mix(in srgb, var(--border) 60%, rgba(255,255,255,0.3));
+  border-radius: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
   z-index: 100;
-  box-shadow: var(--shadow);
-  transition: background var(--dur-slow), border-color var(--dur-slow);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.10),
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: padding 0.3s cubic-bezier(0.25, 0.1, 0.25, 1),
+              gap 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
+
 .nav-item {
-  display: flex; flex-direction: column; align-items: center;
-  gap: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   cursor: pointer;
-  padding: 6px;
-  border-radius: var(--r-lg);
+  padding: 6px 8px;
+  border-radius: 14px;
   color: var(--text-3);
-  transition: color var(--dur-normal);
   text-decoration: none;
-  background: none; border: none;
+  background: none;
+  border: none;
   font-family: var(--f-ui);
+  min-width: 44px;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+  /* spring-like hover scale */
+  will-change: transform;
 }
-.nav-item.active { color: var(--text); }
-.nav-item.active svg { stroke: var(--accent); }
+.nav-item:hover {
+  transform: scale(1.18);
+  color: var(--text);
+}
+.nav-item:active {
+  transform: scale(0.9);
+}
+
+/* Active state — glow ring */
+.nav-item.active {
+  color: var(--text);
+}
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.nav-item.active svg,
+.nav-item:hover svg {
+  stroke: var(--accent);
+}
+
 .nav-item svg {
-  width: 18px; height: 18px;
-  transition: stroke 0.5s;
+  width: 20px;
+  height: 20px;
+  transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
+
 .nav-label {
-  font-size: var(--fs-tiny);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.3px;
   font-weight: 500;
+  opacity: 0.75;
+  line-height: 1;
+  transition: opacity 0.2s;
+}
+.nav-item.active .nav-label,
+.nav-item:hover .nav-label {
+  opacity: 1;
+}
+
+.nav-theme-item {
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+}
+
+.nav-theme-item .home-theme-toggle {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.nav-theme-item .home-theme-toggle svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* ================================================================
@@ -370,6 +584,8 @@ header {
 }
 .btn-icon:disabled:active { transform: none; }
 .btn-icon svg { width: 14px; height: 14px; }
+.btn-icon--sm { width: 28px; height: 28px; }
+.btn-icon--sm svg { width: 13px; height: 13px; }
 
 /* ================================================================
    FORM INPUTS — 8px radius, 40px height, hairline border
@@ -612,6 +828,68 @@ select.form-input-sm {
 }
 .toast.visible { display: block; }
 
+/* Shared UI adapter fallbacks. Island Breeze swaps these through App* wrappers. */
+.app-button {
+  min-height: 42px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: var(--preset-control-radius, 16px);
+  color: var(--text);
+  background: var(--glass-bg-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 9%, transparent);
+  cursor: pointer;
+  font: inherit;
+}
+.app-button--primary { color: var(--on-primary); background: var(--accent); }
+.app-button--ghost { background: transparent; box-shadow: none; }
+.app-button--danger { color: var(--danger); }
+.app-button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.app-input {
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 13px;
+  color: var(--text);
+  background: var(--glass-bg-soft);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-radius: var(--preset-control-radius, 16px);
+}
+
+.app-card {
+  border-radius: var(--preset-card-radius, var(--glass-radius));
+  background: var(--glass-bg-soft);
+  box-shadow: var(--preset-card-shadow, var(--glass-shadow-soft));
+}
+
+.app-sheet-backdrop,
+.app-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  justify-content: center;
+  background: rgba(28, 22, 18, 0.28);
+  backdrop-filter: blur(8px);
+}
+
+.app-sheet-backdrop { align-items: flex-end; }
+.app-dialog-backdrop { align-items: center; padding: 20px; }
+
+.app-sheet,
+.app-dialog {
+  width: min(100%, 680px);
+  max-height: min(78dvh, 680px);
+  overflow-y: auto;
+  padding: 22px;
+  color: var(--text);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--glass-shadow-float);
+}
+
+.app-sheet { border-radius: 28px 28px 0 0; padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+.app-dialog { border-radius: 28px; }
+.app-sheet > h2, .app-dialog > h2 { margin: 0 0 14px; font-size: 18px; }
+
 /* ================================================================
    MODAL OVERLAY
    ================================================================ */
@@ -661,6 +939,43 @@ select.form-input-sm {
    UTILITY
    ================================================================ */
 .hidden { display: none !important; }
+
+/* Diffuse frosted glass utilities. */
+.glass-panel,
+.glass-card,
+.glass-modal,
+.diffuse-page-bg {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+.glass-panel,
+.glass-card {
+  border: 0;
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow-soft);
+}
+.glass-modal {
+  border: 0;
+  border-radius: var(--glass-radius-lg);
+  box-shadow: var(--glass-shadow-float);
+}
+.glass-button {
+  border: 0;
+  border-radius: 14px;
+  background: var(--glass-bg-soft);
+  box-shadow: inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px color-mix(in srgb, var(--glass-edge) 48%, transparent);
+  backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+}
+.glass-soft-shadow { box-shadow: var(--glass-shadow-soft); }
+.diffuse-page-bg {
+  background:
+    radial-gradient(circle at 18% 8%, var(--diffuse-bg-1), transparent 38%),
+    radial-gradient(circle at 82% 18%, var(--diffuse-bg-2), transparent 42%),
+    radial-gradient(circle at 50% 100%, var(--diffuse-bg-3), transparent 48%),
+    var(--bg);
+}
 
 /* Force-hide ALL file inputs globally.
    File inputs are only triggered programmatically via ref.click().
@@ -730,7 +1045,43 @@ input[type="file"] {
   .view-back { top: 36px; left: 10px; }
   .view:not(#home-view) > header { padding-left: 52px; }
 }
-@media (min-width: 769px) {
-  body { padding-top: 40px; }
-  #app { max-width: 430px; height: calc(100dvh - 40px); margin: 0 auto; }
+
+/* ═══ Unified Responsive Breakpoints ═══ */
+/* Mobile: < 768px → #app constrained to 430px phone frame */
+/* Tablet: 768px – 1023px → wider #app, still phone-framed */
+/* Desktop: ≥ 1024px → full width (handled in desktop.css) */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  body { padding-top: 30px; }
+  #app { max-width: 560px; height: calc(100dvh - 30px); margin: 0 auto; }
+}
+
+@media (min-width: 1024px) {
+  body { padding-top: 0; }
+  /* #app full-width rules are in desktop.css */
+}
+
+html.capacitor-native,
+html.capacitor-native body,
+html.capacitor-native #root { min-height: 100%; min-height: 100dvh; }
+html.capacitor-native body { padding-top: env(safe-area-inset-top); overscroll-behavior-y: none; }
+html.capacitor-native.keyboard-open .liquid-dock-shell,
+html.capacitor-native.keyboard-open .collapsed-dock-handle { visibility: hidden; pointer-events: none; }
+
+/* ── iOS Native Shell Phase 1.1 ── */
+html[data-native-shell="ios"] {
+  --native-occupied-bottom: 20px; /* fallback: safe-area only */
+}
+/* Only the App Shell consumes occupied-bottom once, not every page */
+html[data-native-shell="ios"] .app-main {
+  padding-bottom: var(--native-occupied-bottom, env(safe-area-inset-bottom));
+}
+/* Hide web dock when native dock is visible */
+html[data-native-shell="ios"][data-native-dock-visible="true"] .liquid-dock-shell,
+html[data-native-shell="ios"][data-native-dock-visible="true"] .mobile-tab-bar {
+  display: none !important;
+}
+/* Keyboard open: ensure native dock hidden via CSS guard */
+html[data-native-shell="ios"].keyboard-open {
+  --native-occupied-bottom: 0px;
 }

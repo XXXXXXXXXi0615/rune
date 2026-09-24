@@ -1,0 +1,250 @@
+/* ═══════════════════════════════════════════════
+   Theme Builder
+   ═══════════════════════════════════════════════ */
+
+.theme-builder {
+  position: relative;
+}
+
+/* ── Toast ── */
+.tb-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 999;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  animation: tb-toast-in 0.2s ease;
+  pointer-events: none;
+}
+
+@keyframes tb-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Section ── */
+.tb-section {
+  margin-bottom: 18px;
+}
+
+.tb-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 8px;
+}
+
+/* ── Presets ── */
+.tb-preset-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tb-preset-card {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.tb-preset-card:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+}
+
+.tb-preset-card:active {
+  transform: scale(0.97);
+}
+
+.tb-preset-label {
+  pointer-events: none;
+}
+
+/* ── Zone tabs ── */
+.tb-zone-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.tb-zone-tab {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.tb-zone-tab:hover {
+  color: var(--text);
+  border-color: var(--border-hi);
+}
+
+.tb-zone-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── CSS textarea ── */
+.tb-css-input {
+  width: 100%;
+  min-height: 140px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-input, 10px);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  resize: vertical;
+  outline: none;
+  tab-size: 2;
+  box-sizing: border-box;
+}
+
+.tb-css-input:focus {
+  border-color: var(--accent);
+}
+
+.tb-css-input::placeholder {
+  color: var(--text-3);
+  opacity: 0.7;
+}
+
+/* ── Scope hint ── */
+.tb-scope-hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.tb-scope-hint code {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  background: var(--surface-2);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+/* ── Error ── */
+.tb-error {
+  margin: 4px 0 0;
+  color: var(--danger);
+  font-size: 12px;
+}
+
+/* ── Actions ── */
+.tb-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Preview ── */
+.tb-preview-wrap {
+  display: flex;
+  gap: 12px;
+  padding: 16px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-1);
+}
+
+.tb-preview-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.tb-preview-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.tb-preview-avatar--luna {
+  background: linear-gradient(135deg, #a28fb8, #7b8fc2);
+}
+
+.tb-preview-avatar--user {
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--coral-active, #cc7a5c)));
+}
+
+/* Scope the preview inside .preview-scope to isolate from real app */
+.preview-scope .lunartide-app {
+  position: static;
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+.preview-scope .message-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preview-scope .message-bubble {
+  padding: 10px 14px;
+  max-width: 100%;
+}
+
+.preview-scope .message-content {
+  font-size: 12px;
+  line-height: 1.5;
+  color: inherit;
+}
+
+/* Dark theme overrides for preview bg */
+[data-theme="dark"] .tb-preview-wrap {
+  background: var(--surface-2);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .tb-preview-wrap {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tb-preset-card {
+    min-width: 64px;
+    font-size: 11px;
+    padding: 8px 6px;
+  }
+  .tb-zone-tab {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}

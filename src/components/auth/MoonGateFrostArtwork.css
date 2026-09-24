@@ -1,0 +1,50 @@
+.moon-gate-frost-artwork {
+  overflow: hidden;
+}
+
+.moon-gate-frost-artwork__reveal {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.moon-gate-frost-artwork__reveal .interactive-blur-reveal__art {
+  object-position: center bottom;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.moon-gate-frost-artwork__reveal .interactive-blur-reveal__static-frost {
+  background:
+    linear-gradient(150deg, rgba(255, 250, 237, .44), rgba(218, 236, 242, .18)),
+    radial-gradient(circle at 48% 28%, rgba(255, 255, 255, .3), transparent 44%);
+  backdrop-filter: blur(10px) saturate(.9);
+  -webkit-backdrop-filter: blur(10px) saturate(.9);
+  mask: var(--moon-gate-frost-mask) center bottom / contain no-repeat;
+  -webkit-mask: var(--moon-gate-frost-mask) center bottom / contain no-repeat;
+}
+
+.moon-gate-frost-artwork__reveal:not([data-runtime-state="webgl"]) .interactive-blur-reveal__art {
+  filter: blur(7px) saturate(.88);
+  transform: scale(1.018);
+}
+
+[data-theme="dark"] .moon-gate-frost-artwork__reveal .interactive-blur-reveal__static-frost {
+  background:
+    linear-gradient(150deg, rgba(246, 232, 203, .28), rgba(173, 205, 220, .14)),
+    radial-gradient(circle at 48% 28%, rgba(237, 244, 249, .18), transparent 46%);
+  backdrop-filter: blur(10px) saturate(.82) brightness(.86);
+  -webkit-backdrop-filter: blur(10px) saturate(.82) brightness(.86);
+}
+
+.moon-gate-frost-artwork__reveal,
+.moon-gate-frost-artwork__reveal canvas,
+.moon-gate-frost-artwork__reveal .interactive-blur-reveal__static-frost {
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .moon-gate-frost-artwork__reveal {
+    pointer-events: auto;
+  }
+}

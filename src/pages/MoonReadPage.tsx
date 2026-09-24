@@ -1,625 +1,616 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useRef, useState, useEffect, type ChangeEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { Header } from '@/components/layout/Header';
+import { PageBackButton } from '@/components/ui/PageBackButton';
 import { Card } from '@/components/ui/Card';
-import { t } from '@/i18n';
-import { useAppStore } from '@/store/useAppStore';
-import { RuntimeLogTimeline } from '@/components/agent/RuntimeLogTimeline';
-import type { AgentRuntimeLog, AgentRuntimeStep, AgentToolCall } from '@/types';
+import {
+  addPreview,
+  deletePreview,
+  loadPreviews,
+  updatePreview,
+  type HtmlPreview,
+} from '@/config/htmlPreviews';
 
-// ── Types & LS helpers ──
+const SCROLL_POS_PREFIX = 'lunartide_moonread_scroll_';
+const PIN_STORAGE_KEY = 'lunartide_moonread_pinned';
 
-interface Book {
-  id: string;
-  title: string;
-  content: string;
-  fileName: string;
-  fileType: 'txt' | 'md';
-  progress: number;
-  scrollPos: number;
-  createdAt: number;
+type SortMode = 'newest' | 'oldest' | 'title-asc' | 'title-desc';
+
+const SORT_CYCLE: SortMode[] = ['newest', 'oldest', 'title-asc', 'title-desc'];
+
+const SORT_LABELS: Record<SortMode, string> = {
+  newest: '最新',
+  oldest: '最舊',
+  'title-asc': 'A-Z',
+  'title-desc': 'Z-A',
+};
+
+function formatWorkDate(timestamp: number) {
+  return new Date(timestamp).toLocaleDateString('zh-TW', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
-// Per-book Luna Q&A history
-interface LunaQA {
-  bookId: string;
-  question: string;
-  answer: string;
-  action: 'ask' | 'summarize' | 'analyze' | 'foreshadow';
-  selectedText: string;
-  createdAt: number;
+function titleFromFile(fileName: string) {
+  return fileName.replace(/\.html?$/i, '').trim() || '未命名作品';
 }
 
-const LS_BOOKS = 'lunartide_moonread_v1';
-const LS_LUNA = 'lunartide_moonread_luna_v1';
-
-function loadBooks(): Book[] {
-  try { const r = localStorage.getItem(LS_BOOKS); if (r) { const p = JSON.parse(r); if (Array.isArray(p)) return p; } } catch {}
-  return [];
-}
-function saveBooks(books: Book[]) { try { localStorage.setItem(LS_BOOKS, JSON.stringify(books)); } catch {} }
-
-function loadLunaQA(): LunaQA[] {
-  try { const r = localStorage.getItem(LS_LUNA); if (r) { const p = JSON.parse(r); if (Array.isArray(p)) return p; } } catch {}
-  return [];
-}
-function saveLunaQA(qas: LunaQA[]) { try { localStorage.setItem(LS_LUNA, JSON.stringify(qas)); } catch {} }
-
-let _id = 0;
-function genId() { _id++; return `mr_${Date.now()}_${_id}`; }
-
-// ── Mock Luna reply generator ──
-
-function countSentences(text: string): number {
-  return text.split(/[。！？.!?\n]+/).filter(Boolean).length;
+function countLabel(html: string): string {
+  const text = html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  const chars = text.length;
+  if (chars >= 10000) return `${(chars / 1000).toFixed(0)}k 字`;
+  if (chars >= 1000) return `${(chars / 1000).toFixed(1)}k 字`;
+  return `${chars} 字`;
 }
 
-const MOCK_LUNA_OPENINGS = [
-  '我讀了這一段，月潮裡浮現了一些輪廓。',
-  '這一段文字在月光下看起來是這樣的——',
-  '我把這段放進月潮裡聽了一下。',
-  '潮聲退去後，這段文字留下了一些回聲。',
-  '我沿著這段文字的邊緣慢慢走了一圈。',
-];
-const MOCK_LUNA_CLOSINGS = [
-  '這些都只是我的感覺。你讀到的可能完全不一樣。',
-  '月潮來去，文字也會在不同的時間說不同的話。',
-  '如果願意的話，我們可以再讀一遍。',
-  '這些回聲會在月潮裡慢慢沉澱。',
-];
-
-function mockSummarize(text: string): string {
-  const sents = text.split(/[。！？\n]+/).filter((s) => s.trim().length > 0);
-  if (sents.length === 0) return '這段文字很短，它本身就是它想說的全部。';
-  const first = sents[0].trim().slice(0, 60);
-  const last = sents.length > 1 ? sents[sents.length - 1].trim().slice(0, 40) : '';
-  const opening = MOCK_LUNA_OPENINGS[Math.floor(Math.random() * MOCK_LUNA_OPENINGS.length)];
-  const closing = MOCK_LUNA_CLOSINGS[Math.floor(Math.random() * MOCK_LUNA_CLOSINGS.length)];
-  return `${opening}
-
-這段文字從「${first}…」開始，一共約 ${countSentences(text)} 句話。它在說一個關於某種狀態或關係的片段。語氣裡帶著一點沉靜，像是在月光下重新整理過的東西。
-
-${last ? `最後停留在「…${last}」。這裡的收尾讓整段文字多了一層餘韻。` : ''}
-
-${closing}`;
+function loadPinned(): Set<string> {
+  try {
+    const raw = localStorage.getItem(PIN_STORAGE_KEY);
+    return new Set<string>(raw ? JSON.parse(raw) : []);
+  } catch { return new Set<string>(); }
 }
 
-function mockAnalyze(text: string): string {
-  const sents = text.split(/[。！？\n]+/).filter((s) => s.trim().length > 0);
-  const sample = sents.slice(0, 3).map((s) => s.trim().slice(0, 30)).join('」、「');
-  const opening = MOCK_LUNA_OPENINGS[Math.floor(Math.random() * MOCK_LUNA_OPENINGS.length)];
-  const closing = MOCK_LUNA_CLOSINGS[Math.floor(Math.random() * MOCK_LUNA_CLOSINGS.length)];
-  return `${opening}
-
-在這段文字中出現的角色，從「${sample || '…'}」等描述來看，似乎正在經歷某種內在的轉折。他的行動或話語裡帶著一絲猶豫，也可能是察覺——察覺到某件事的輪廓正在改變。
-
-角色的狀態像月潮一樣，在漲與退之間移動。這種移動不一定是劇烈的，但它在文字中留下了痕跡。如果把他放在月潮的時間尺度上來看，這可能是一個「準備期」——他在為某個還未完全顯形的決定做準備。
-
-${closing}`;
+function savePinned(ids: Set<string>) {
+  localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify([...ids]));
 }
 
-function mockForeshadow(text: string): string {
-  const sents = text.split(/[。！？\n]+/).filter((s) => s.trim().length > 0);
-  const sample = sents.slice(0, 2).map((s) => s.trim().slice(0, 40)).join('」、「');
-  const opening = MOCK_LUNA_OPENINGS[Math.floor(Math.random() * MOCK_LUNA_OPENINGS.length)];
-  const closing = MOCK_LUNA_CLOSINGS[Math.floor(Math.random() * MOCK_LUNA_CLOSINGS.length)];
-  return `${opening}
-
-這段文字裡有幾個值得注意的線索：「${sample || '…'}」。如果把它們按照月潮的時間線重新排列，會發現它們之間存在一種尚未被完全連接的張力。
-
-首先是語氣的變化——從平靜到略帶不安，再到某種安靜的確認。這種三拍子的節奏在故事中通常是「準備－觸發－回應」的結構。目前這段文字可能只出現了第一拍，後面的兩拍會在後續的章節中慢慢浮現。
-
-其次是重複的元素。如果某個詞或畫面反覆出現，它很可能不是偶然的。月潮會把碎片的回聲聚攏在一起。
-
-${closing}`;
+function parseTags(input: string): string[] {
+  return input.split(',').map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
 }
 
-function mockAsk(text: string): string {
-  const opening = MOCK_LUNA_OPENINGS[Math.floor(Math.random() * MOCK_LUNA_OPENINGS.length)];
-  const closing = MOCK_LUNA_CLOSINGS[Math.floor(Math.random() * MOCK_LUNA_CLOSINGS.length)];
-  return `${opening}
-
-你選的這段文字在我看來，最核心的是它傳達出來的那種「中間狀態」——既不是完全的開始，也不是明確的結束。文字本身像月潮中的一片浮木，你可以從不同的角度去看它。
-
-如果你要我說得更具體，這段文字裡的情緒密度偏高。每一句話都不是純粹的敘述，而是帶著某種微妙的判斷或感受。這讓整段文字讀起來像某人在月光下自言自語——不是對別人解釋，而是對自己確認。
-
-${closing}`;
+function tagsToInput(tags: string[]): string {
+  return (tags || []).join(', ');
 }
 
-type LunaAction = 'ask' | 'summarize' | 'analyze' | 'foreshadow';
+export function LibraryPage() {
+  const [works, setWorks] = useState<HtmlPreview[]>(() => loadPreviews());
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [html, setHtml] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
+  const [error, setError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewFrameRef = useRef<HTMLIFrameElement>(null);
 
-function generateMockReply(action: LunaAction, selectedText: string): string {
-  switch (action) {
-    case 'summarize': return mockSummarize(selectedText);
-    case 'analyze': return mockAnalyze(selectedText);
-    case 'foreshadow': return mockForeshadow(selectedText);
-    default: return mockAsk(selectedText);
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortMode>('newest');
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [pinnedIds, setPinnedIds] = useState<Set<string>>(loadPinned);
+  const [readingMode, setReadingMode] = useState<'none' | 'dark' | 'sepia'>('none');
+
+  const preview = previewId ? works.find((work) => work.id === previewId) ?? null : null;
+
+  const togglePin = (id: string) => {
+    setPinnedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      savePinned(next);
+      return next;
+    });
+  };
+
+  const cycleReadingMode = () => {
+    setReadingMode(prev => prev === 'none' ? 'dark' : prev === 'dark' ? 'sepia' : 'none');
+  };
+
+  useEffect(() => {
+    if (!preview) return;
+    const frame = previewFrameRef.current;
+    if (!frame) return;
+
+    let cancelled = false;
+
+    const saveScroll = () => {
+      if (cancelled) return;
+      try {
+        const y = frame.contentWindow?.scrollY;
+        if (y !== undefined && y !== null) {
+          localStorage.setItem(`${SCROLL_POS_PREFIX}${preview.id}`, String(Math.round(y)));
+        }
+      } catch {}
+    };
+
+    const onLoad = () => {
+      try {
+        const saved = localStorage.getItem(`${SCROLL_POS_PREFIX}${preview.id}`);
+        if (saved) {
+          frame.contentWindow?.scrollTo(0, Number(saved));
+        }
+      } catch {}
+    };
+
+    frame.addEventListener('load', onLoad);
+    const interval = setInterval(saveScroll, 2000);
+
+    return () => {
+      cancelled = true;
+      saveScroll();
+      clearInterval(interval);
+      frame.removeEventListener('load', onLoad);
+    };
+  }, [preview]);
+
+  const resetEditor = () => {
+    setEditingId(null);
+    setEditorOpen(false);
+    setTitle('');
+    setHtml('');
+    setTagsInput('');
+    setError('');
+  };
+
+  const startNewWork = () => {
+    setPreviewId(null);
+    setEditingId(null);
+    setTitle('');
+    setHtml('');
+    setTagsInput('');
+    setError('');
+    setEditorOpen(true);
+  };
+
+  const startEditing = (work: HtmlPreview) => {
+    setPreviewId(null);
+    setEditingId(work.id);
+    setTitle(work.title);
+    setHtml(work.html);
+    setTagsInput(tagsToInput(work.tags));
+    setError('');
+    setEditorOpen(true);
+  };
+
+  const saveWork = () => {
+    const nextTitle = title.trim();
+    const nextHtml = html.trim();
+    if (!nextTitle || !nextHtml) {
+      setError('請填寫作品名稱與 HTML 內容。');
+      return;
+    }
+    const nextTags = parseTags(tagsInput);
+
+    if (editingId) {
+      setWorks(updatePreview(editingId, { title: nextTitle, html: nextHtml, tags: nextTags }));
+    } else {
+      const now = Date.now();
+      setWorks(addPreview({
+        id: crypto.randomUUID(),
+        title: nextTitle,
+        html: nextHtml,
+        tags: nextTags,
+        createdAt: now,
+        updatedAt: now,
+      }));
+    }
+    resetEditor();
+  };
+
+  const importHtml = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== 'string') return;
+      const now = Date.now();
+      const work: HtmlPreview = {
+        id: crypto.randomUUID(),
+        title: titleFromFile(file.name),
+        html: reader.result,
+        tags: [],
+        createdAt: now,
+        updatedAt: now,
+      };
+      setWorks(addPreview(work));
+      setPreviewId(work.id);
+      resetEditor();
+    };
+    reader.readAsText(file, 'UTF-8');
+  };
+
+  const confirmDelete = () => {
+    if (!deleteConfirmId) return;
+    setWorks(deletePreview(deleteConfirmId));
+    if (previewId === deleteConfirmId) setPreviewId(null);
+    if (editingId === deleteConfirmId) resetEditor();
+    setDeleteConfirmId(null);
+  };
+
+  const copyHtml = (work: HtmlPreview) => {
+    navigator.clipboard.writeText(work.html).then(() => {
+      setCopiedId(work.id);
+      setTimeout(() => setCopiedId(null), 1800);
+    }).catch(() => {});
+  };
+
+  const exportHtml = (work: HtmlPreview) => {
+    const blob = new Blob([work.html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${work.title.replace(/[^a-zA-Z0-9\u4e00-\u9fff_-]/g, '_')}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const allTags = [...new Set(works.flatMap(w => w.tags || []))].sort();
+
+  let filtered = works;
+  if (search.trim()) {
+    const kw = search.trim().toLowerCase();
+    filtered = filtered.filter(w =>
+      w.title.toLowerCase().includes(kw) ||
+      (w.tags || []).some(t => t.toLowerCase().includes(kw))
+    );
   }
-}
+  if (activeTag) {
+    filtered = filtered.filter(w => (w.tags || []).includes(activeTag));
+  }
 
-// ── Page ──
-
-export function MoonReadPage() {
-  const [books, setBooks] = useState<Book[]>(() => loadBooks());
-  const [reading, setReading] = useState<Book | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // ── Selection + Luna drawer state ──
-  const [selText, setSelText] = useState('');
-  const [selPos, setSelPos] = useState<{ x: number; y: number } | null>(null);
-  const [lunaOpen, setLunaOpen] = useState(false);
-  const [lunaThinking, setLunaThinking] = useState(false);
-  const [lunaReply, setLunaReply] = useState('');
-  const [lunaAction, setLunaAction] = useState<LunaAction>('ask');
-  const [lunaHistory, setLunaHistory] = useState<LunaQA[]>(() => loadLunaQA());
-  const [showProcess, setShowProcess] = useState(false);
-  const [lastLog, setLastLog] = useState<AgentRuntimeLog | null>(null);
-
-  const addRuntimeLog = useAppStore((s) => s.addRuntimeLog);
-
-  // ── Dismiss selection when clicking elsewhere ──
-  useEffect(() => {
-    if (!selText) return;
-    const dismiss = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest('.moonread-toolbar') || target.closest('.moonread-luna-drawer')) return;
-      setSelText('');
-      setSelPos(null);
-    };
-    document.addEventListener('mousedown', dismiss);
-    return () => document.removeEventListener('mousedown', dismiss);
-  }, [selText]);
-
-  // ── Import ──
-  const handleImport = useCallback(() => fileRef.current?.click(), []);
-
-  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const r = new FileReader();
-    r.onload = () => {
-      if (typeof r.result !== 'string') return;
-      const ext = f.name.split('.').pop()?.toLowerCase();
-      const book: Book = {
-        id: genId(),
-        title: f.name.replace(/\.(txt|md)$/i, ''),
-        content: r.result,
-        fileName: f.name,
-        fileType: ext === 'md' ? 'md' : 'txt',
-        progress: 0,
-        scrollPos: 0,
-        createdAt: Date.now(),
-      };
-      const next = [...loadBooks(), book];
-      saveBooks(next);
-      setBooks(next);
-      if (fileRef.current) fileRef.current.value = '';
-    };
-    r.readAsText(f, 'UTF-8');
-  }, []);
-
-  // ── Open / Close reader ──
-  const openBook = useCallback((book: Book) => setReading(book), []);
-  const closeReader = useCallback(() => {
-    setReading(null);
-    setBooks(loadBooks());
-    setSelText('');
-    setSelPos(null);
-    setLunaOpen(false);
-  }, []);
-
-  // ── Delete ──
-  const delBook = useCallback((id: string) => {
-    const next = loadBooks().filter((b) => b.id !== id);
-    saveBooks(next);
-    setBooks(next);
-    if (reading?.id === id) setReading(null);
-  }, [reading]);
-
-  // ── Scroll progress ──
-  useEffect(() => {
-    if (!reading || !scrollRef.current) return;
-    const el = scrollRef.current;
-    if (reading.scrollPos > 0) el.scrollTop = reading.scrollPos;
-    const onScroll = () => {
-      const pct = el.scrollHeight <= el.clientHeight
-        ? 100
-        : Math.round((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100);
-      const books = loadBooks();
-      const b = books.find((x) => x.id === reading.id);
-      if (b) { b.progress = Math.min(100, Math.max(0, pct)); b.scrollPos = Math.round(el.scrollTop); }
-      saveBooks(books);
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [reading]);
-
-  // ── Text selection handler ──
-  const handleTextSelect = useCallback(() => {
-    // Small delay to let the browser settle the selection
-    setTimeout(() => {
-      const sel = window.getSelection();
-      if (!sel || sel.isCollapsed || !sel.toString().trim()) {
-        // Don't clear if we're interacting with the toolbar
-        return;
-      }
-      const text = sel.toString().trim();
-      if (text.length < 2) return;
-
-      const range = sel.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      // Position toolbar above the selection, centered
-      setSelPos({
-        x: Math.min(rect.left + rect.width / 2, window.innerWidth - 160),
-        y: rect.top - 12,
+  switch (sort) {
+    case 'newest':
+      filtered = [...filtered].sort((a, b) => {
+        const ap = pinnedIds.has(a.id) ? -1 : 1;
+        const bp = pinnedIds.has(b.id) ? -1 : 1;
+        return ap !== bp ? ap - bp : b.updatedAt - a.updatedAt;
       });
-      setSelText(text);
-    }, 50);
-  }, []);
+      break;
+    case 'oldest':
+      filtered = [...filtered].sort((a, b) => {
+        const ap = pinnedIds.has(a.id) ? -1 : 1;
+        const bp = pinnedIds.has(b.id) ? -1 : 1;
+        return ap !== bp ? ap - bp : a.updatedAt - b.updatedAt;
+      });
+      break;
+    case 'title-asc':
+      filtered = [...filtered].sort((a, b) => {
+        const ap = pinnedIds.has(a.id) ? -1 : 1;
+        const bp = pinnedIds.has(b.id) ? -1 : 1;
+        return ap !== bp ? ap - bp : a.title.localeCompare(b.title, 'zh-TW');
+      });
+      break;
+    case 'title-desc':
+      filtered = [...filtered].sort((a, b) => {
+        const ap = pinnedIds.has(a.id) ? -1 : 1;
+        const bp = pinnedIds.has(b.id) ? -1 : 1;
+        return ap !== bp ? ap - bp : b.title.localeCompare(a.title, 'zh-TW');
+      });
+      break;
+  }
 
-  // ── Luna actions ──
-  const triggerLuna = useCallback((action: LunaAction) => {
-    if (!reading || !selText) return;
-    setSelPos(null);
-    setLunaAction(action);
-    setLunaOpen(true);
-    setLunaThinking(true);
-    setLunaReply('');
-    setShowProcess(false);
-    setLastLog(null);
-
-    const startedAt = Date.now();
-    const requestId = crypto.randomUUID();
-    const actionLabel = action === 'summarize' ? '總結這段' : action === 'analyze' ? '分析角色' : action === 'foreshadow' ? '整理伏筆' : '問 Luna';
-
-    // Build initial runtime log (status: thinking)
-    const thinkingSteps: AgentRuntimeStep[] = [
-      { id: 's1', label: '讀取月讀室選文', status: 'done', startedAt, finishedAt: startedAt + 50, detail: selText.slice(0, 80) + (selText.length > 80 ? '…' : '') },
-      { id: 's2', label: '檢索月潮記憶', status: 'active', startedAt: startedAt + 50 },
-      { id: 's3', label: '生成回答', status: 'pending' },
-    ];
-
-    const thinkingLog: AgentRuntimeLog = {
-      id: requestId,
-      requestId,
-      messageId: crypto.randomUUID(),
-      presetId: 'moonread',
-      providerId: 'local-mock',
-      model: 'luna-mock-reply',
-      startedAt,
-      status: 'thinking',
-      visibleReasoningSummary: `Luna 正在對「${actionLabel}」的請求整理回覆。選文來自《${reading.title}》，共約 ${selText.length} 字。`,
-      steps: thinkingSteps,
-      toolCalls: [],
-      tokenUsage: { input: 0, output: 0, total: 0, estimated: true },
-      costEstimate: 0,
-      source: 'moonread',
+  useEffect(() => {
+    if (!preview) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        const idx = filtered.findIndex(w => w.id === preview.id);
+        if (idx > 0) setPreviewId(filtered[idx - 1].id);
+      }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        const idx = filtered.findIndex(w => w.id === preview.id);
+        if (idx < filtered.length - 1) setPreviewId(filtered[idx + 1].id);
+      }
     };
-    setLastLog(thinkingLog);
-    addRuntimeLog(thinkingLog);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [preview, filtered]);
 
-    // Simulate Luna thinking (0.8–1.5s delay)
-    const delay = 800 + Math.random() * 700;
-    const timer = setTimeout(() => {
-      const reply = generateMockReply(action, selText);
-      setLunaReply(reply);
-      setLunaThinking(false);
+  const cycleSort = () => {
+    const idx = SORT_CYCLE.indexOf(sort);
+    setSort(SORT_CYCLE[(idx + 1) % SORT_CYCLE.length]);
+  };
 
-      const finishedAt = Date.now();
-      const inputTokens = Math.ceil(selText.length / 3);
-      const outputTokens = Math.ceil(reply.length / 3);
+  if (preview) {
+    const currentIdx = filtered.findIndex(w => w.id === preview.id);
+    const prevWork = currentIdx > 0 ? filtered[currentIdx - 1] : null;
+    const nextWork = currentIdx < filtered.length - 1 ? filtered[currentIdx + 1] : null;
+    const isPinned = pinnedIds.has(preview.id);
 
-      // Build completed runtime log
-      const toolCalls: AgentToolCall[] = [
-        {
-          id: crypto.randomUUID(),
-          toolId: 'tool-moonread',
-          toolName: '月讀室',
-          input: `讀取《${reading.title}》選文段落`,
-          output: `已讀取 ${selText.length} 字`,
-          status: 'success',
-          startedAt: startedAt + 100,
-          finishedAt: startedAt + 200,
-        },
-        {
-          id: crypto.randomUUID(),
-          toolId: 'tool-memory',
-          toolName: '記憶搜尋',
-          input: '搜尋相關記憶',
-          output: '未找到高度相關記憶（mock）',
-          status: 'success',
-          startedAt: startedAt + 200,
-          finishedAt: startedAt + 350,
-        },
-      ];
-
-      const completedSteps: AgentRuntimeStep[] = [
-        { id: 's1', label: '讀取月讀室選文', status: 'done', startedAt, finishedAt: startedAt + 200, detail: selText.slice(0, 80) + (selText.length > 80 ? '…' : '') },
-        { id: 's2', label: '檢索月潮記憶', status: 'done', startedAt: startedAt + 50, finishedAt: startedAt + 350, detail: '搜尋近期記憶與相關場景' },
-        { id: 's3', label: '已調用工具', status: 'done', startedAt: startedAt + 100, finishedAt: startedAt + 350, detail: '月讀室 · 記憶搜尋' },
-        { id: 's4', label: '生成回答', status: 'done', startedAt: startedAt + 350, finishedAt, detail: `已生成 ${reply.length} 字回覆` },
-      ];
-
-      const completedLog: AgentRuntimeLog = {
-        ...thinkingLog,
-        finishedAt,
-        status: 'completed',
-        visibleReasoningSummary: `Luna 已完成「${actionLabel}」。從《${reading.title}》讀取選文（${selText.length} 字），生成 ${reply.length} 字回覆。`,
-        steps: completedSteps,
-        toolCalls,
-        tokenUsage: { input: inputTokens, output: outputTokens, total: inputTokens + outputTokens, estimated: true },
-        costEstimate: inputTokens * 0.000001 + outputTokens * 0.000003,
-      };
-      setLastLog(completedLog);
-      addRuntimeLog(completedLog);
-
-      // Save to history
-      const qa: LunaQA = {
-        bookId: reading.id,
-        question: action === 'ask' ? '對選取段落的提問' : { summarize: '總結這段', analyze: '分析角色', foreshadow: '整理伏筆' }[action],
-        answer: reply,
-        action,
-        selectedText: selText.slice(0, 200),
-        createdAt: Date.now(),
-      };
-      const next = [...loadLunaQA(), qa];
-      saveLunaQA(next);
-      setLunaHistory(next);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [reading, selText, addRuntimeLog]);
-
-  const closeLuna = useCallback(() => {
-    setLunaOpen(false);
-    setLunaReply('');
-    setLunaThinking(false);
-    setSelText('');
-    setSelPos(null);
-  }, []);
-
-  // ═══════════ READER VIEW ═══════════
-  if (reading) {
-    const actionLabels: { key: LunaAction; label: string }[] = [
-      { key: 'summarize', label: '總結這段' },
-      { key: 'analyze', label: '分析角色' },
-      { key: 'foreshadow', label: '整理伏筆' },
-    ];
+    const readingIcon = readingMode === 'none'
+      ? '☀️' : readingMode === 'dark'
+        ? '🌙' : '🟫';
 
     return (
-      <section className="view" style={{ position: 'relative' }}>
-        {/* Reader header */}
-        <header style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', gap: 12, flexShrink: 0 }}>
-          <button type="button" onClick={closeReader} aria-label="返回書庫"
-            style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-2)', fontSize: 13 }}>
-            <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, stroke: 'currentColor', fill: 'none', strokeWidth: 2 }}><polyline points="15 18 9 12 15 6" /></svg>
-            書庫
+      <section className="view moonread-preview-view">
+        <header className="moonread-preview-header">
+          <button type="button" className="moonread-back-button" onClick={() => setPreviewId(null)}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            工坊
           </button>
-          <h1 style={{ flex: 1, fontSize: 16, fontWeight: 600, textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{reading.title}</h1>
-          <span style={{ fontSize: 12, color: 'var(--text-3)' }}>{reading.progress}%</span>
-        </header>
-
-        {/* Reading pane */}
-        <div
-          ref={scrollRef}
-          onMouseUp={handleTextSelect}
-          onTouchEnd={handleTextSelect}
-          style={{
-            flex: 1, overflowY: 'auto', padding: '16px 20px 80px',
-            fontFamily: 'var(--font-mono, monospace)', fontSize: 14, lineHeight: 1.8,
-            color: 'var(--text-1)', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-            WebkitOverflowScrolling: 'touch', userSelect: 'text',
-          }}
-        >
-          {reading.content}
-        </div>
-
-        {/* ── Floating selection toolbar ── */}
-        {selText && selPos && (
-          <div
-            className="moonread-toolbar"
-            style={{
-              position: 'fixed',
-              left: `${Math.max(8, selPos.x - 140)}px`,
-              top: `${Math.max(8, selPos.y - 48)}px`,
-              zIndex: 100,
-              display: 'flex',
-              gap: 4,
-              background: 'var(--surface-1)',
-              borderRadius: 12,
-              padding: '6px 8px',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.35)',
-              border: '1px solid var(--surface-2)',
-              flexWrap: 'wrap',
-              maxWidth: 'calc(100vw - 16px)',
-            }}
-          >
+          <div className="moonread-preview-heading">
+            <strong>{preview.title}</strong>
+            <span>
+              {countLabel(preview.html)}
+              {(preview.tags || []).length > 0 && ` · ${preview.tags!.join(', ')}`}
+              {currentIdx >= 0 && ` · ${currentIdx + 1}/${filtered.length}`}
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
             <button
               type="button"
-              className="liquid-btn liquid-btn--sm liquid-btn--accent"
-              onClick={() => triggerLuna('ask')}
-              style={{ fontSize: 12, padding: '5px 12px', whiteSpace: 'nowrap' }}
+              className="moonread-edit-button"
+              onClick={() => copyHtml(preview)}
             >
-              <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, stroke: '#fff', fill: 'none', strokeWidth: 2, marginRight: 4 }}>
-                <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
-              </svg>
-              問 Luna
+              {copiedId === preview.id ? '已複製' : '複製 HTML'}
             </button>
-            {actionLabels.map((a) => (
-              <button
-                key={a.key}
-                type="button"
-                className="liquid-btn liquid-btn--sm"
-                onClick={() => triggerLuna(a.key)}
-                style={{ fontSize: 12, padding: '5px 10px', whiteSpace: 'nowrap' }}
-              >
-                {a.label}
-              </button>
-            ))}
+            <button
+              type="button"
+              className={`moonread-edit-button${isPinned ? ' is-pinned' : ''}`}
+              onClick={() => togglePin(preview.id)}
+            >
+              {isPinned ? '★ 已置頂' : '☆ 置頂'}
+            </button>
+            <button type="button" className="moonread-edit-button" onClick={() => startEditing(preview)}>
+              編輯
+            </button>
           </div>
-        )}
-
-        {/* ── Luna answer drawer ── */}
-        {lunaOpen && (
-          <div
-            className="moonread-luna-drawer"
-            style={{
-              position: 'fixed',
-              bottom: 0,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '100%',
-              maxWidth: 430,
-              maxHeight: '55vh',
-              zIndex: 90,
-              background: 'var(--surface-1)',
-              borderTop: '1px solid var(--surface-2)',
-              borderRadius: '20px 20px 0 0',
-              boxShadow: '0 -4px 24px rgba(0,0,0,0.3)',
-              display: 'flex',
-              flexDirection: 'column',
-              animation: 'moonread-slideUp 0.25s ease-out',
-            }}
+        </header>
+        <div style={{ display: 'flex', gap: 8, padding: '4px 16px', alignItems: 'center' }}>
+          <button
+            type="button"
+            className="moonread-nav-button"
+            disabled={!prevWork}
+            onClick={() => prevWork && setPreviewId(prevWork.id)}
           >
-            {/* Drawer handle + close */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px 4px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{
-                  width: 28, height: 28, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #a28fb8, #7b8fc2)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 14, color: '#fff',
-                }}>L</div>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>
-                  {lunaAction === 'summarize' ? '總結這段' : lunaAction === 'analyze' ? '分析角色' : lunaAction === 'foreshadow' ? '整理伏筆' : '問 Luna'}
-                </span>
-                {lunaThinking && <span style={{ fontSize: 11, color: 'var(--text-3)', fontStyle: 'italic' }}>思考中…</span>}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                {!lunaThinking && lastLog && (
-                  <button
-                    type="button"
-                    onClick={() => setShowProcess((v) => !v)}
-                    style={{
-                      background: showProcess ? 'var(--accent)' : 'var(--surface-2)',
-                      border: 'none', borderRadius: 14, cursor: 'pointer', padding: '4px 10px',
-                      fontSize: 11, fontWeight: 500,
-                      color: showProcess ? '#fff' : 'var(--text-2)',
-                      display: 'flex', alignItems: 'center', gap: 4,
-                    }}
-                  >
-                    <svg viewBox="0 0 24 24" style={{ width: 12, height: 12, stroke: 'currentColor', fill: 'none', strokeWidth: 2 }}>
-                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-                    </svg>
-                    {showProcess ? '回覆' : '過程'}
-                  </button>
-                )}
-                <button type="button" onClick={closeLuna}
-                  style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', padding: 4 }}>
-                  <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, stroke: 'currentColor', fill: 'none', strokeWidth: 2 }}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Quote of selected text */}
-            {!showProcess && (
-              <div style={{
-                margin: '4px 16px 8px', padding: '8px 12px',
-                background: 'var(--surface-2)', borderRadius: 10,
-                fontSize: 12, color: 'var(--text-2)', fontStyle: 'italic',
-                maxHeight: 60, overflow: 'hidden', lineHeight: 1.5,
-                borderLeft: '3px solid var(--accent)',
-              }}>
-                {selText.slice(0, 150)}{selText.length > 150 ? '…' : ''}
-              </div>
-            )}
-
-            {/* Reply body or Process view */}
-            <div style={{
-              flex: 1, overflowY: 'auto', padding: '8px 16px 24px',
-              fontSize: 14, lineHeight: 1.75, color: 'var(--text-1)',
-              whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-            }}>
-              {showProcess && lastLog ? (
-                <RuntimeLogTimeline log={lastLog} />
-              ) : lunaThinking ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-3)' }}>
-                  <span className="moonread-thinking-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', animation: 'moonread-blink 0.8s infinite' }} />
-                  <span className="moonread-thinking-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', animation: 'moonread-blink 0.8s infinite 0.2s' }} />
-                  <span className="moonread-thinking-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', animation: 'moonread-blink 0.8s infinite 0.4s' }} />
-                  <span style={{ fontSize: 13, marginLeft: 4 }}>Luna 正在整理月潮回聲…</span>
-                </div>
-              ) : (
-                lunaReply
-              )}
-            </div>
+            ← 上一篇
+          </button>
+          <button
+            type="button"
+            className={`moonread-mode-button${readingMode !== 'none' ? ' is-active' : ''}`}
+            onClick={cycleReadingMode}
+          >
+            {readingIcon}
+          </button>
+          <button
+            type="button"
+            className="moonread-nav-button"
+            disabled={!nextWork}
+            onClick={() => nextWork && setPreviewId(nextWork.id)}
+          >
+            下一篇 →
+          </button>
+        </div>
+        <div className={`moonread-browser-shell${readingMode !== 'none' ? ` is-${readingMode}` : ''}`}>
+          <div className="moonread-browser-bar" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <div>{preview.title}</div>
           </div>
-        )}
+          <iframe
+            ref={previewFrameRef}
+            className="moonread-preview-frame"
+            srcDoc={preview.html}
+            sandbox="allow-scripts allow-forms allow-modals allow-popups allow-downloads allow-same-origin"
+            title={`${preview.title} HTML 預覽`}
+          />
+        </div>
       </section>
     );
   }
 
-  // ═══════════ LIBRARY VIEW ═══════════
   return (
-    <section className="view">
-      <Header eyebrow={t('home.moonReadHint')} title={t('home.moonRead')} />
-
-      {/* Toolbar */}
-      <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button type="button" className="liquid-btn liquid-btn--sm liquid-btn--accent" onClick={handleImport}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <svg viewBox="0 0 24 24" style={{ width: 14, height: 14, stroke: '#fff', fill: 'none', strokeWidth: 2 }}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-          匯入 TXT / MD
-        </button>
-        {books.length > 0 && (
-          <span style={{ fontSize: 12, color: 'var(--text-3)' }}>{books.length} 本書</span>
-        )}
-        <input ref={fileRef} type="file" accept=".txt,.md,text/plain" style={{ display: 'none' }} onChange={handleFile} />
+    <section className="view moonread-library">
+      <div className="page-header-row">
+        <PageBackButton to="/" label="返回首頁" />
+        <Header eyebrow="保存 AI 對話生成的網頁作品" title="工坊" />
       </div>
 
-      {books.length === 0 ? (
-        <Card>
-          <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--text-3)' }}>
-            <svg viewBox="0 0 24 24" style={{ width: 32, height: 32, stroke: 'var(--text-3)', fill: 'none', strokeWidth: 1.5, margin: '0 auto 12px', opacity: 0.4 }}>
-              <path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
-            </svg>
-            <p style={{ fontSize: 14, marginBottom: 4 }}>還沒有任何書籍</p>
-            <p style={{ fontSize: 12, opacity: 0.6 }}>點擊「匯入 TXT / MD」加入檔案</p>
-          </div>
-        </Card>
-      ) : (
-        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {books.map((book) => (
-            <div key={book.id} style={{
-              display: 'flex', alignItems: 'center', background: 'var(--surface-1)',
-              borderRadius: 14, padding: '12px 16px', gap: 12, cursor: 'pointer',
-            }} onClick={() => openBook(book)}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 10, background: 'var(--accent-soft)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
-                <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, stroke: 'var(--accent)', fill: 'none', strokeWidth: 2 }}>
-                  <path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
-                </svg>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{book.title}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-3)' }}>{book.fileType.toUpperCase()} · {book.content.length.toLocaleString()} 字</div>
-                <div style={{ height: 3, background: 'var(--surface-2)', borderRadius: 2, marginTop: 4, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${book.progress}%`, background: 'var(--accent)', borderRadius: 2, transition: 'width 0.3s' }} />
-                </div>
-              </div>
-              <span style={{ fontSize: 10, color: 'var(--text-3)', flexShrink: 0 }}>{book.progress}%</span>
-              <button type="button" onClick={(e) => { e.stopPropagation(); delBook(book.id); }}
-                style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', padding: 4 }}
-                aria-label="刪除">
-                <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, stroke: 'currentColor', fill: 'none', strokeWidth: 2 }}>
-                  <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                </svg>
-              </button>
-            </div>
+      <div className="moonread-library-toolbar">
+        <button type="button" className="liquid-btn liquid-btn--accent" onClick={startNewWork}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          新增作品
+        </button>
+        <button type="button" className="liquid-btn" onClick={() => fileInputRef.current?.click()}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          導入 HTML
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".html,.htm,text/html"
+          hidden
+          onChange={importHtml}
+        />
+      </div>
+
+      <div className="moonread-search-bar">
+        <input
+          type="search"
+          className="moonread-search-input"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="搜尋作品名稱…"
+        />
+        <button type="button" className="moonread-sort-btn" onClick={cycleSort}>
+          {SORT_LABELS[sort]}
+        </button>
+        <span className="moonread-work-count">{filtered.length} 件作品</span>
+      </div>
+
+      {activeTag && (
+        <div className="moonread-active-tag">
+          <span>標籤：{activeTag}</span>
+          <button type="button" onClick={() => setActiveTag(null)}>×</button>
+        </div>
+      )}
+
+      {allTags.length > 0 && !search.trim() && !activeTag && (
+        <div className="moonread-tag-cloud">
+          {allTags.map(tag => (
+            <button
+              key={tag}
+              type="button"
+              className="moonread-tag-chip"
+              onClick={() => setActiveTag(tag)}
+            >
+              {tag}
+            </button>
           ))}
         </div>
+      )}
+
+      {editorOpen && (
+        <Card className="moonread-editor-card">
+          <div className="moonread-editor-heading">
+            <div>
+              <strong>{editingId ? '編輯作品' : '新增 HTML 作品'}</strong>
+              <span>內容只會保存在這台裝置的 localStorage。</span>
+            </div>
+            <button type="button" onClick={resetEditor} aria-label="關閉編輯器">×</button>
+          </div>
+          <label className="moonread-field">
+            <span>作品名稱</span>
+            <input
+              value={title}
+              onChange={(event) => {
+                setTitle(event.target.value);
+                setError('');
+              }}
+              placeholder="例如：月光登入頁"
+            />
+          </label>
+          <label className="moonread-field">
+            <span>標籤（用逗號分隔）</span>
+            <input
+              value={tagsInput}
+              onChange={(event) => {
+                setTagsInput(event.target.value);
+                setError('');
+              }}
+              placeholder="例如：landing, dashboard, blog"
+            />
+          </label>
+          <label className="moonread-field">
+            <span>HTML</span>
+            <textarea
+              value={html}
+              onChange={(event) => {
+                setHtml(event.target.value);
+                setError('');
+              }}
+              placeholder="貼上完整 HTML 程式碼"
+              spellCheck={false}
+            />
+          </label>
+          {error && <p className="moonread-editor-error">{error}</p>}
+          <div className="moonread-editor-actions">
+            <button type="button" className="liquid-btn" onClick={resetEditor}>取消</button>
+            <button type="button" className="liquid-btn liquid-btn--accent" onClick={saveWork}>
+              {editingId ? '儲存修改' : '保存作品'}
+            </button>
+          </div>
+        </Card>
+      )}
+
+      {filtered.length === 0 && !editorOpen && (
+        <Card className="moonread-empty-card">
+          <div className="moonread-empty-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="3" />
+              <path d="M3 9h18" />
+              <circle cx="7" cy="6.5" r=".7" />
+              <circle cx="10" cy="6.5" r=".7" />
+            </svg>
+          </div>
+          <strong>
+            {search.trim() || activeTag ? '沒有符合的結果' : '工坊還是空的'}
+          </strong>
+          <p>
+            {search.trim() || activeTag
+              ? '試試其他關鍵字或清除篩選條件。'
+              : '導入 `.html` 檔案，或貼上 AI 為你生成的完整網頁程式碼。'}
+          </p>
+          {(search.trim() || activeTag) && (
+            <button type="button" className="liquid-btn" onClick={() => { setSearch(''); setActiveTag(null); }}>
+              清除篩選
+            </button>
+          )}
+        </Card>
+      )}
+
+      {filtered.length > 0 && (
+        <div className="moonread-work-grid">
+          {filtered.map((work) => (
+            <article className="moonread-work-card" key={work.id}>
+              <button type="button" className="moonread-work-preview" onClick={() => setPreviewId(work.id)}>
+                <iframe
+                  srcDoc={work.html}
+                  sandbox=""
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  title=""
+                />
+                <span>開啟預覽</span>
+              </button>
+              <div className="moonread-work-meta">
+                <div>
+                  <strong>{work.title}</strong>
+                  <span>{formatWorkDate(work.updatedAt)} · {countLabel(work.html)}</span>
+                </div>
+              </div>
+              {(work.tags || []).length > 0 && (
+                <div className="moonread-card-tags">
+                  {work.tags.map(tag => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className="moonread-card-tag"
+                      onClick={(e) => { e.stopPropagation(); setActiveTag(tag); }}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="moonread-work-actions">
+                <button type="button" onClick={() => startEditing(work)}>編輯</button>
+                <button type="button" onClick={() => copyHtml(work)}>
+                  {copiedId === work.id ? '已複製' : '複製'}
+                </button>
+                <button type="button" onClick={() => exportHtml(work)}>匯出</button>
+                <button
+                  type="button"
+                  className={`${pinnedIds.has(work.id) ? 'is-pinned' : ''}`}
+                  onClick={() => togglePin(work.id)}
+                >
+                  {pinnedIds.has(work.id) ? '★' : '☆'}
+                </button>
+                <button type="button" className="danger" onClick={() => setDeleteConfirmId(work.id)}>刪除</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {deleteConfirmId && createPortal(
+        <div className="confirm-sheet-overlay active" onClick={() => setDeleteConfirmId(null)}>
+          <div className="confirm-sheet" onClick={e => e.stopPropagation()}>
+            <div className="quick-sheet-handle" />
+            <div className="confirm-sheet-body">
+              <p className="confirm-sheet-text">確定要刪除這個作品嗎？刪除後無法復原。</p>
+            </div>
+            <div className="confirm-sheet-actions">
+              <button type="button" className="btn-ghost" onClick={() => setDeleteConfirmId(null)}>取消</button>
+              <button type="button" className="btn-primary" onClick={confirmDelete} style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}>確認刪除</button>
+            </div>
+          </div>
+        </div>,
+        document.body,
       )}
     </section>
   );

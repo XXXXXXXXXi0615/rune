@@ -1,93 +1,247 @@
 /* ================================================================
-   TOKENS — Lunartide Design System · Claude Editorial Palette
+   TOKENS — Lunartide Design System · iOS Minimal
    ================================================================ */
 
-/* --- Theme: Light (default, cream canvas) --- */
+/* --- Theme: Light (default, clean neutral) --- */
 :root,
 [data-theme="light"] {
-  /* Canvas & surfaces — warm paper */
-  --bg: #f2ede4;                /* Warm paper base */
-  --bg-2: #ede7db;              /* Section dividers */
-  --surface: #ede7db;           /* Card surface */
-  --surface-2: #e5dfd2;         /* Card hover / emphasized */
-  --surface-3: #f5f0e8;         /* Modal / drawer bg */
-  --border: rgba(90,70,50,0.12); /* Warm hairline */
-  --border-hi: rgba(90,70,50,0.18);
+  /* Canvas & surfaces — iOS neutral */
+  --bg: #f2f2f7;                /* iOS system background */
+  --bg-2: #e5e5ea;              /* iOS secondary system background */
+  --surface: rgba(255, 255, 255, 0.85);
+  --surface-2: rgba(242, 242, 247, 0.80);
+  --surface-3: rgba(255, 255, 255, 0.95);
+  --border: rgba(60, 60, 67, 0.12);
+  --border-hi: rgba(60, 60, 67, 0.20);
 
-  /* Text */
-  --text: #2a1f14;              /* Primary — warm dark brown */
-  --text-2: #6b5a48;            /* Secondary */
-  --text-3: #9a8878;            /* Muted */
+  /* Subtle glass */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-strong: rgba(255, 255, 255, 0.88);
+  --glass-bg-soft: rgba(255, 255, 255, 0.50);
+  --glass-edge: rgba(255, 255, 255, 0.40);
+  --glass-blur: 20px;
+  --glass-saturate: 180%;
+  --glass-radius: 16px;
+  --glass-radius-lg: 20px;
+  --glass-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  --glass-shadow-float: 0 4px 16px rgba(0, 0, 0, 0.08), 0 12px 40px rgba(0, 0, 0, 0.06);
+  --glass-glow: 0 0 20px color-mix(in srgb, var(--accent) 8%, transparent);
+  --diffuse-bg-1: transparent;
+  --diffuse-bg-2: transparent;
+  --diffuse-bg-3: transparent;
 
-  /* Shadows — minimal */
-  --shadow: 0 1px 3px rgba(90,70,50,0.05);
-  --nav-bg: #f2ede4;
-  --modal-bg: #f2ede4;
+  /* Text — iOS system colors */
+  --text: #1c1c1e;              /* iOS label */
+  --text-2: #3c3c43;            /* iOS secondary label */
+  --text-3: #8e8e93;            /* iOS tertiary label */
+  --text-4: #aeaeb2;            /* iOS quaternary label */
 
-  /* Chat bubbles — light mode (warm paper) */
-  --chat-bubble-user-bg: rgba(255,250,242,0.72);
-  --chat-bubble-user-border: rgba(90,70,50,0.10);
-  --chat-bubble-luna-bg: rgba(237,231,219,0.86);
-  --chat-bubble-luna-border: rgba(200,145,42,0.18);
+  /* Shadows — minimal iOS-style */
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --nav-bg: rgba(249, 249, 249, 0.94);
+  --sidebar-bg: var(--nav-bg);
+  --modal-bg: rgba(255, 255, 255, 0.96);
 
-  /* Accent — warm amber for light mode */
-  --coral: #c8912a;
+  /* Chat bubbles — light mode */
+  --chat-bubble-user-bg: #007aff;
+  --chat-bubble-user-border: transparent;
+  --chat-bubble-luna-bg: #e9e9eb;
+  --chat-bubble-luna-border: transparent;
+
+  /* Chat stage contract — semantic aliases, single source of truth for the
+     chat page presentation. Values reproduce the previous light rendering. */
+  --chat-stage: color-mix(in srgb, var(--bg) 72%, transparent);
+  --chat-stage-elevated: var(--glass-bg-strong);
+  --chat-surface-own: var(--chat-bubble-user-bg);
+  --chat-surface-other: var(--chat-bubble-luna-bg);
+  --chat-surface-activity: rgba(255, 252, 248, 0.88);
+  --chat-empty-primary: var(--text);
+  --chat-empty-secondary: var(--text-3);
+  --chat-background-scrim: #fff8f4;
+
+  /* Accent — iOS blue */
+  --coral: #007aff;
   --accent: var(--coral);
+
+  /* Five-element ink — semantic presentation */
+  --element-wood: #34c759;
+  --element-fire: #ff3b30;
+  --element-earth: #ff9500;
+  --element-metal: #8e8e93;
+  --element-water: #5ac8fa;
+
+  /* Music listening page — light theme */
+  --music-listen-bg: rgba(242, 242, 247, 0.90);
+  --music-listen-surface: rgba(255, 255, 255, 0.85);
+  --music-listen-surface-strong: rgba(255, 255, 255, 0.95);
+  --music-listen-text: #1c1c1e;
+  --music-listen-text-2: #3c3c43;
+  --music-listen-muted: #8e8e93;
+  --music-listen-border: rgba(60, 60, 67, 0.12);
+  --music-listen-control: rgba(60, 60, 67, 0.06);
+  --music-listen-control-active: rgba(0, 122, 255, 0.12);
+  --music-listen-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --music-listen-cover-mask: rgba(242, 242, 247, 0.80);
+
+  /* ── Unified surface/text token aliases (light) ── */
+  --app-bg: var(--bg);
+  --topbar-bg: rgba(249, 249, 249, 0.94);
+  --surface-1: var(--surface);
+  --surface-hover: rgba(0, 0, 0, 0.04);
+  --surface-active: rgba(0, 122, 255, 0.08);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-2);
+  --text-muted: var(--text-3);
+  --border-soft: var(--border);
+  --border-strong: var(--border-hi);
+  --accent-soft: rgba(0, 122, 255, 0.12);
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --overlay-backdrop: rgba(0,0,0,0.3);
 }
 
-/* --- Theme: Dark (navy surfaces) --- */
+/* --- Theme: Dark (iOS dark mode) --- */
 [data-theme="dark"] {
-  --bg: #181715;                /* Surface Dark */
-  --bg-2: #1f1e1b;              /* Surface Dark Soft */
-  --surface: #252320;           /* Surface Dark Elevated */
-  --surface-2: rgba(250,249,245,0.07); /* Subtle dark card */
-  --surface-3: rgba(24,23,21,0.96);    /* Modal bg */
-  --border: rgba(230,223,216,0.09);    /* Hairline on dark */
-  --border-hi: rgba(230,223,216,0.16);
+  --bg: #000000;                /* iOS pure black */
+  --bg-2: #1c1c1e;              /* iOS secondary system background */
+  --surface: rgba(28, 28, 30, 0.80);
+  --surface-2: rgba(44, 44, 46, 0.60);
+  --surface-3: rgba(58, 58, 60, 0.80);
+  --border: rgba(84, 84, 88, 0.35);
+  --border-hi: rgba(84, 84, 88, 0.60);
 
-  --text: #faf9f5;              /* On Dark */
-  --text-2: #a09d96;            /* On Dark Soft */
-  --text-3: #6c6a64;            /* Muted */
+  --glass-bg: rgba(28, 28, 30, 0.72);
+  --glass-bg-strong: rgba(44, 44, 46, 0.88);
+  --glass-bg-soft: rgba(58, 58, 60, 0.50);
+  --glass-edge: rgba(84, 84, 88, 0.30);
+  --glass-blur: 20px;
+  --glass-saturate: 180%;
+  --glass-radius: 16px;
+  --glass-radius-lg: 20px;
+  --glass-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.20), 0 4px 12px rgba(0, 0, 0, 0.15);
+  --glass-shadow-float: 0 4px 16px rgba(0, 0, 0, 0.30), 0 12px 40px rgba(0, 0, 0, 0.25);
+  --glass-glow: 0 0 20px color-mix(in srgb, var(--accent) 6%, transparent);
+  --diffuse-bg-1: transparent;
+  --diffuse-bg-2: transparent;
+  --diffuse-bg-3: transparent;
 
-  --shadow: 0 1px 3px rgba(0,0,0,0.12);
-  --nav-bg: #1f1e1b;            /* Solid dark surface */
-  --modal-bg: #181715;          /* Solid dark */
+  --text: #ffffff;              /* iOS label (dark) */
+  --text-2: #ebebf5;            /* iOS secondary label (dark) */
+  --text-3: #8e8e93;            /* iOS tertiary label (dark) */
+  --text-4: #636366;            /* iOS quaternary label (dark) */
 
-  /* Chat bubbles — dark mode (soft card) */
-  --chat-bubble-user-bg: rgba(255,255,255,0.07);
-  --chat-bubble-user-border: rgba(255,255,255,0.09);
-  --chat-bubble-luna-bg: rgba(167,139,250,0.09);
-  --chat-bubble-luna-border: rgba(167,139,250,0.15);
+  --red-mark: #ff453a;          /* iOS system red */
+  --red-mark-soft: #ff6961;
+
+  --element-wood: #30d158;
+  --element-fire: #ff453a;
+  --element-earth: #ff9f0a;
+  --element-metal: #8e8e93;
+  --element-water: #64d2ff;
+
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.20);
+  --nav-bg: rgba(22, 22, 24, 0.94);
+  --sidebar-bg: rgba(22, 22, 24, 0.94);
+  --modal-bg: rgba(28, 28, 30, 0.96);
+
+  /* Chat bubbles — dark mode */
+  --chat-bubble-user-bg: #0a84ff;
+  --chat-bubble-user-border: transparent;
+  --chat-bubble-luna-bg: #2c2c2e;
+  --chat-bubble-luna-border: transparent;
+
+  /* Chat stage contract — dark: the whole message stage shares one surface, and
+     the wallpaper scrim is restrained dark instead of the warm paper veil. */
+  --chat-stage: color-mix(in srgb, var(--bg) 72%, transparent);
+  --chat-stage-elevated: rgba(25, 24, 32, 0.68);
+  --chat-surface-own: var(--chat-bubble-user-bg);
+  --chat-surface-other: var(--chat-bubble-luna-bg);
+  --chat-surface-activity: rgba(44, 44, 46, 0.78);
+  --chat-empty-primary: #f4efe6;
+  --chat-empty-secondary: #a9a49d;
+  --chat-background-scrim: #0c0d11;
+
+  /* Music listening page — dark theme */
+  --music-listen-bg: rgba(0, 0, 0, 0.90);
+  --music-listen-surface: rgba(28, 28, 30, 0.80);
+  --music-listen-surface-strong: rgba(44, 44, 46, 0.90);
+  --music-listen-text: #ffffff;
+  --music-listen-text-2: #ebebf5;
+  --music-listen-muted: #8e8e93;
+  --music-listen-border: rgba(84, 84, 88, 0.35);
+  --music-listen-control: rgba(84, 84, 88, 0.20);
+  --music-listen-control-active: rgba(10, 132, 255, 0.20);
+  --music-listen-shadow: 0 2px 8px rgba(0, 0, 0, 0.30);
+  --music-listen-cover-mask: rgba(0, 0, 0, 0.70);
+
+  /* ── Unified surface/text token aliases (dark) ── */
+  --app-bg: var(--bg);
+  --topbar-bg: rgba(22, 22, 24, 0.94);
+  --surface-1: var(--surface);
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --surface-active: rgba(10, 132, 255, 0.15);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-2);
+  --text-muted: var(--text-3);
+  --border-soft: var(--border);
+  --border-strong: var(--border-hi);
+  --accent-soft: rgba(10, 132, 255, 0.15);
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.20);
+  --overlay-backdrop: rgba(0,0,0,0.5);
+}
+
+/* --- Clock Gold (Flow Day Clock) — muted antique gold --- */
+:root {
+  --clock-gold: #9D692A;
+}
+[data-theme="dark"] {
+  --clock-gold: #C9A86A;
 }
 
 /* --- Global Tokens --- */
 :root {
-  /* === BRAND ACCENT (coral trinity) === */
-  --coral: #cc785c;
-  --coral-active: #a9583e;
-  --teal: #5db8a6;
-  --amber: #e8a55a;
-  --success: #5db872;
-  --warning: #d4a017;
-  --error: #c64545;
+  /* === SEMANTIC SURFACE CONTRACT === */
+  --surface-page: var(--bg);
+  --surface-sidebar: var(--sidebar-bg);
+  --surface-card: var(--surface);
+  --surface-card-elevated: var(--surface-3);
+  --surface-glass: var(--glass-bg);
+  --surface-control: var(--glass-bg-soft);
+  --surface-muted: var(--surface-2);
+  --border-active: var(--border-hi);
+  --accent-teal: var(--teal);
+  --accent-amber: var(--amber);
+  --shadow-elevated: var(--glass-shadow-float);
+
+  /* === BRAND ACCENT (iOS blue) === */
+  --coral: #007aff;
+  --coral-active: #0056b3;
+  --teal: #34c759;
+  --amber: #ff9500;
+  --success: #34c759;
+  --warning: #ff9500;
+  --error: #ff3b30;
   --on-primary: #ffffff;
 
-  /* === SEMANTIC ACCENT (phase system, functional) === */
-  --period: #c64545;            /* error red — menstrual */
-  --ovulation: #5db8a6;         /* teal — fertile, fresh */
-  --pms: #a28fb8;               /* muted purple — somber */
-  --normal: #e8a55a;            /* amber — warm, neutral */
-  --water: #5db8a6;             /* teal — hydration */
-  --journal: #cc785c;           /* coral — creative expression */
-  --adhd: #e8a55a;              /* amber — warm alert */
-  --cream: #faf9f5;             /* canvas */
-  --peach: #efe9de;             /* surface card */
-  --rose: #cc785c;              /* coral — romantic */
-  --accent: var(--coral);       /* primary CTA accent */
-  --danger: var(--error);       /* destructive */
-  --glow: 0 0 0 0.05;           /* minimal elevation shadow */
+  /* === MARK (red ink for calendar marks) === */
+  --red-mark: #ff3b30;
+  --red-mark-soft: #ff6961;
 
-  /* === SPACING SCALE (4px base) === */
+  /* === SEMANTIC ACCENT === */
+  --period: #ff3b30;
+  --ovulation: #34c759;
+  --pms: #af52de;
+  --normal: #ff9500;
+  --water: #5ac8fa;
+  --journal: #007aff;
+  --adhd: #ff9500;
+  --cream: #f2f2f7;
+  --peach: #e5e5ea;
+  --rose: #ff2d55;
+  --accent: var(--coral);
+  --danger: var(--error);
+  --glow: 0 0 0 0;
+
+  /* === SPACING SCALE (8px base for iOS) === */
   --sp-4: 4px;
   --sp-8: 8px;
   --sp-12: 12px;
@@ -98,49 +252,137 @@
   --sp-48: 48px;
   --sp-96: 96px;
 
-  /* === RADIUS SCALE (hierarchical, per Claude spec) === */
-  --r-xs: 4px;      /* badge accents, tiny dropdowns */
-  --r-sm: 6px;      /* small inline buttons */
-  --r-md: 8px;      /* buttons, inputs, cards */
-  --r-lg: 12px;     /* feature cards, panels */
-  --r-xl: 16px;     /* hero containers */
-  --r-card: 8px;    /* cards */
-  --r-input: 8px;   /* form inputs */
-  --r-btn: 8px;     /* buttons */
-  --r-full: 9999px; /* pills, avatars */
+  /* === RADIUS SCALE (iOS-style large rounded corners) === */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 22px;
+  --r-card: 16px;
+  --r-input: 12px;
+  --r-btn: 12px;
+  --r-full: 9999px;
 
-  /* === SHADOWS (color-block first, shadow rare) === */
-  --shadow-card: 0 1px 2px rgba(20,20,19,0.04);
-  --shadow-drawer: 0 -2px 16px rgba(0,0,0,0.08);
-  --shadow-modal: 0 4px 24px rgba(0,0,0,0.1);
+  /* === SHADOWS (iOS subtle) === */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-drawer: 0 -2px 16px rgba(0, 0, 0, 0.08);
+  --shadow-modal: 0 4px 24px rgba(0, 0, 0, 0.12);
 
-  /* === TYPOGRAPHY SCALE (editorial, serif display + humanist sans body) === */
-  --fs-h1: 48px;       /* display-lg — page hero */
-  --fs-h2: 28px;       /* display-sm — section title */
-  --fs-body: 16px;     /* body-md — running text */
-  --fs-caption: 13px;  /* caption — secondary info */
-  --fs-label: 12px;    /* caption-uppercase — labels, overlines */
-  --fs-tiny: 11px;     /* nav, badges */
+  /* === TYPOGRAPHY SCALE (iOS system) ===
+     All type tokens multiply by --font-scale (global typography scale,
+     Appearance preference). Geometry tokens (spacing/radius/sizes) never do. */
+  --font-scale: 1;
+  --fs-h1: calc(34px * var(--font-scale));       /* iOS large title */
+  --fs-h2: calc(22px * var(--font-scale));       /* iOS title 2 */
+  --fs-body: calc(var(--font-size) * var(--font-scale));
+  --fs-caption: calc(12px * var(--font-scale));
+  --fs-label: calc(11px * var(--font-scale));
+  --fs-tiny: calc(10px * var(--font-scale));
 
-  /* === FONTS === */
-  --f-d: 'Cormorant Garamond', serif;   /* display — Copernicus fallback */
-  --f-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* === SEMANTIC TYPE LADDER (fontScale-aware; typography only) === */
+  --type-caption: var(--fs-caption);             /* 12px hints, fine print */
+  --type-small: calc(13px * var(--font-scale));  /* secondary labels */
+  --type-body: var(--fs-body);                   /* canonical body (16px baseline) */
+  --type-body-lg: calc(17px * var(--font-scale));
+  --type-title: calc(18px * var(--font-scale));  /* panel / utility titles */
+  --type-display: var(--fs-h1);
 
-  /* === ANIMATION === */
-  --ease-drawer: cubic-bezier(0.16, 1, 0.3, 1);
+  /* === GLOBAL FONT SYSTEM (iOS system fonts) === */
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  --font-mono: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+  --font-size: 16px;
+  --lt-font-display: var(--font-display);
+  --lt-font-body: var(--font-body);
+  --lt-font-mono: var(--font-mono);
+  --lt-font-size-base: 16px;
+  --lt-line-height: 1.47;
+  --lt-letter-spacing: 0;
+
+  /* Font weights — iOS style */
+  --font-display-weight: 700;
+  --font-body-weight: 400;
+  --font-mono-weight: 400;
+
+  /* Typography spacing */
+  --font-size-base: 16px;
+  --line-height-base: 1.47;
+  --letter-spacing-base: 0em;
+
+  /* === FONTS (backward-compat aliases) === */
+  --f-d: var(--lt-font-display, var(--font-display));
+  --f-ui: var(--lt-font-body, var(--font-body));
+  --f-mono: var(--lt-font-mono, var(--font-mono));
+
+  /* === CANONICAL TYPOGRAPHY (Sidebar Phase 1.4A, final weight contract) ===
+     Ubuntu carries Latin UI; Traditional Chinese glyphs fall to Noto Sans TC
+     (Google Fonts, subsetted via unicode-range) then the system TC stack.
+     Rounded display layer: Huninn (jf open 粉圓, OFL 1.1 — 100% TC coverage,
+     single weight 400). Sidebar labels declare font-weight: 400 ONLY —
+     hierarchy comes from size + foreground color + tracking, and
+     .desktop-sidebar sets font-synthesis-weight: none so no engine paints
+     faux bold (WebKit measured +3.9% glyph width otherwise).
+     DynaPuff (--font-display-latin) is the Latin-only rounded candidate for
+     future whole-label-Latin surfaces; it has zero production consumers and
+     is intentionally NOT in the index.html css2 request until one ships.
+     The legacy --font-display / --font-body / --f-ui / --f-d slots remain
+     owned by the user-configurable Typography feature (applyTypography.ts),
+     which writes them as inline root styles — do NOT rebind them here. */
+  --font-ui-latin: 'Ubuntu', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-ui-cjk: 'Noto Sans TC', 'PingFang TC', 'Hiragino Sans TC', 'Microsoft JhengHei', 'Noto Sans CJK TC', sans-serif;
+  --font-ui: var(--font-ui-latin), var(--font-ui-cjk);
+  --font-display-rounded: 'Huninn', var(--font-ui);
+  --font-display-latin: 'DynaPuff', var(--font-ui-latin);
+  --font-brand: 'Lunartide', var(--font-ui); /* the brand wordmark renders as SVG path geometry (LunartideWordmark.tsx) */
+
+  /* === ANIMATION (iOS-style spring) === */
+  --ease-drawer: cubic-bezier(0.25, 0.1, 0.25, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --ease-in-out: ease;
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-instant: 0.1s;
   --dur-fast: 0.15s;
-  --dur-normal: 0.2s;
+  --dur-normal: 0.25s;
   --dur-slow: 0.35s;
-  --dur-drawer: 0.38s;
-  --press-scale: 0.97;
+  --dur-drawer: 0.35s;
+  --press-scale: 0.96;
+
+  /* === RUNE TACTILE FOUNDATION ===
+     Canonical interaction values for new shared primitives. Existing page
+     CSS migrates deliberately; these tokens do not restyle legacy controls. */
+  --rune-hit-target: 44px;
+  --rune-press-scale: 0.97;
+  --rune-press-offset: 1px;
+  --rune-hover-lift: -1px;
+  --rune-focus-ring-width: 2px;
+  --rune-focus-ring-offset: 3px;
+  --rune-focus-ring-color: color-mix(in srgb, var(--accent) 72%, #9fcdf0);
+  --rune-disabled-opacity: 0.46;
+  --rune-motion-instant: 80ms;
+  --rune-motion-quick: 140ms;
+  --rune-motion-standard: 220ms;
+  --rune-motion-surface: 320ms;
+  --rune-spring-control: cubic-bezier(0.2, 0.85, 0.3, 1.15);
+  --rune-spring-surface: cubic-bezier(0.22, 1, 0.36, 1);
+  --rune-surface-control: color-mix(in srgb, var(--surface-3) 78%, transparent);
+  --rune-surface-content: color-mix(in srgb, var(--surface-3) 94%, var(--bg));
+  --rune-surface-elevated: color-mix(in srgb, var(--surface-3) 86%, transparent);
+  --rune-glass-blur-control: 14px;
+  --rune-glass-blur-floating: 22px;
+  --rune-border-subtle: color-mix(in srgb, var(--border-hi) 72%, transparent);
+  --rune-shadow-control: 0 2px 8px rgba(79, 60, 40, 0.08);
+  --rune-shadow-floating: 0 18px 48px rgba(54, 40, 28, 0.16), 0 2px 8px rgba(54, 40, 28, 0.08);
 
   /* === MISC === */
-  --card-pad: 24px;
+  --card-pad: 20px;
   --card-gap: 12px;
+
+  /* === SIDEBAR / DRAWER GEOMETRY === */
+  --mobile-sidebar-width: 280px;
+
+  /* === SHARED LAYOUT === */
+  --period-content-max: 1180px;
+  --period-content-gutter: 24px;
+  --mobile-dock-height: 88px;
 }
 
 /* --- Phase modifier overrides (preserves cycle tracking utility) --- */
@@ -159,4 +401,201 @@ body.ph-pms {
 body.ph-normal {
   --accent: var(--normal);
   --glow: 0 0 0 0.06;
+}
+
+/* ════════════════════════════════════════
+   THEME ENGINE — safe appearance presets
+   ════════════════════════════════════════ */
+
+/* ── Background presets ── */
+[data-background-preset="moonlight"] {
+  --bg: color-mix(in srgb, var(--bg) 90%, #c8d6e5 10%);
+  --bg-2: color-mix(in srgb, var(--bg-2) 88%, #c8d6e5 12%);
+  --surface: color-mix(in srgb, var(--surface) 92%, #e8ecf1 8%);
+}
+
+[data-background-preset="pink"] {
+  --bg: color-mix(in srgb, var(--bg) 90%, #f0d8d8 10%);
+  --bg-2: color-mix(in srgb, var(--bg-2) 88%, #e8c8c8 12%);
+  --surface: color-mix(in srgb, var(--surface) 92%, #f2e0e0 8%);
+}
+
+[data-background-preset="blue"] {
+  --bg: color-mix(in srgb, var(--bg) 90%, #c5d5e8 10%);
+  --bg-2: color-mix(in srgb, var(--bg-2) 88%, #bdd0e5 12%);
+  --surface: color-mix(in srgb, var(--surface) 92%, #dce6f2 8%);
+}
+
+[data-background-preset="terminal"] {
+  --bg: #0d0d0d;
+  --bg-2: #111111;
+  --surface: rgba(18,18,18,0.72);
+  --surface-2: rgba(255,255,255,0.04);
+  --surface-3: rgba(22,22,22,0.82);
+  --border: rgba(255,255,255,0.06);
+  --border-hi: rgba(255,255,255,0.10);
+  --glass-bg: rgba(8,8,8,0.62);
+  --glass-bg-strong: rgba(12,12,12,0.72);
+  --glass-bg-soft: rgba(16,16,16,0.44);
+  --glass-edge: rgba(255,255,255,0.04);
+  --text: #c0c0c0;
+  --text-2: #808080;
+  --text-3: #505050;
+}
+
+/* ── Glass intensity ── */
+[data-glass="high"] {
+  --glass-blur: 48px;
+  --glass-saturate: 170%;
+  --glass-shadow-float: 0 12px 48px rgba(0,0,0,0.12), 0 0 0 1px var(--glass-edge);
+}
+[data-glass="low"] {
+  --glass-blur: 10px;
+  --glass-saturate: 110%;
+  --glass-shadow-soft: 0 1px 4px rgba(0,0,0,0.04), 0 0 0 1px var(--glass-edge);
+  --glass-shadow-float: 0 4px 12px rgba(0,0,0,0.06), 0 0 0 1px var(--glass-edge);
+}
+
+/* ── Border radius ── */
+[data-radius="round"] {
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 26px;
+  --r-xl: 36px;
+  --r-full: 999px;
+}
+[data-radius="pill"] {
+  --r-xs: 12px;
+  --r-sm: 20px;
+  --r-md: 28px;
+  --r-lg: 42px;
+  --r-xl: 56px;
+  --r-full: 999px;
+}
+
+/* ── Chat bubble styles ── */
+[data-bubble="wechat"] {
+  --chat-bubble-user-bg: #95ec69;
+  --chat-bubble-user-border: rgba(0,0,0,0.06);
+  --chat-bubble-luna-bg: var(--surface-2);
+  --chat-bubble-luna-border: var(--border);
+}
+[data-theme="dark"][data-bubble="wechat"] {
+  --chat-bubble-user-bg: rgba(100,196,60,0.28);
+  --chat-bubble-user-border: rgba(100,196,60,0.12);
+  --chat-bubble-luna-bg: var(--surface-2);
+  --chat-bubble-luna-border: var(--border);
+}
+
+[data-bubble="paper"] {
+  --chat-bubble-user-bg: var(--surface-3);
+  --chat-bubble-user-border: var(--border);
+  --chat-bubble-luna-bg: var(--surface);
+  --chat-bubble-luna-border: var(--border);
+  --glass-radius: 8px;
+}
+
+[data-bubble="terminal"] {
+  --chat-bubble-user-bg: #1a3a1a;
+  --chat-bubble-user-border: rgba(80,255,80,0.12);
+  --chat-bubble-luna-bg: #1a1a2e;
+  --chat-bubble-luna-border: rgba(120,120,255,0.12);
+}
+[data-theme="dark"][data-bubble="terminal"] {
+  --chat-bubble-user-bg: #0f2f0f;
+  --chat-bubble-user-border: rgba(80,255,80,0.08);
+  --chat-bubble-luna-bg: #0f0f1f;
+  --chat-bubble-luna-border: rgba(120,120,255,0.08);
+}
+
+/* ── Font scale (legacy attribute blocks removed) ──
+   Global typography scale is carried by the --font-scale custom property
+   (set inline on <html> from Appearance preferences). The former
+   [data-font-scale] root font-size rules were removed: root font-size
+   scaling is forbidden because it would scale every rem-based dimension.
+   This project uses no rem units, but the contract stands. */
+
+/* ── Lunartide Animated Mark ── */
+:root {
+  --luna-amber: var(--amber, #e8a55a);
+  --luna-teal: var(--teal, #5db8a6);
+  --luna-glow: color-mix(in srgb, var(--luna-teal) 28%, transparent);
+  --luna-surface-fill: color-mix(in srgb, var(--bg, #f2ede4) 88%, transparent);
+}
+.luna-mark-animated {
+  overflow: visible;
+}
+.luna-left-surface { fill: var(--luna-amber); opacity: .1; }
+.luna-right-surface { fill: var(--luna-teal); opacity: .1; }
+.luna-left-flow { fill: none; stroke: var(--luna-amber); stroke-width: 1.8; stroke-linecap: round; opacity: .72; }
+.luna-right-flow { fill: none; stroke: var(--luna-teal); stroke-width: 1.8; stroke-linecap: round; opacity: .72; }
+.luna-left-outline, .luna-right-outline {
+  fill: none;
+  stroke: var(--luna-amber);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.luna-right-outline { stroke: var(--luna-teal); }
+.luna-center-crescent { fill: var(--luna-surface-fill); }
+.luna-node-left, .luna-node-right { fill: var(--bg, #f2ede4); stroke: var(--luna-amber); stroke-width: 2; }
+.luna-node-right { stroke: var(--luna-teal); }
+.luna-mark-animated.is-active .luna-left-outline, .luna-mark-animated.is-active .luna-right-outline {
+  stroke-dasharray: var(--luna-path-length, 96);
+  animation: lunaMarkDraw 2.9s cubic-bezier(.45, 0, .3, 1) infinite;
+}
+.luna-mark-animated.is-active .luna-right-outline { animation-delay: .34s; }
+.luna-mark-animated.is-active .luna-left-flow, .luna-mark-animated.is-active .luna-right-flow {
+  stroke-dasharray: var(--luna-path-length, 96);
+  animation: lunaMarkFlow 2.9s ease-in-out infinite;
+  animation-delay: .52s;
+}
+.luna-mark-animated.is-active .luna-right-flow { animation-delay: .76s; }
+.luna-mark-animated.is-active .luna-node-left, .luna-mark-animated.is-active .luna-node-right {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lunaNodePulse 2.9s ease-in-out infinite alternate;
+}
+.luna-mark-animated.is-active .luna-node-right {
+  animation-delay: 1.45s;
+}
+.luna-mark-animated.is-active .luna-center-crescent {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lunaVoidBreathe 2.9s ease-in-out infinite;
+}
+
+@keyframes lunaMarkDraw {
+  0% { stroke-dashoffset: var(--luna-path-length, 96); opacity: .38; }
+  52%, 100% { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes lunaMarkFlow {
+  0%, 18% { stroke-dashoffset: var(--luna-path-length, 96); opacity: .2; }
+  68%, 100% { stroke-dashoffset: 0; opacity: .86; }
+}
+
+@keyframes lunaNodePulse {
+  0% { opacity: 0.5; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes lunaVoidBreathe {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.82; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .luna-mark-animated.is-active *, .luna-mark-animated.is-active {
+    animation: none !important;
+    transition: none !important;
+  }
+  .luna-mark-animated.is-active .luna-left-outline, .luna-mark-animated.is-active .luna-right-outline,
+  .luna-mark-animated.is-active .luna-left-flow, .luna-mark-animated.is-active .luna-right-flow { opacity: 1; stroke-dashoffset: 0; }
+}
+
+/* ── Mobile layout gutter override ── */
+@media (max-width: 599px) {
+  :root {
+    --period-content-gutter: 14px;
+  }
 }

@@ -1,0 +1,52 @@
+[
+  { "id": "cn-2026-public-new-year-01-01", "dateKey": "2026-01-01", "region": "CN", "kind": "public_holiday", "name": "元旦假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-new-year-01-02", "dateKey": "2026-01-02", "region": "CN", "kind": "public_holiday", "name": "元旦假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-new-year-01-03", "dateKey": "2026-01-03", "region": "CN", "kind": "public_holiday", "name": "元旦假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-makeup-01-04", "dateKey": "2026-01-04", "region": "CN", "kind": "makeup_workday", "name": "元旦调休补班", "isDayOff": false, "isWorkdayOverride": true, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+
+  { "id": "cn-2026-makeup-02-14", "dateKey": "2026-02-14", "region": "CN", "kind": "makeup_workday", "name": "春节调休补班", "isDayOff": false, "isWorkdayOverride": true, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-spring-festival-02-15", "dateKey": "2026-02-15", "region": "CN", "kind": "public_holiday", "name": "春节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-spring-festival-02-16", "dateKey": "2026-02-16", "region": "CN", "kind": "public_holiday", "name": "春节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-spring-festival-02-17", "dateKey": "2026-02-17", "region": "CN", "kind": "public_holiday", "name": "春节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-traditional-spring-festival", "dateKey": "2026-02-17", "region": "CN", "kind": "traditional_festival", "name": "春节", "isDayOff": false, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-spring-festival-02-18", "dateKey": "2026-02-18", "region": "CN", "kind": "public_holiday", "name": "春节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-spring-festival-02-19", "dateKey": "2026-02-19", "region": "CN", "kind": "public_holiday", "name": "春节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-spring-festival-02-20", "dateKey": "2026-02-20", "region": "CN", "kind": "public_holiday", "name": "春节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-spring-festival-02-21", "dateKey": "2026-02-21", "region": "CN", "kind": "public_holiday", "name": "春节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-spring-festival-02-22", "dateKey": "2026-02-22", "region": "CN", "kind": "public_holiday", "name": "春节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-spring-festival-02-23", "dateKey": "2026-02-23", "region": "CN", "kind": "public_holiday", "name": "春节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-makeup-02-28", "dateKey": "2026-02-28", "region": "CN", "kind": "makeup_workday", "name": "春节调休补班", "isDayOff": false, "isWorkdayOverride": true, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+
+  { "id": "cn-2026-public-qingming-04-04", "dateKey": "2026-04-04", "region": "CN", "kind": "public_holiday", "name": "清明节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-qingming-04-05", "dateKey": "2026-04-05", "region": "CN", "kind": "public_holiday", "name": "清明节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-qingming-04-06", "dateKey": "2026-04-06", "region": "CN", "kind": "public_holiday", "name": "清明节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+
+  { "id": "cn-2026-public-labour-day-05-01", "dateKey": "2026-05-01", "region": "CN", "kind": "public_holiday", "name": "劳动节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-labour-day-05-02", "dateKey": "2026-05-02", "region": "CN", "kind": "public_holiday", "name": "劳动节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-labour-day-05-03", "dateKey": "2026-05-03", "region": "CN", "kind": "public_holiday", "name": "劳动节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-labour-day-05-04", "dateKey": "2026-05-04", "region": "CN", "kind": "public_holiday", "name": "劳动节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-labour-day-05-05", "dateKey": "2026-05-05", "region": "CN", "kind": "public_holiday", "name": "劳动节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-makeup-05-09", "dateKey": "2026-05-09", "region": "CN", "kind": "makeup_workday", "name": "劳动节调休补班", "isDayOff": false, "isWorkdayOverride": true, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+
+  { "id": "cn-2026-public-dragon-boat-06-19", "dateKey": "2026-06-19", "region": "CN", "kind": "public_holiday", "name": "端午节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-traditional-dragon-boat", "dateKey": "2026-06-19", "region": "CN", "kind": "traditional_festival", "name": "端午节", "isDayOff": false, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-dragon-boat-06-20", "dateKey": "2026-06-20", "region": "CN", "kind": "public_holiday", "name": "端午节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-dragon-boat-06-21", "dateKey": "2026-06-21", "region": "CN", "kind": "public_holiday", "name": "端午节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+
+  { "id": "cn-2026-makeup-09-20", "dateKey": "2026-09-20", "region": "CN", "kind": "makeup_workday", "name": "国庆节调休补班", "isDayOff": false, "isWorkdayOverride": true, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-mid-autumn-09-25", "dateKey": "2026-09-25", "region": "CN", "kind": "public_holiday", "name": "中秋节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-traditional-mid-autumn", "dateKey": "2026-09-25", "region": "CN", "kind": "traditional_festival", "name": "中秋节", "isDayOff": false, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-mid-autumn-09-26", "dateKey": "2026-09-26", "region": "CN", "kind": "public_holiday", "name": "中秋节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-mid-autumn-09-27", "dateKey": "2026-09-27", "region": "CN", "kind": "public_holiday", "name": "中秋节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+
+  { "id": "cn-2026-public-national-day-10-01", "dateKey": "2026-10-01", "region": "CN", "kind": "public_holiday", "name": "国庆节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-national-day-10-02", "dateKey": "2026-10-02", "region": "CN", "kind": "public_holiday", "name": "国庆节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-national-day-10-03", "dateKey": "2026-10-03", "region": "CN", "kind": "public_holiday", "name": "国庆节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-national-day-10-04", "dateKey": "2026-10-04", "region": "CN", "kind": "public_holiday", "name": "国庆节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-national-day-10-05", "dateKey": "2026-10-05", "region": "CN", "kind": "public_holiday", "name": "国庆节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-national-day-10-06", "dateKey": "2026-10-06", "region": "CN", "kind": "public_holiday", "name": "国庆节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-public-national-day-10-07", "dateKey": "2026-10-07", "region": "CN", "kind": "public_holiday", "name": "国庆节假期", "isDayOff": true, "isWorkdayOverride": false, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+  { "id": "cn-2026-makeup-10-10", "dateKey": "2026-10-10", "region": "CN", "kind": "makeup_workday", "name": "国庆节调休补班", "isDayOff": false, "isWorkdayOverride": true, "sourceId": "cn-2026-state-council", "sourceYear": 2026 },
+
+  { "id": "cn-2026-observance-christmas", "dateKey": "2026-12-25", "region": "CN", "kind": "observance", "name": "圣诞节", "isDayOff": false, "isWorkdayOverride": false, "sourceId": "cn-fixed-cultural-observances-v1", "sourceYear": 2026 }
+]

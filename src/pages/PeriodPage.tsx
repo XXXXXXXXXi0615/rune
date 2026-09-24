@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import { BackButton } from '@/components/layout/BackButton'
 import { loadPeriodRecords, savePeriodRecord, deletePeriodRecord, createPeriodRecord, PERIOD_MOODS, FLOW_LEVELS } from '@/utils/periodStorage'
 import type { PeriodRecord, PeriodMood, PeriodUndoEntry } from '@/utils/periodStorage'
+import { deleteTicketsForRecord } from '@/features/period/ticketStorage'
 import { periodMoodToTodayMood, markTodayMoodTimestamp } from '@/utils/moodAvatarMap'
 import { getPeriodMoodLabel, getCyclePhaseLabel, getFlowLevelLabel } from '@/features/period/periodLabels'
 import { getCycleSnapshot, type CycleSnapshot, type TrendDay } from '@/features/period/getCycleSnapshot'
@@ -11,10 +12,13 @@ import { useAppStore } from '@/store/useAppStore'
 import { simpleHash } from '@/utils/hash'
 import { toLocalDateString } from '@/utils/date'
 import { parseSymptomTags, mergeSymptomTags } from '@/features/period/symptomTagParser'
+import { PeriodTicketEntry } from '@/components/period/PeriodTicketEntry'
+import { PeriodTicketArchiveEntry } from '@/components/period/PeriodTicketArchiveEntry'
 import { PeriodRecordSheet } from '@/components/period/PeriodRecordSheet'
 import { getDailyTotal, useHydrationStore } from '@/store/useHydrationStore'
 import '@/styles/period.css'
 import '@/styles/period-bento.css'
+import '@/styles/period-ticket-archive.css'
 
 const CYCLE_LENGTH_DAYS = 28
 
@@ -313,6 +317,7 @@ export function PeriodPage() {
   }, [deleteConfirmId])
 
   const handleDeletePeriod = (id: string) => {
+    deleteTicketsForRecord(id)
     deletePeriodRecord(id)
     setPeriodRecords(loadPeriodRecords())
     setDeleteConfirmId(null)
@@ -483,6 +488,17 @@ export function PeriodPage() {
           </article>
         )}
 
+        {todayRecord && (
+          <PeriodTicketEntry
+            record={todayRecord}
+            phaseLabel={getCyclePhaseLabel(snapshot.status)}
+            cycleDay={snapshot.cycleDay ?? undefined}
+            variant="hero"
+          />
+        )}
+
+        <PeriodTicketArchiveEntry />
+
         <div className="pb-quad" data-pet-safe-zone>
           <button type="button" className="pb-mini" style={{ '--mini-tint': PHASE_TINT.unknown, '--mini-accent': (todayRecord?.mood && PERIOD_MOODS.find(m => m.key === todayRecord.mood)?.color) || '#c64545' } as React.CSSProperties}
             data-card-id="mood" onClick={(e) => openModalWithSection('mood', e.currentTarget)} aria-label={isZh ? '開啟心情記錄' : 'Open mood log'}>
@@ -559,7 +575,7 @@ export function PeriodPage() {
                   </button>
                   <span className="pb-action-label">{action.label}</span>
                   <span className="pb-action-sub">{action.sub}</span>
-                  {done && action.dew && <span className="pb-action-dew">{isZh ? '+1 月露' : '+1 Moon Dew'}</span>}
+                  {done && action.dew && <span className="pb-action-dew">{isZh ? '+1 月印' : '+1 Moon Seal'}</span>}
                 </li>
               )
             })}

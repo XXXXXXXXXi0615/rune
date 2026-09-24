@@ -1,0 +1,217 @@
+/* ══════════════════════════════════════
+   ══════════════════════════════════════ */
+
+
+
+
+
+.lunaris-pet--compact { --lunaris-pet-size: 44px; }
+.lunaris-pet--floating { --lunaris-pet-size: 100%; }
+.lunaris-pet--card { --lunaris-pet-size: 72px; }
+.lunaris-pet--pet { --lunaris-pet-size: 200px; }
+
+.lunaris-pet__image,
+.lunaris-pet__fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lunaris-pet__image {
+  image-rendering: auto;
+}
+
+.lunaris-pet__fallback {
+  animation: lunarisPetFallbackFloat 2.8s ease-in-out infinite;
+}
+
+.lunaris-pet--error .lunaris-pet__fallback { color: var(--danger, #c64545); }
+.lunaris-pet--success .lunaris-pet__fallback { color: var(--success, #5db872); }
+.lunaris-pet--sleepy .lunaris-pet__fallback { opacity: 0.72; }
+
+@keyframes lunarisPetFallbackFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lunaris-pet__fallback { animation: none; }
+}
+
+/* ── Side Pet mini peek layer ── */
+.side-pet {
+  position: fixed;
+  z-index: 94;
+  width: 96px;
+  height: 96px;
+  pointer-events: none;
+  user-select: none;
+  opacity: 1;
+  filter: drop-shadow(0 10px 24px rgba(66, 47, 39, 0.22));
+  cursor: grab;
+  touch-action: none;
+  will-change: left, top, opacity, filter;
+  transition:
+    opacity 0.28s ease,
+    left 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    top 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.2s ease;
+}
+
+.side-pet--floor::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 52%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(72, 48, 38, 0.18);
+  filter: blur(5px);
+  transform: translateX(-50%);
+}
+
+.side-pet--side.side-pet--right {
+  transform-origin: center right;
+}
+
+.side-pet--side.side-pet--left {
+  transform-origin: center left;
+}
+
+.side-pet.is-dragging {
+  cursor: grabbing;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  filter: drop-shadow(0 16px 32px rgba(66, 47, 39, 0.3));
+}
+
+.side-pet.is-mobile-suppressed {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+
+.side-pet--miniPeek.is-active {
+  animation: sidePetPeek 4.4s ease-in-out both;
+}
+
+.side-pet--miniAlert.is-active {
+  animation: sidePetAlert 0.72s ease-in-out 2;
+}
+
+.side-pet--miniHappy.is-active {
+  animation: sidePetHappy 1.1s ease-in-out 3;
+}
+
+.side-pet__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform: scale(3);
+  transform-origin: bottom center;
+  cursor: inherit;
+}
+
+.side-pet.is-mobile-suppressed .side-pet__image {
+  pointer-events: none;
+}
+
+/* ── Side Pet dismiss button ── */
+.side-pet__dismiss {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  z-index: 10;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.15s, color 0.15s;
+}
+.side-pet:hover .side-pet__dismiss,
+.side-pet:focus-within .side-pet__dismiss {
+  opacity: 1;
+}
+.side-pet__dismiss:hover {
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+}
+
+@keyframes sidePetPeek {
+  0%, 100% { transform: translateX(0); }
+  35% { transform: translateX(-5px); }
+  70% { transform: translateX(3px); }
+}
+
+@keyframes sidePetAlert {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-5px) rotate(-2deg); }
+  50% { transform: translateX(5px) rotate(2deg); }
+  75% { transform: translateX(-3px) rotate(-1deg); }
+}
+
+@keyframes sidePetHappy {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-8px); }
+}
+
+@media (max-width: 768px) {
+  .side-pet {
+    width: 82px;
+    height: 82px;
+  }
+}
+
+@media (max-width: 480px) {
+  .side-pet {
+    width: 72px;
+    height: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side-pet,
+  .side-pet--miniPeek.is-active,
+  .side-pet--miniAlert.is-active,
+  .side-pet--miniHappy.is-active {
+    animation: none;
+    transition: opacity 0.2s ease;
+  }
+}
+
+.lunaris-pet__image-wrap {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Wobble keyframes — used by home.css scoped selector */
+.pet-widget.is-overlay-open {
+  opacity: 0.18;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+.registered-pet-asset { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }

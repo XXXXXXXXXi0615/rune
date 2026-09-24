@@ -1,0 +1,129 @@
+.global-wallpaper { position: fixed; top: -8px; left: -8px; width: calc(100vw + 16px); height: calc(100dvh + 16px); z-index: 0; overflow: hidden; pointer-events: none; background: var(--bg); contain: paint; }
+.app-content-layer { position: relative; z-index: 1; background: transparent; }
+.global-wallpaper > div { position: absolute; inset: 0; }
+.global-wallpaper__base { background: var(--bg); }
+.global-wallpaper__layer { inset: calc(-1 * max(24px, var(--wallpaper-blur))) !important; background-repeat: no-repeat; background-position: var(--wallpaper-position-x) var(--wallpaper-position-y); opacity: var(--wallpaper-opacity); filter: blur(var(--wallpaper-blur)) brightness(var(--wallpaper-brightness)) saturate(var(--wallpaper-saturation)); transform: scale(calc(var(--wallpaper-scale) + .035)); transform-origin: var(--wallpaper-position-x) var(--wallpaper-position-y); will-change: filter, transform; }
+.global-wallpaper__scrim { background: var(--wallpaper-tint); opacity: var(--wallpaper-scrim); }
+.ambient-mist{position:absolute;inset:0;z-index:2;overflow:hidden;contain:strict;pointer-events:none;isolation:isolate}
+.ambient-mist__field{position:absolute;display:block;width:min(72vw,920px);height:min(64vw,760px);border-radius:50%;opacity:.14;filter:blur(76px);will-change:transform,opacity;animation:ambient-mist-drift-a 28s ease-in-out infinite alternate}
+.ambient-mist__field--pearl{left:-22%;top:-18%;background:rgba(255,247,222,.92);transform:translate3d(0,0,0)}
+.ambient-mist__field--ice{right:-24%;top:12%;background:rgba(173,218,236,.78);opacity:.12;animation-name:ambient-mist-drift-b;animation-duration:34s}
+.ambient-mist__field--blush{left:18%;bottom:-32%;background:rgba(224,175,190,.72);opacity:.1;animation-name:ambient-mist-drift-c;animation-duration:31s}
+.ambient-mist[data-paused=true] .ambient-mist__field{animation-play-state:paused}
+[data-theme=dark] .ambient-mist__field--pearl{background:rgba(224,216,192,.46);opacity:.08}
+[data-theme=dark] .ambient-mist__field--ice{background:rgba(93,151,178,.58);opacity:.13}
+[data-theme=dark] .ambient-mist__field--blush{background:rgba(151,91,119,.52);opacity:.09}
+@keyframes ambient-mist-drift-a{to{transform:translate3d(9vw,7vh,0) scale(1.06);opacity:.17}}
+@keyframes ambient-mist-drift-b{to{transform:translate3d(-10vw,9vh,0) scale(.96);opacity:.16}}
+@keyframes ambient-mist-drift-c{to{transform:translate3d(5vw,-8vh,0) scale(1.05);opacity:.14}}
+@media(max-width:600px){.ambient-mist__field{width:112vw;height:88vw;filter:blur(58px)}.ambient-mist__field--pearl{left:-48%;top:-9%}.ambient-mist__field--ice{right:-54%;top:30%}.ambient-mist__field--blush{left:-4%;bottom:-18%}}
+@media(prefers-reduced-motion:reduce){.ambient-mist__field{animation:none;will-change:auto}}
+
+html[data-wallpaper-active='true'] { --glass-bg: color-mix(in srgb, var(--surface) var(--wallpaper-surface-opacity), transparent); --glass-bg-strong: color-mix(in srgb, var(--surface-3) var(--wallpaper-surface-strong-opacity), transparent); --glass-edge: color-mix(in srgb, var(--text) var(--wallpaper-border-contrast), rgba(255,255,255,.32)); --glass-blur: var(--wallpaper-interface-blur); }
+html[data-wallpaper-active='true'] { overflow-x: clip; }
+html[data-wallpaper-image='true'] {
+  --glass-shell-bg: color-mix(in srgb, var(--surface) 14%, transparent);
+  --glass-sidebar-bg: color-mix(in srgb, var(--surface) 56%, transparent);
+  --glass-card-bg: color-mix(in srgb, var(--surface) 70%, transparent);
+  --glass-modal-bg: color-mix(in srgb, var(--surface) 88%, transparent);
+  --glass-border: color-mix(in srgb, var(--text) 15%, rgba(255,255,255,.42));
+  --glass-shadow: 0 14px 38px rgba(42,30,34,.12);
+  --glass-backdrop-blur: 24px;
+}
+html[data-wallpaper-image='true'][data-wallpaper-readability='low'] { --glass-sidebar-bg: color-mix(in srgb, var(--surface) 48%, transparent); --glass-card-bg: color-mix(in srgb, var(--surface) 62%, transparent); --glass-modal-bg: color-mix(in srgb, var(--surface) 82%, transparent); --glass-backdrop-blur: 18px; }
+html[data-wallpaper-image='true'][data-wallpaper-readability='high'] { --glass-sidebar-bg: color-mix(in srgb, var(--surface) 62%, transparent); --glass-card-bg: color-mix(in srgb, var(--surface) 76%, transparent); --glass-modal-bg: color-mix(in srgb, var(--surface) 92%, transparent); --glass-border: color-mix(in srgb, var(--text) 24%, white); --glass-backdrop-blur: 30px; --text-2: color-mix(in srgb, var(--text) 82%, transparent); --text-3: color-mix(in srgb, var(--text) 68%, transparent); }
+html[data-wallpaper-image='true'] body,
+html[data-wallpaper-image='true'] #root,
+html[data-wallpaper-image='true'] #bg-layer,
+html[data-wallpaper-image='true'] #app,
+html[data-wallpaper-image='true'] .app-workspace,
+html[data-wallpaper-image='true'] .app-main,
+html[data-wallpaper-image='true'] .view,
+html[data-wallpaper-image='true'] .page-shell,
+html[data-wallpaper-image='true'] .settings-profile-view,
+html[data-wallpaper-image='true'] .settings-accordion-scroll,
+html[data-wallpaper-image='true'] .jp2-page,
+html[data-wallpaper-image='true'] .journal-workspace,
+html[data-wallpaper-image='true'] .timehub-view,
+html[data-wallpaper-image='true'] .chat-workspace,
+html[data-wallpaper-image='true'] .pj-page,
+html[data-wallpaper-image='true'] .works-view { background: transparent !important; }
+html[data-wallpaper-image='true'] .system-top-bar,
+html[data-wallpaper-image='true'] .mobile-header,
+html[data-wallpaper-image='true'] .cw-sidebar { background: var(--glass-sidebar-bg) !important; border-color: var(--glass-border) !important; backdrop-filter: blur(var(--glass-backdrop-blur)) saturate(1.25); }
+html[data-wallpaper-image='true'] .desktop-sidebar {
+  background: transparent !important;
+  border-color: color-mix(in srgb, var(--border-hi) 45%, transparent) !important;
+  box-shadow: none;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+/* On busy wallpaper, sidebar text stays legible via adaptive micro-halo —
+   NOT by restoring an opaque surface. */
+html[data-wallpaper-image='true'] .desktop-sidebar .desktop-nav-label,
+html[data-wallpaper-image='true'] .desktop-sidebar .desktop-module-tile-label,
+html[data-wallpaper-image='true'] .desktop-sidebar .desktop-sidebar-footer,
+html[data-wallpaper-image='true'] .desktop-sidebar .desktop-module-grid-label,
+html[data-wallpaper-image='true'] .desktop-sidebar .desktop-brand small {
+  text-shadow:
+    0 1px 2px color-mix(in srgb, var(--text) 16%, transparent),
+    0 -1px 1px color-mix(in srgb, var(--bg) 26%, transparent);
+}
+html[data-wallpaper-image='true'] .desktop-sidebar .icon {
+  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--text) 32%, transparent));
+}
+html[data-wallpaper-image='true'] :is(.card, .home-card, .dashboard-card, .settings-accordion, .settings-info-block, .settings-preview-surface, .timehub-calendar-card, .jp2-card, .j3-card) { background: var(--glass-card-bg) !important; border-color: var(--glass-border) !important; box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--glass-backdrop-blur)) saturate(1.2); }
+html[data-wallpaper-image='true'] :is(.modal, .glass-modal, [role='dialog'], .settings-detail-window) { background: var(--glass-modal-bg) !important; border-color: var(--glass-border) !important; backdrop-filter: blur(calc(var(--glass-backdrop-blur) + 6px)) saturate(1.2); }
+html[data-wallpaper-image='true'] :focus-visible { outline-color: var(--accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 34%, transparent); }
+html[data-high-readability] { --wallpaper-surface-opacity: 94% !important; --wallpaper-surface-strong-opacity: 98% !important; --wallpaper-border-contrast: 48% !important; --wallpaper-interface-blur: 28px !important; }
+#app, .app-workspace, .app-main { background-color: transparent; }
+
+.wallpaper-settings { display: grid; gap: 16px; min-height: 0; padding: 4px 4px 22px; }
+.wallpaper-file-input { position: fixed; inline-size: 1px; block-size: 1px; opacity: 0; pointer-events: none; }
+.wallpaper-settings__workspace { display: grid; grid-template-columns: minmax(0, 52fr) minmax(0, 48fr); gap: 16px; min-height: 0; align-items: start; }
+.wallpaper-settings__controls { display: grid; gap: 16px; min-width: 0; }
+.wallpaper-settings__intro, .wallpaper-settings__section { position: relative; overflow: hidden; padding: 20px; border: 1px solid color-mix(in srgb, var(--text) 12%, transparent); border-radius: 24px; background: color-mix(in srgb, var(--surface) 60%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.36), 0 10px 28px rgba(49, 36, 54, .07); backdrop-filter: blur(24px) saturate(1.25); }
+.wallpaper-settings__intro p { margin: 7px 0 0; color: var(--text-2); font-size: 13px; line-height: 1.55; }
+.wallpaper-settings__section h3 { margin: 0 0 14px; font-size: 14px; }
+.wallpaper-image-actions p { margin: -6px 0 14px; color: var(--text-2); font-size: 13px; line-height: 1.55; }.wallpaper-image-actions div { display: flex; flex-wrap: wrap; gap: 8px; }.wallpaper-image-actions button, .wallpaper-settings__actions button { min-height: 40px; padding: 0 15px; border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--surface) 65%, transparent); color: var(--text); cursor: pointer; transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease; }.wallpaper-image-actions button:hover:not(:disabled) { box-shadow: 0 6px 16px rgba(49,36,54,.1); transform: translateY(-1px); }
+.wallpaper-image-actions button:last-child { color: var(--danger); }
+.wallpaper-color-row { margin-top: 14px; }
+.wallpaper-color-row input { inline-size: 52px; block-size: 34px; border: 0; background: transparent; }
+.wallpaper-range-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+.wallpaper-range-grid label { display: grid; gap: 8px; }
+.wallpaper-range-grid label > span { display: flex; justify-content: space-between; gap: 8px; color: var(--text-2); font-size: 12px; }
+.wallpaper-range-grid output { color: var(--text-3); font-variant-numeric: tabular-nums; }
+.wallpaper-range-grid input { width: 100%; accent-color: var(--accent); }
+.wallpaper-settings__message { margin: 0; color: var(--text-2); font-size: 12px; }.wallpaper-settings__message.is-error { color: var(--danger); }
+.wallpaper-settings__actions { position: sticky; bottom: 0; z-index: 2; display: flex; justify-content: flex-end; gap: 8px; padding: 12px; border: 1px solid color-mix(in srgb, var(--text) 10%, transparent); border-radius: 22px; background: color-mix(in srgb, var(--surface) 72%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.34), 0 8px 24px rgba(49,36,54,.08); backdrop-filter: blur(22px) saturate(1.25); }
+.wallpaper-readability { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.wallpaper-readability button { min-width: 0; min-height: 40px; padding: 0 8px; border: 1px solid var(--glass-border, var(--border)); border-radius: 999px; background: var(--glass-card-bg, var(--surface-2)); color: var(--text-2); }
+.wallpaper-readability button.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, var(--glass-card-bg, var(--surface))); color: var(--text); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent); }
+.wallpaper-settings__actions .wallpaper-reset { margin-right: auto; }
+.wallpaper-settings__actions .wallpaper-apply { position: relative; overflow: hidden; min-width: 82px; border-color: var(--accent); background: var(--accent); color: white; }.wallpaper-apply svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }.wallpaper-apply > span { position: absolute; inset: 50%; width: 1px; height: 1px; border-radius: 50%; background: rgba(255,255,255,.48); pointer-events: none; }.wallpaper-apply.is-pressing { transform: scale(.96); transition-duration: 90ms; }.wallpaper-apply.is-success { animation: wallpaper-commit 370ms cubic-bezier(.2,.9,.2,1); }.wallpaper-apply.is-success > span { animation: wallpaper-impact 300ms ease-out; }.wallpaper-apply.is-error { animation: wallpaper-error-shake 320ms ease-in-out; }
+.skin-preview { min-width: 0; }
+.skin-preview__label { margin: 0 0 8px; font-size: 12px; font-weight: 700; color: var(--text-2); }
+.skin-preview__device, .wallpaper-dropzone { position: relative; isolation: isolate; min-height: 430px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 30px; background: color-mix(in srgb, var(--surface) 55%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.42), 0 14px 30px rgba(39, 27, 20, .11); backdrop-filter: blur(22px) saturate(1.3); font-size: 11px; color: var(--text); touch-action: none; cursor: grab; user-select: none; }
+.skin-preview__device:active { cursor: grabbing; }
+.skin-preview__image { position: absolute; inset: -30px; z-index: -2; background-repeat: no-repeat; background-position: var(--preview-image-x) var(--preview-image-y); opacity: var(--preview-image-opacity); filter: blur(var(--preview-image-blur)) brightness(var(--preview-image-brightness)) saturate(var(--preview-image-saturation)); transform: scale(var(--preview-image-scale)); transform-origin: var(--preview-image-x) var(--preview-image-y); }.skin-preview__image-mask { position: absolute; inset: 0; z-index: -1; background: var(--preview-tint); opacity: var(--preview-tint-opacity); }
+.skin-preview__device::before { content: ''; position: absolute; inset: 0; z-index: -1; background: color-mix(in srgb, var(--surface) 46%, transparent); }
+.skin-preview__sidebar { position: absolute; inset: 0 auto 0 0; width: 86px; display: grid; align-content: start; gap: 10px; padding: 18px 10px; background: color-mix(in srgb, var(--surface) 62%, transparent); border-right: 1px solid color-mix(in srgb, var(--text) 10%, transparent); }
+.skin-preview__sidebar b { margin-bottom: 12px; font-family: var(--font-display); font-size: 14px; }.skin-preview__sidebar span { padding: 7px; border-radius: 8px; color: var(--text-2); }.skin-preview .is-active { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--text); }
+.skin-preview__main { margin-left: 86px; padding: 20px 14px 58px; }.skin-preview__main header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 13px; }.skin-preview__main header i { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); }
+.skin-preview__card { display: grid; gap: 8px; margin-bottom: 12px; padding: 14px; border: 1px solid color-mix(in srgb, var(--text) 11%, transparent); border-radius: 14px; background: color-mix(in srgb, var(--surface) 72%, transparent); backdrop-filter: blur(16px); }.skin-preview__card small,.skin-preview__card span { color: var(--text-2); }.skin-preview__card b { font-size: 14px; }.skin-preview__card--small { line-height: 1.5; color: var(--text-2); }
+.skin-preview__input { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--text) 15%, transparent); border-radius: 11px; background: color-mix(in srgb, var(--surface) 78%, transparent); color: var(--text-2); }.skin-preview__input em { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 7px; background: var(--accent); color: white; font-style: normal; }
+.skin-preview__button { margin: 0 0 12px; border: 0; border-radius: 999px; padding: 8px 11px; background: var(--accent); color: white; font: inherit; }
+.skin-preview__chat { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.skin-preview__bubble { max-width: 78%; padding: 8px 12px; border-radius: 14px; font-size: 11px; line-height: 1.45; }
+.skin-preview__bubble--user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+.skin-preview__bubble--agent { align-self: flex-start; background: color-mix(in srgb, var(--surface) 72%, transparent); border: 1px solid color-mix(in srgb, var(--text) 10%, transparent); border-bottom-left-radius: 4px; }
+.skin-preview__dock { position: absolute; inset: auto 0 0; display: flex; justify-content: space-around; align-items: center; height: 48px; background: color-mix(in srgb, var(--surface) 78%, transparent); border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent); backdrop-filter: blur(18px); }.skin-preview__dock span { color: var(--text-2); }.skin-preview__dock .is-active { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; color: white; background: var(--accent); }
+.wallpaper-dropzone { display: grid; place-items: center; align-content: center; gap: 10px; padding: 26px; border-style: dashed; cursor: pointer; text-align: center; transition: border-color 160ms ease, background 160ms ease, transform 160ms ease; }.wallpaper-dropzone:hover, .wallpaper-dropzone.is-dragging { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); transform: translateY(-1px); }.wallpaper-dropzone__icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); font-size: 28px; }.wallpaper-dropzone strong { font-size: 16px; }.wallpaper-dropzone > span:not(.wallpaper-dropzone__icon), .wallpaper-dropzone small { color: var(--text-2); }.wallpaper-dropzone small { margin-top: 8px; font-size: 12px; }
+@keyframes wallpaper-commit { 0% { transform: scale(.96); } 52% { transform: scale(1.035); } 100% { transform: scale(1); } } @keyframes wallpaper-impact { from { transform: translate(-50%,-50%) scale(.3); opacity: .32; } to { transform: translate(-50%,-50%) scale(1.65); opacity: 0; } } @keyframes wallpaper-error-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@media (max-width: 720px) { .wallpaper-settings__workspace { grid-template-columns: 1fr; }.skin-preview { order: -1; }.skin-preview__device, .wallpaper-dropzone { min-height: 360px; max-height: 420px; } }
+/* Lunartide App Frame measured contract (frame permanently ≤430px). */
+:root[data-frame-size="narrow"] .wallpaper-settings__workspace { grid-template-columns: 1fr; }
+:root[data-frame-size="narrow"] .skin-preview { order: -1; }
+:root[data-frame-size="narrow"] .skin-preview__device, :root[data-frame-size="narrow"] .wallpaper-dropzone { min-height: 360px; max-height: 420px; }
+@media (max-width: 520px) { .ios-detail-scroll:has(.wallpaper-settings) { max-height: calc(100dvh - 84px); overflow-y: auto; overflow-x: hidden; } .wallpaper-settings { padding-inline: 0; } .wallpaper-range-grid { grid-template-columns: 1fr; } .wallpaper-settings__actions { padding-bottom: calc(12px + env(safe-area-inset-bottom)); } .wallpaper-settings__actions button { flex: 1 1 0; padding-inline: 10px; } .wallpaper-settings__actions .wallpaper-reset { margin: 0; } .skin-preview__sidebar { width: 72px; padding-inline: 7px; } .skin-preview__main { margin-left: 72px; padding-inline: 10px; } }
+@media (prefers-reduced-motion: reduce) { .global-wallpaper__layer { will-change: auto; }.wallpaper-apply, .wallpaper-apply.is-pressing, .wallpaper-apply.is-success, .wallpaper-apply.is-error, .wallpaper-apply.is-success > span { animation: none; transform: none; transition: opacity 120ms ease; }.wallpaper-apply.is-success > span { opacity: 0; }.wallpaper-dropzone { transition-duration: 120ms; } }

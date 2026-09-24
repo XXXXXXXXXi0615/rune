@@ -1,0 +1,190 @@
+.home-companion-board {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.companion-board-workspace {
+  position: relative;
+  min-height: 430px;
+  padding: 18px 64px 88px 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 68%, transparent);
+  border-radius: 22px;
+  background:
+    linear-gradient(color-mix(in srgb, var(--surface) 18%, transparent), color-mix(in srgb, var(--surface-2) 9%, transparent)),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--text) 2.5%, transparent) 0 1px, transparent 1px 24px);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 5%, transparent);
+}
+
+.companion-board-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 12px;
+  align-items: stretch;
+}
+
+.companion-board-card {
+  --card-paper: #fffaf0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 222px;
+  min-width: 0;
+  overflow: visible;
+  border: 1px solid rgba(98, 70, 38, .12);
+  border-radius: 12px;
+  background: var(--card-paper);
+  box-shadow: 0 8px 18px -13px rgba(49, 34, 20, .48), inset 0 1px 0 rgba(255,255,255,.78);
+  color: #392d22;
+  transform: rotate(clamp(-1deg, var(--card-rotation), 1deg));
+}
+
+.companion-board-card.is-note { --card-paper: #fff4c9; }
+.companion-board-card.is-mixed { --card-paper: #f4f0e7; }
+.companion-board-card.is-pinned { border-color: color-mix(in srgb, var(--accent) 30%, rgba(98,70,38,.12)); }
+
+.companion-board-card__pin {
+  position: absolute;
+  z-index: 3;
+  top: -6px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,.55);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 72%, #bc5b43);
+  box-shadow: 0 2px 5px rgba(54,32,22,.28);
+  transform: translateX(-50%);
+}
+
+.companion-board-card__menu-wrap { position: absolute; z-index: 6; top: 7px; right: 7px; }
+.companion-board-card__more {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0 0 7px;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--card-paper) 80%, transparent);
+  color: rgba(57,45,34,.65);
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.companion-board-card__menu {
+  position: absolute;
+  top: 39px;
+  right: 0;
+  z-index: 12;
+  display: grid;
+  width: 120px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--surface) 95%, transparent);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(18px);
+}
+.companion-board-card__menu button { min-height: 38px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: var(--text); text-align: left; }
+.companion-board-card__menu button:hover { background: var(--surface-2); }
+.companion-board-card__menu button:disabled { opacity: .35; }
+.companion-board-card__menu button.is-danger { color: var(--danger, #a44); }
+
+.companion-board-card__image,
+.companion-board-editor__preview {
+  background-color: color-mix(in srgb, var(--surface-2) 46%, transparent);
+  background-image:
+    linear-gradient(45deg, color-mix(in srgb, var(--text) 6%, transparent) 25%, transparent 25%),
+    linear-gradient(-45deg, color-mix(in srgb, var(--text) 6%, transparent) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, color-mix(in srgb, var(--text) 6%, transparent) 75%),
+    linear-gradient(-45deg, transparent 75%, color-mix(in srgb, var(--text) 6%, transparent) 75%);
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  background-size: 12px 12px;
+}
+.companion-board-card__image { height: 104px; margin: 10px 10px 0; overflow: hidden; border-radius: 8px; }
+.companion-board-card__image img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(30,24,18,.16)); }
+.companion-board-card__body { min-height: 0; padding: 14px 13px 13px; overflow: hidden; }
+.companion-board-card__image + .companion-board-card__body { padding-top: 9px; }
+.companion-board-card__body small { display: block; margin-bottom: 4px; color: rgba(57,45,34,.48); font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.companion-board-card__body h3 { margin: 0; overflow: hidden; font-size: 14px; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.companion-board-card__body p { display: -webkit-box; margin: 7px 0 0; overflow: hidden; color: rgba(57,45,34,.72); font: 12px/1.48 'LXGW WenKai TC', 'Songti TC', serif; -webkit-box-orient: vertical; -webkit-line-clamp: 5; }
+.companion-board-card__image + .companion-board-card__body p { margin-top: 4px; -webkit-line-clamp: 2; }
+
+.companion-board-add-anchor { position: absolute; right: 14px; bottom: 18px; z-index: 20; }
+.companion-board-add {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 44%, var(--border));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--surface) 76%, var(--accent) 24%);
+  box-shadow: 0 9px 22px -12px color-mix(in srgb, var(--accent) 70%, transparent);
+  color: var(--accent);
+  font-size: 25px;
+}
+
+.companion-board-add-menu {
+  position: absolute;
+  right: 0;
+  bottom: 58px;
+  display: grid;
+  width: 176px;
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(20px);
+}
+.companion-board-add-menu button { display: grid; grid-template-columns: 28px 1fr; align-items: center; min-height: 44px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; color: var(--text); text-align: left; }
+.companion-board-add-menu button:hover { background: var(--surface-2); }
+.companion-board-add-menu button span { color: var(--accent); font-size: 19px; text-align: center; }
+
+.companion-board-empty { position: absolute; inset: 24px 64px 76px 16px; display: grid; place-content: center; justify-items: center; color: var(--text-2); text-align: center; }
+.companion-board-empty > span { color: var(--accent); font-size: 34px; opacity: .6; }
+.companion-board-empty h2 { margin: 12px 0 4px; color: var(--text); font-size: 17px; }
+.companion-board-empty p { max-width: 240px; margin: 0; font-size: 12px; line-height: 1.55; }
+.companion-board-empty button { min-height: 44px; margin-top: 18px; padding: 0 17px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-2); color: var(--text); }
+
+.companion-board-editor__backdrop { position: fixed; inset: 0; z-index: 300; display: grid; place-items: end center; padding-top: 24px; background: color-mix(in srgb, var(--text) 22%, transparent); backdrop-filter: blur(8px); }
+.companion-board-editor { width: min(430px, 100%); max-height: min(82dvh, 620px); overflow: auto; padding: 16px 18px; border: 1px solid var(--border); border-radius: 24px 24px 0 0; background: var(--surface); color: var(--text); box-shadow: 0 -16px 38px color-mix(in srgb, var(--text) 14%, transparent); }
+.companion-board-editor header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.companion-board-editor header small { color: var(--text-3); font-size: 9px; letter-spacing: .12em; }
+.companion-board-editor header h2 { margin: 2px 0 0; font-size: 18px; }
+.companion-board-editor header button { width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 50%; background: var(--surface-2); color: var(--text); font-size: 22px; }
+.companion-board-editor__fields { display: grid; gap: 14px; margin-top: 18px; }
+.companion-board-editor__fields label { display: grid; gap: 6px; color: var(--text-2); font-size: 12px; font-weight: 600; }
+.companion-board-editor__fields input, .companion-board-editor__fields textarea { width: 100%; min-height: 44px; padding: 11px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); color: var(--text); font: inherit; resize: vertical; }
+.companion-board-editor__picker { width: 100%; min-height: 74px; border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--border)); border-radius: 14px; background: var(--surface-2); color: var(--text-2); }
+.companion-board-editor__preview { position: relative; height: 138px; overflow: hidden; border: 1px solid var(--border); border-radius: 14px; }
+.companion-board-editor__preview img { width: 100%; height: 100%; object-fit: contain; }
+.companion-board-editor__image-status { position: absolute; top: 7px; left: 7px; padding: 4px 7px; border-radius: 8px; background: color-mix(in srgb, var(--surface) 88%, transparent); color: var(--text-2); font-size: 9px; backdrop-filter: blur(8px); }
+.companion-board-editor__image-actions { position: absolute; right: 7px; bottom: 7px; display: flex; gap: 5px; }
+.companion-board-editor__preview button { min-height: 36px; padding: 0 10px; border: 1px solid var(--border); border-radius: 9px; background: color-mix(in srgb, var(--surface) 91%, transparent); color: var(--text); font-size: 11px; backdrop-filter: blur(8px); }
+.companion-board-editor footer { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; margin-top: 18px; }
+.companion-board-editor footer button { min-height: 46px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-2); color: var(--text); }
+.companion-board-editor footer button.is-primary { border-color: transparent; background: var(--accent); color: white; font-weight: 650; }
+.companion-board-editor footer button:disabled { opacity: .45; }
+
+:is(.companion-board-add, .companion-board-add-menu button, .companion-board-card__more, .companion-board-card__menu button, .companion-board-editor button, .companion-board-editor input, .companion-board-editor textarea):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 600px) {
+  .companion-board-workspace { min-height: 410px; padding: 16px 14px 84px; }
+  .companion-board-grid { gap: 14px 10px; }
+  .companion-board-card { height: 214px; }
+  .companion-board-card__image { height: 98px; }
+  .companion-board-empty { inset: 20px 14px 70px; }
+  .companion-board-add-anchor { right: 14px; bottom: 18px; }
+}
+
+@media (max-width: 360px) {
+  .companion-board-grid { grid-template-columns: 1fr; }
+  .companion-board-card { height: 220px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .companion-board-card { transform: none; }
+}

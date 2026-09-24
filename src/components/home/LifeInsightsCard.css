@@ -1,0 +1,116 @@
+/* ═══════════════════════════════════════════════
+   Phase 6.5 — Life Insights Card (Home Dashboard)
+   ═══════════════════════════════════════════════ */
+
+.li-card {
+  /* Inherits .home-dashboard-card base styles */
+}
+
+.li-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.li-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.li-card-bulb {
+  color: var(--amber, #d97706);
+  flex-shrink: 0;
+}
+
+.li-card-title {
+  font-family: var(--f-d);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.li-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Single insight item ── */
+.li-insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  position: relative;
+  border-top: 1px solid var(--border);
+}
+
+.li-insight:first-child {
+  border-top: none;
+}
+
+.li-insight-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--li-color, var(--accent));
+  background: color-mix(in srgb, var(--li-color, var(--accent)) 10%, transparent);
+}
+
+.li-insight-icon svg {
+  display: block;
+}
+
+.li-insight-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.li-insight-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+  letter-spacing: -0.2px;
+}
+
+.li-insight-detail {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+/* ── Divider between insights ── */
+.li-insight-divider {
+  display: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .li-insight {
+    padding: 10px 0;
+  }
+
+  .li-insight-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 9px;
+  }
+
+  .li-insight-text {
+    font-size: 13px;
+  }
+
+  .li-insight-detail {
+    font-size: 12px;
+  }
+}

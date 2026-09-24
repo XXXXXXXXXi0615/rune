@@ -1,0 +1,71 @@
+/* ── Anchored Floating Check-in Panel ─────────────────────────────────────
+   Presentation only. Sits in the Home fixed zone between the compact clock
+   HUD and the Presence capsule. Same store / same clockIn seam.
+   ──────────────────────────────────────────────────────────────────────── */
+.home-checkin-surface{width:min(520px,100%);max-height:52px;margin:8px auto 0;overflow:hidden;box-sizing:border-box;border-radius:22px;transition:max-height 240ms cubic-bezier(.22,1,.36,1),width 240ms cubic-bezier(.22,1,.36,1),border-radius 240ms ease}
+.home-checkin-surface.is-expanded{width:min(380px,calc(100% - 32px));max-height:600px;border-radius:28px}
+.home-checkin-surface.is-collapsing{max-height:52px}
+.daily-checkin-welcome{position:relative;width:100%;box-sizing:border-box;margin:0;padding:14px 16px 12px;border:1px solid color-mix(in srgb,#c8ddf1 48%,rgba(255,255,255,.56));border-radius:26px;background:linear-gradient(145deg,rgba(255,252,246,.76),rgba(231,243,253,.64));-webkit-backdrop-filter:blur(22px) saturate(1.12);backdrop-filter:blur(22px) saturate(1.12);box-shadow:inset 0 1px rgba(255,255,255,.72),0 12px 28px color-mix(in srgb,var(--home-text-muted,#6b6a75) 11%,transparent);overflow:hidden;transform-origin:50% 0;animation:daily-checkin-enter 240ms cubic-bezier(.22,1,.36,1) both;color:var(--home-text-primary,var(--text))}
+.daily-checkin-welcome.is-collapsing{animation:daily-checkin-leave 240ms cubic-bezier(.4,0,1,1) both;pointer-events:none}
+.daily-checkin-welcome__close{position:absolute;top:4px;right:4px;width:44px;height:44px;display:grid;place-items:center;border:0;padding:0;background:transparent;color:color-mix(in srgb,var(--home-text-muted,#6b6a75) 78%,transparent);font:400 17px/1 var(--f-ui,system-ui);border-radius:50%;cursor:pointer;transition:background .15s ease,color .15s ease}
+.daily-checkin-welcome__close:hover{background:color-mix(in srgb,var(--home-text-muted,#6b6a75) 12%,transparent);color:var(--home-text-primary,var(--text))}
+.daily-checkin-welcome__close:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.daily-checkin-welcome__head{display:flex;align-items:center;gap:11px;padding-right:38px}
+.daily-checkin-welcome__medallion{display:grid;width:42px;height:42px;place-items:center;flex:0 0 auto;border:1px solid color-mix(in srgb,var(--home-accent,#c98722) 28%,transparent);border-radius:50%;background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.72),color-mix(in srgb,var(--home-accent,#c98722) 9%,transparent));color:var(--home-accent,#c98722);font-size:17px}
+.daily-checkin-welcome__head-copy{display:grid;gap:1px;min-width:0}
+.daily-checkin-welcome__head-copy>span{color:var(--home-accent,#c98722);font-size:9px;font-weight:800;letter-spacing:.18em}
+.daily-checkin-welcome__head-copy h2{margin:1px 0 0;font-size:20px;line-height:1.15;font-weight:750}
+.daily-checkin-welcome__hint{margin:11px 0 0;color:var(--home-text-muted,#6b6a75);font-size:12px;line-height:1.4}
+.daily-checkin-welcome__metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:9px 0 0}
+.daily-checkin-welcome__metrics div{min-width:0;padding:6px 10px;border:1px solid color-mix(in srgb,var(--home-text-primary,#2c2a33) 7%,transparent);border-radius:14px;background:rgba(255,255,255,.22)}
+.daily-checkin-welcome__metrics dt{color:var(--home-text-muted,#6b6a75);font-size:10px;white-space:nowrap}
+.daily-checkin-welcome__metrics dd{margin:2px 0 0;color:var(--home-text-primary,var(--text));font-size:19px;font-weight:750;font-variant-numeric:tabular-nums}
+.daily-checkin-welcome__metrics dd small{margin-left:3px;color:var(--home-text-muted,#6b6a75);font-size:10px;font-weight:600}
+.daily-checkin-welcome__actions{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:10px}
+.daily-checkin-welcome__actions button{min-height:44px;padding:0 15px;border:1px solid color-mix(in srgb,var(--home-accent,#c98722) 18%,transparent);border-radius:999px;background:color-mix(in srgb,var(--home-surface,#fbf7ef) 58%,transparent);color:var(--home-text-primary,var(--text));font:700 12px/1 var(--f-ui,system-ui);cursor:pointer}
+.daily-checkin-welcome__actions button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.daily-checkin-welcome__actions button.is-primary{flex:1 1 100%;background:linear-gradient(135deg,color-mix(in srgb,var(--home-accent,#c98722) 88%,#ffd9a0),var(--home-accent,#c98722));border-color:transparent;color:#fff;font-size:13px}
+.daily-checkin-welcome__actions button.is-quiet{flex:1 1 0}
+.daily-checkin-welcome__actions button.is-tertiary{flex:1 1 0;border-color:transparent;background:transparent;color:var(--home-text-muted,#6b6a75)}
+.daily-checkin-welcome__success{display:flex;min-height:62px;align-items:center;justify-content:center;gap:9px;padding:2px 38px 0 0;animation:daily-checkin-success 220ms ease both}
+.daily-checkin-welcome__success-mark{display:grid;width:28px;height:28px;place-items:center;border:1px solid color-mix(in srgb,var(--home-accent,#c98722) 28%,transparent);border-radius:50%;background:color-mix(in srgb,var(--home-accent,#c98722) 9%,transparent);color:var(--home-accent,#c98722);font-size:14px}
+.daily-checkin-welcome__success div{display:grid;gap:2px}
+.daily-checkin-welcome__success strong{font-size:16px}
+.daily-checkin-welcome__success time,.daily-checkin-welcome__success small{color:var(--home-text-muted,#6b6a75);font-size:12px}
+@keyframes daily-checkin-enter{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes daily-checkin-success{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes daily-checkin-leave{to{opacity:0;transform:translateY(-6px) scale(.96);max-height:0;padding-block:0;margin-block:0}}
+@media(max-width:520px){.home-checkin-surface.is-expanded{width:calc(100% - 32px);border-radius:26px}.daily-checkin-welcome{padding:13px 14px 11px;border-radius:26px}.daily-checkin-welcome__track{gap:3px}}
+[data-theme='dark'] .daily-checkin-welcome{background:linear-gradient(145deg,rgba(25,31,43,.72),rgba(38,47,61,.62));border-color:rgba(173,207,237,.22);box-shadow:inset 0 1px rgba(255,255,255,.08),0 14px 32px rgba(5,10,20,.24)}
+
+/* ── Phase 2B — 7-day streak track / reaction / reward ────────────────── */
+.daily-checkin-welcome__track{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0 0;padding:0;list-style:none}
+.daily-checkin-welcome__track::before{content:'';position:absolute;z-index:0;left:6%;right:6%;top:50%;height:1px;background:color-mix(in srgb,#91b9d5 28%,transparent)}
+.daily-checkin-welcome__day{position:relative;z-index:1;display:grid;place-items:center;align-content:center;gap:1px;min-width:0;min-height:46px;border:1px solid color-mix(in srgb,#9bb8ca 22%,transparent);border-radius:11px;background:color-mix(in srgb,rgba(255,255,255,.56) 72%,transparent);box-shadow:inset 0 1px rgba(255,255,255,.32)}
+.daily-checkin-welcome__day-index{font-size:9px;font-weight:750;letter-spacing:0;color:var(--home-text-muted,#6b6a75);white-space:nowrap}
+.daily-checkin-welcome__day-mark{font-size:15px;line-height:1;color:var(--home-text-muted,#6b6a75)}
+.daily-checkin-welcome__day.is-completed{border-color:color-mix(in srgb,var(--home-accent,#c98722) 26%,transparent);background:color-mix(in srgb,var(--home-accent,#c98722) 8%,var(--home-surface,#fbf7ef));box-shadow:0 0 10px color-mix(in srgb,var(--home-accent,#c98722) 14%,transparent)}
+.daily-checkin-welcome__day.is-completed .daily-checkin-welcome__day-mark,.daily-checkin-welcome__day.is-today-completed .daily-checkin-welcome__day-mark{color:var(--home-accent,#c98722)}
+.daily-checkin-welcome__day.is-late .daily-checkin-welcome__day-mark{opacity:.55}
+.daily-checkin-welcome__day.is-today-available,.daily-checkin-welcome__day.is-today-completed{border-color:color-mix(in srgb,#86bde0 46%,transparent);background:linear-gradient(160deg,rgba(223,243,255,.72),color-mix(in srgb,var(--home-accent,#c98722) 7%,rgba(255,255,255,.42)));box-shadow:0 0 12px rgba(116,180,222,.18),inset 0 1px rgba(255,255,255,.48)}
+.daily-checkin-welcome__day.is-today-available .daily-checkin-welcome__day-mark{color:var(--home-accent,#c98722)}
+.daily-checkin-welcome__day.is-future{opacity:.68;background:color-mix(in srgb,rgba(231,239,246,.54) 74%,transparent)}
+.is-success .daily-checkin-welcome__day.is-today-completed{animation:daily-checkin-settle 220ms cubic-bezier(.22,1,.36,1) both}
+@keyframes daily-checkin-settle{from{transform:scale(.92);opacity:.4}to{transform:none;opacity:1}}
+.daily-checkin-welcome__day.is-reward{min-height:50px;margin-top:-2px;border-color:color-mix(in srgb,#d8a548 52%,transparent);background:linear-gradient(160deg,rgba(255,226,168,.48),rgba(224,174,78,.15));box-shadow:0 0 12px rgba(211,163,73,.14),inset 0 1px rgba(255,246,220,.42)}
+.daily-checkin-welcome__day.is-reward.is-future{opacity:.78}
+.daily-checkin-welcome__reaction{margin:6px 1px 0;color:var(--home-text-muted,#6b6a75);font-size:11.5px;line-height:1.4}
+.daily-checkin-welcome__reward{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:11px;padding:10px 12px;border:1px solid color-mix(in srgb,#e0a63c 40%,transparent);border-radius:16px;background:linear-gradient(150deg,color-mix(in srgb,#ffd9a0 20%,var(--home-surface,#fbf7ef) 80%),color-mix(in srgb,var(--home-accent,#c98722) 8%,transparent))}
+.daily-checkin-welcome__reward strong{display:block;font-size:13px}
+.daily-checkin-welcome__reward small{display:block;margin-top:2px;color:var(--home-text-muted,#6b6a75);font-size:10.5px;line-height:1.4}
+.daily-checkin-welcome__reward>button{flex:0 0 auto;min-height:44px;padding:0 14px;border:1px solid transparent;border-radius:999px;background:linear-gradient(135deg,color-mix(in srgb,var(--home-accent,#c98722) 88%,#ffd9a0),var(--home-accent,#c98722));color:#fff;font:700 12px/1 var(--f-ui,system-ui);cursor:pointer}
+.daily-checkin-welcome__reward>button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.daily-checkin-welcome__reward.is-claimed{opacity:.85}
+.daily-checkin-welcome__reward-claimed{flex:0 0 auto;color:var(--home-accent,#c98722);font-size:12px;font-weight:700;white-space:nowrap}
+[data-theme='dark'] .daily-checkin-welcome__day{border-color:rgba(163,194,216,.18);background:rgba(84,101,120,.18);box-shadow:inset 0 1px rgba(255,255,255,.05)}
+[data-theme='dark'] .daily-checkin-welcome__day.is-today-available,[data-theme='dark'] .daily-checkin-welcome__day.is-today-completed{border-color:rgba(133,199,238,.38);background:linear-gradient(160deg,rgba(91,143,176,.3),rgba(87,106,130,.2));box-shadow:0 0 13px rgba(95,180,230,.16)}
+[data-theme='dark'] .daily-checkin-welcome__day.is-future{opacity:.64;background:rgba(94,111,130,.2)}
+[data-theme='dark'] .daily-checkin-welcome__day.is-reward{border-color:rgba(225,181,93,.45);background:linear-gradient(160deg,rgba(168,126,53,.28),rgba(98,79,47,.2));box-shadow:0 0 12px rgba(213,165,73,.12)}
+[data-theme='dark'] .daily-checkin-welcome__reward{background:linear-gradient(150deg,color-mix(in srgb,#3a3630 70%,transparent),color-mix(in srgb,var(--home-accent,#c98722) 10%,transparent))}
+@media(prefers-reduced-motion:reduce){.is-success .daily-checkin-welcome__day.is-today-completed{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.home-checkin-surface{transition-duration:100ms!important}.daily-checkin-welcome,.daily-checkin-welcome.is-collapsing,.daily-checkin-welcome__success{animation-duration:100ms!important;transform:none!important}}

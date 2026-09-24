@@ -1,0 +1,73 @@
+@media (pointer: fine) {
+  html[data-rune-cursor-enabled] {
+    --rune-cursor-default: url('../../assets/rune-cursor/rune-cursor-default.png') 7 2, default;
+    --rune-cursor-pointer: url('../../assets/rune-cursor/rune-cursor-pointer.png') 17 2, pointer;
+    --rune-cursor-wait: url('../../assets/rune-cursor/rune-cursor-wait.png') 22 22, wait;
+  }
+
+  html[data-rune-cursor-enabled],
+  html[data-rune-cursor-enabled] body,
+  html[data-rune-cursor-enabled] #root,
+  html[data-rune-cursor-enabled] #app,
+  html[data-rune-cursor-enabled] .app-content-layer {
+    cursor: var(--rune-cursor-default);
+  }
+
+  html[data-rune-cursor-enabled] :where(
+    a[href],
+    button,
+    [role='button'],
+    [role='link'],
+    [role='tab'],
+    [role='menuitem'],
+    [role='menuitemcheckbox'],
+    [role='menuitemradio'],
+    [role='option'],
+    summary,
+    select,
+    label:has(input, select, textarea),
+    [data-rune-cursor='pointer']
+  ):not(:disabled):not([aria-disabled='true']):not([data-rune-cursor='native']):not(.companion-pet):not(.rune-orb):not([class*='drag']):not([class*='resize']) {
+    cursor: var(--rune-cursor-pointer) !important;
+  }
+
+  html[data-rune-cursor-enabled] :where([aria-busy='true'], [data-rune-cursor='wait']) {
+    cursor: var(--rune-cursor-wait) !important;
+  }
+
+  html[data-rune-cursor-enabled] :where(input:not([type]), input[type='text'], input[type='search'], input[type='email'], input[type='url'], input[type='tel'], input[type='password'], input[type='number'], textarea, [contenteditable='true']) {
+    cursor: text !important;
+  }
+
+  html[data-rune-cursor-enabled] :where(:disabled, [aria-disabled='true']) {
+    cursor: not-allowed !important;
+  }
+}
+
+.rune-cursor-trail {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+.rune-cursor-sparkle {
+  position: absolute;
+  display: block;
+  max-width: none;
+  opacity: 0;
+  transform-origin: center;
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform, opacity;
+}
+
+@media (pointer: coarse), (hover: none), (prefers-reduced-motion: reduce) {
+  .rune-cursor-trail {
+    display: none;
+  }
+}

@@ -68,3 +68,32 @@
   display: flex; flex-direction: column; gap: 2px;
   padding: var(--sp-12) var(--sp-20);
 }
+
+/* ── Date/Time Trigger Buttons ── */
+.drawer-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+
+.drawer-trigger-btn:hover {
+  border-color: var(--accent);
+}
+
+.drawer-trigger-btn:active {
+  background: var(--surface-3);
+}
+
+.drawer-trigger-placeholder {
+  color: var(--text-3);
+}

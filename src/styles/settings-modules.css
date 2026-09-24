@@ -1,0 +1,330 @@
+/* ══════════════════════════════════════
+   Settings → Modules Page（功能與模塊）
+   ══════════════════════════════════════ */
+
+.settings-modules-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 0 calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── 介紹區塊 ── */
+.settings-modules-intro {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+
+.settings-modules-intro p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.settings-modules-intro-note {
+  margin-top: 6px;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+/* ── 分組 ── */
+.settings-modules-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-modules-group-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 16px;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.settings-modules-group-header small {
+  color: var(--text-4);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.settings-modules-group-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-2);
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  overflow: hidden;
+}
+
+/* ── 模組列 ── */
+.modules-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  transition: background 140ms ease;
+}
+
+.modules-row--last {
+  border-bottom: 0;
+}
+
+.modules-row[data-hidden="true"] {
+  opacity: 0.55;
+}
+
+.modules-row[data-core="true"] {
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+
+.modules-row-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface-3, transparent));
+  color: var(--accent);
+}
+
+.modules-row-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modules-row-surfaces {
+  display: grid;
+  width: 100%;
+  margin-left: 48px;
+  gap: 6px;
+}
+
+.modules-surface-control {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.modules-row-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 620;
+}
+
+.modules-row-secondary {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.modules-row-badge {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-3) 18%, transparent);
+  color: var(--text-2);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.modules-row-badge--pill {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.modules-row-route--pill {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.modules-row-desc {
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.modules-row-meta {
+  margin-top: 2px;
+}
+
+.modules-row-route {
+  color: var(--text-4);
+  font-size: 10.5px;
+  font-family: var(--f-m, ui-monospace, monospace);
+  letter-spacing: 0.01em;
+}
+
+/* ── 動作區 ── */
+.modules-row-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+}
+
+.modules-row-icon-btn {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.modules-row-icon-btn:hover:not(:disabled) {
+  background: var(--surface-3, color-mix(in srgb, var(--text) 8%, transparent));
+  color: var(--text);
+}
+
+.modules-row-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.modules-row-open-btn {
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.modules-row-open-btn:hover {
+  background: var(--surface-3, color-mix(in srgb, var(--text) 8%, transparent));
+}
+
+/* ── 顯示/隱藏開關 ── */
+.modules-row-toggle {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: var(--accent);
+  cursor: pointer;
+  transition: background 180ms ease;
+  flex: 0 0 auto;
+}
+
+.modules-row-toggle.is-off {
+  background: var(--border);
+}
+
+.modules-row-toggle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.modules-row-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.modules-row-toggle.is-off .modules-row-toggle-knob {
+  transform: translateX(0);
+}
+
+.modules-row-toggle.is-on .modules-row-toggle-knob {
+  transform: translateX(16px);
+}
+
+/* ── 動作區 ── */
+.settings-modules-actions {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 0;
+}
+
+.settings-modules-reset-btn {
+  padding: 8px 18px;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.settings-modules-reset-btn:hover {
+  background: var(--surface-3, color-mix(in srgb, var(--text) 8%, transparent));
+  color: var(--text);
+}
+
+.settings-modules-reset-btn:active {
+  transform: scale(0.98);
+}
+
+/* ── 響應式：窄屏 ── */
+@media (max-width: 390px) {
+  .modules-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .modules-row-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .modules-row-route {
+    font-size: 10px;
+  }
+  .modules-row-surfaces { margin-left: 0; }
+}
+
+/* ── 深色主題微調 ── */
+[data-theme='dark'] .settings-modules-group-list {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .settings-modules-intro {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .modules-row-icon {
+  background: color-mix(in srgb, var(--accent) 14%, rgba(255, 255, 255, 0.06));
+}

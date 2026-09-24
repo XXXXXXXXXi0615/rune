@@ -1,5 +1,4 @@
 import { useAppStore } from '@/store/useAppStore';
-import { t } from '@/i18n';
 
 export function ThemeToggle() {
   const theme = useAppStore((s) => s.theme);
@@ -17,17 +16,21 @@ export function ThemeToggle() {
   };
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  const label = isDark ? t('theme.switchLight') : t('theme.switchDark');
+  const label = isDark ? '切換至淺色模式' : '切換至深色模式';
 
   return (
     <button
+      type="button"
       className="home-theme-toggle"
       onClick={handleToggle}
       aria-label={label}
+      title={label}
+      data-theme-target={isDark ? 'light' : 'dark'}
     >
       {isDark ? (
         /* Sun — switch to light */
-        <svg width={20} height={20} viewBox="0 0 24 24" fill="none"
+        <svg key="sun" className="home-theme-toggle__icon" width={20} height={20} viewBox="0 0 24 24" fill="none"
+          aria-hidden="true"
           stroke="currentColor" strokeWidth={1.8}
           strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="5" />
@@ -42,7 +45,8 @@ export function ThemeToggle() {
         </svg>
       ) : (
         /* Moon — switch to dark */
-        <svg width={20} height={20} viewBox="0 0 24 24" fill="none"
+        <svg key="moon" className="home-theme-toggle__icon" width={20} height={20} viewBox="0 0 24 24" fill="none"
+          aria-hidden="true"
           stroke="currentColor" strokeWidth={1.8}
           strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />

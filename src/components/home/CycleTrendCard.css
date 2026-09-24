@@ -1,0 +1,472 @@
+/* CycleTrendCard — Liquid Glass trend card
+ * Unified responsive: Desktop grid (≥900px), Mobile flex column (≤599px).
+ * No fixed height, no absolute positioning, no negative margin.
+ */
+
+/* ── Base card ── */
+.ctc-card {
+  background: var(--glass-bg, rgba(255,255,255,0.04));
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  max-height: none;
+  height: auto;
+}
+.ctc-card:hover {
+  border-color: var(--accent-sub, #b3506e);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.ctc-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Header ── */
+.ctc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ctc-kicker {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.ctc-chevron {
+  font-size: 22px;
+  color: var(--text-4);
+  line-height: 1;
+}
+
+/* ── Detail (phase + day + prediction) ── */
+.ctc-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ctc-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ctc-phase {
+  font-size: 20px;
+  font-weight: 600;
+  font-family: var(--font-serif, var(--f-s));
+}
+
+.ctc-day {
+  font-size: 15px;
+  color: var(--text-2);
+}
+
+.ctc-period-day {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.ctc-next {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ctc-next-label {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.ctc-confidence {
+  font-size: 11px;
+  color: var(--text-4);
+  font-style: italic;
+}
+
+/* ── Trend strip container ── */
+.ctc-trend {
+  margin: 0;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.ctc-trend-svg {
+  width: 100%;
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctc-trend-svg * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ── Footer (mood/tide) ── */
+.ctc-footer {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-3);
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.ctc-mood,
+.ctc-tide {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Empty state ── */
+.ctc-empty {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: none !important;
+  justify-content: center;
+}
+
+.ctc-empty-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-3);
+}
+
+.ctc-empty-title {
+  font-size: 16px;
+  color: var(--text-2);
+  margin: 0;
+}
+
+.ctc-empty-sub {
+  font-size: 13px;
+  color: var(--text-3);
+  margin: 0;
+  text-align: center;
+  max-width: 220px;
+}
+
+.ctc-start-btn {
+  margin-top: 8px;
+  padding: 8px 22px;
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════
+   DESKTOP ≥ 900px — Two-column grid
+   ═══════════════════════════════════════════ */
+@media (min-width: 900px) {
+  .ctc-card:not(.ctc-empty) {
+    display: grid;
+    grid-template-columns:
+      minmax(260px, 300px)
+      minmax(0, 1fr);
+    gap: 24px 32px;
+    padding: 28px 32px;
+    align-items: start;
+  }
+
+  .ctc-header {
+    grid-column: 1;
+    grid-row: 1;
+    margin-bottom: 0;
+  }
+
+  .ctc-detail {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .ctc-footer {
+    grid-column: 1;
+    grid-row: 3;
+    margin-top: auto;
+  }
+
+  .ctc-trend {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    align-self: center;
+  }
+
+  .ctc-trend .ctc-trend-compact {
+    min-height: 112px;
+  }
+
+  .ctc-phase {
+    font-size: 22px;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE ≤ 599px — Single column flex
+   ═══════════════════════════════════════════ */
+@media (max-width: 599px) {
+  .ctc-card {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .ctc-detail {
+    gap: 10px;
+  }
+
+  .ctc-phase {
+    font-size: 18px;
+  }
+
+  .ctc-day {
+    font-size: 14px;
+  }
+
+  .ctc-footer {
+    gap: 12px;
+    font-size: 11px;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   TABLET 600–899px — Compact single column
+   ═══════════════════════════════════════════ */
+@media (min-width: 600px) and (max-width: 899px) {
+  .ctc-card {
+    padding: 22px 24px;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Header Right — menu button + dropdown
+   ═══════════════════════════════════════════ */
+.ctc-header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  z-index: 5;
+}
+
+.ctc-menu-btn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ctc-menu-btn:hover {
+  background: var(--surface);
+  color: var(--text-2);
+}
+
+.ctc-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+}
+
+.ctc-menu-wrap {
+  position: relative;
+}
+
+.ctc-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  min-width: 160px;
+  background: var(--bg, #f2ede4);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.12),
+    0 2px 8px rgba(0,0,0,0.06);
+  margin-top: 4px;
+  animation: ctc-menu-in 0.15s ease;
+}
+
+@keyframes ctc-menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ctc-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.ctc-menu-item:hover {
+  background: var(--surface);
+}
+
+.ctc-menu-item--danger {
+  color: var(--danger, #c64545);
+}
+
+.ctc-menu-item--danger:hover {
+  background: color-mix(in srgb, var(--danger, #c64545) 10%, transparent);
+}
+
+/* ═══════════════════════════════════════════
+   Undo Toast — 8s bar inside card
+   ═══════════════════════════════════════════ */
+.ctc-undo-toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background:
+    color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border: 1px solid
+    color-mix(in srgb, var(--accent) 22%, var(--border));
+  animation: ctc-toast-in 0.25s ease;
+}
+
+@keyframes ctc-toast-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ctc-undo-toast-msg {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.ctc-undo-toast-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 10px;
+  background:
+    color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 650;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+
+.ctc-undo-toast-btn:hover {
+  background:
+    color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+/* ── Undo error variant (concurrent modification) ── */
+.ctc-undo-toast--error {
+  background:
+    color-mix(in srgb, var(--danger, #c64545) 12%, var(--surface));
+  border-color:
+    color-mix(in srgb, var(--danger, #c64545) 22%, var(--border));
+}
+
+.ctc-undo-toast--error .ctc-undo-toast-msg {
+  color: var(--danger, #c64545);
+}
+
+/* ═══════════════════════════════════════════
+   Confirmation Sheet
+   ═══════════════════════════════════════════ */
+.ctc-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0,0,0,0.35);
+  animation: ctc-fade-in 0.2s ease;
+}
+
+@keyframes ctc-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ctc-confirm-sheet {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg);
+  border-radius: 24px 24px 0 0;
+  padding: 24px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  animation: ctc-sheet-up 0.3s cubic-bezier(.16,.84,.44,1);
+}
+
+@keyframes ctc-sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.ctc-confirm-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 8px;
+  font-family: var(--f-d);
+}
+
+.ctc-confirm-desc {
+  font-size: 13px;
+  color: var(--text-2);
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+.ctc-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ctc-confirm-actions .btn-ghost,
+.ctc-confirm-actions .btn-primary {
+  min-height: 48px;
+  font-size: 14px;
+  font-weight: 600;
+}

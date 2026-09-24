@@ -1,0 +1,206 @@
+/* ═══════════════════════════════════════════════════════════════
+   Moon Dew presentation styles — Phase D rehome (Life Utility)
+
+   These blocks moved out of the retired Tide Ledger stylesheet
+   (artifacts/retired/tide-ledger/ledger.css) so the growth surface
+   hosted in the Home 報備 window keeps its styles without the ledger.
+   Class names are unchanged (internal identifiers stay moonDew*).
+   Tokens come from src/styles/tide-ledger-tokens.css.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Progress Bar (shared) */
+.moon-dew-progress-bar {
+  height: 8px;
+  background: var(--ledger-surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.moon-dew-progress-bar__fill {
+  height: 100%;
+  background: var(--ledger-accent);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.moon-dew-progress-bar__fill.is-done {
+  background: var(--ledger-income);
+}
+
+/* ── Progress Page (Levels) ── */
+.moon-dew-progress-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.moon-dew-level-card {
+  padding: 16px;
+  background: var(--ledger-surface);
+  border-radius: var(--ledger-radius-md);
+  box-shadow: var(--ledger-shadow-sm);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.moon-dew-level-card.is-achieved {
+  opacity: 1;
+}
+
+.moon-dew-level-card.is-current {
+  opacity: 1;
+  box-shadow: var(--ledger-shadow-md);
+  border: 2px solid var(--ledger-accent);
+}
+
+.moon-dew-level-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.moon-dew-level-card__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ledger-surface-2);
+  color: var(--ledger-text-3);
+  flex-shrink: 0;
+}
+
+.moon-dew-level-card.is-achieved .moon-dew-level-card__badge,
+.moon-dew-level-card.is-current .moon-dew-level-card__badge {
+  background: var(--ledger-accent);
+  color: #FFFFFF;
+}
+
+.moon-dew-level-card__title {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ledger-text);
+}
+
+.moon-dew-level-card__start {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ledger-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.moon-dew-level-card__status {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ledger-text-3);
+  font-weight: 500;
+}
+
+.moon-dew-level-card.is-current .moon-dew-level-card__status {
+  color: var(--ledger-accent);
+  font-weight: 600;
+}
+
+.moon-dew-level-card.is-achieved:not(.is-current) .moon-dew-level-card__status {
+  color: var(--ledger-income);
+}
+
+/* ── Achievements ── */
+.moon-dew-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.moon-dew-achievement-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--ledger-surface);
+  border-radius: var(--ledger-radius-md);
+  box-shadow: var(--ledger-shadow-sm);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.moon-dew-achievement-card.is-unlocked {
+  opacity: 1;
+}
+
+.moon-dew-achievement-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--ledger-surface-2);
+  color: var(--ledger-text-3);
+  flex-shrink: 0;
+}
+
+.moon-dew-achievement-card.is-unlocked .moon-dew-achievement-card__icon {
+  background: var(--ledger-accent-glow);
+  color: var(--ledger-accent);
+}
+
+.moon-dew-achievement-card__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.moon-dew-achievement-card__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ledger-text);
+}
+
+.moon-dew-achievement-card__desc {
+  font-size: 12px;
+  color: var(--ledger-text-3);
+}
+
+.moon-dew-achievement-card__progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.moon-dew-achievement-card__progress .moon-dew-progress-bar {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.moon-dew-achievement-card__count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ledger-text-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.moon-dew-achievement-card__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ledger-surface-2);
+  color: var(--ledger-text-4);
+  flex-shrink: 0;
+}
+
+.moon-dew-achievement-card.is-unlocked .moon-dew-achievement-card__badge {
+  background: var(--ledger-income);
+  color: #FFFFFF;
+}

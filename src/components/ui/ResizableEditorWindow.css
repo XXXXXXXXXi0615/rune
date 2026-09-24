@@ -1,0 +1,395 @@
+/* ══════════════════════════════════════
+   ResizableEditorWindow
+   macOS-style draggable + resizable floating editor
+
+   Positioning: left/top/width/height/right/bottom/transform
+   are set directly on the DOM element via JS setProperty('important').
+   CSS provides layout, visual styling, and mobile fallback.
+   ══════════════════════════════════════ */
+
+@keyframes rew-slide-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Window (desktop default) ── */
+.rew-window {
+  position: fixed;
+  z-index: 160;
+
+  /* Fallback dimensions (overridden by JS !important) */
+  width: 520px;
+  height: 640px;
+  min-width: 380px;
+  min-height: 460px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100dvh - 40px);
+
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  /* Visual */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 20px 60px rgba(0, 0, 0, 0.24),
+    0 4px 16px rgba(0, 0, 0, 0.1);
+
+  /* Interaction */
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+
+  animation: rew-slide-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Header (drag handle) ── */
+.rew-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  padding: 0 60px 0 16px;
+  cursor: grab;
+  touch-action: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)),
+    var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  box-sizing: border-box;
+}
+
+.rew-header:active {
+  cursor: grabbing;
+}
+
+/* ── Traffic light (close only) ── */
+.rew-traffic {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  z-index: 2;
+}
+
+.rew-traffic-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  background: var(--text-3);
+  box-shadow: inset 0 0 0 0.6px rgba(0, 0, 0, 0.25);
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+.rew-traffic-btn:hover {
+  transform: scale(1.12);
+}
+
+.rew-traffic-btn--close {
+  background: #ff5f57;
+}
+
+.rew-traffic-btn--close:hover {
+  filter: saturate(1.2) brightness(1.08);
+}
+
+/* ── Title ── */
+.rew-title-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 0;
+}
+
+.rew-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rew-subtitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+
+/* ── Body (container query root, internal scroll) ── */
+.rew-body {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 18px 18px 8px;
+  box-sizing: border-box;
+  container-type: inline-size;
+  container-name: rew-body;
+  overscroll-behavior: contain;
+}
+
+/* ── Footer (fixed at window bottom) ── */
+.rew-footer {
+  flex-shrink: 0;
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.rew-footer button {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.rew-footer button:first-child {
+  background: var(--glass-bg);
+  color: var(--text-2);
+}
+
+.rew-footer button:first-child:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.rew-footer button:last-child {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.rew-footer button:last-child:hover {
+  filter: brightness(1.08);
+}
+
+/* ══════════════════════════════════════
+   Resize zones
+   ══════════════════════════════════════ */
+.rew-resize-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.rew-resize-zone {
+  position: absolute;
+  pointer-events: auto;
+  touch-action: none;
+  background: transparent;
+}
+
+.rew-resize-zone::after {
+  content: "";
+  position: absolute;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.rew-resize-zone:hover::after {
+  opacity: 1;
+}
+
+/* Edges */
+.rew-resize-zone--n {
+  top: -3px;
+  left: 26px;
+  right: 26px;
+  height: 7px;
+  cursor: ns-resize;
+}
+
+.rew-resize-zone--s {
+  bottom: -3px;
+  left: 26px;
+  right: 26px;
+  height: 7px;
+  cursor: ns-resize;
+}
+
+.rew-resize-zone--e {
+  top: 26px;
+  right: -3px;
+  bottom: 26px;
+  width: 7px;
+  cursor: ew-resize;
+}
+
+.rew-resize-zone--w {
+  top: 26px;
+  left: -3px;
+  bottom: 26px;
+  width: 7px;
+  cursor: ew-resize;
+}
+
+.rew-resize-zone--n::after,
+.rew-resize-zone--s::after {
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  border-radius: 1px;
+  top: 3px;
+}
+
+.rew-resize-zone--s::after {
+  top: auto;
+  bottom: 3px;
+}
+
+.rew-resize-zone--e::after,
+.rew-resize-zone--w::after {
+  top: 18px;
+  bottom: 18px;
+  width: 1px;
+  border-radius: 1px;
+  left: 3px;
+}
+
+.rew-resize-zone--e::after {
+  left: auto;
+  right: 3px;
+}
+
+/* Corners */
+.rew-resize-zone--nw,
+.rew-resize-zone--ne,
+.rew-resize-zone--sw,
+.rew-resize-zone--se {
+  width: 17px;
+  height: 17px;
+}
+
+.rew-resize-zone--nw { top: -3px; left: -3px; cursor: nwse-resize; }
+.rew-resize-zone--ne { top: -3px; right: -3px; cursor: nesw-resize; }
+.rew-resize-zone--sw { bottom: -3px; left: -3px; cursor: nesw-resize; }
+.rew-resize-zone--se { right: -3px; bottom: -3px; cursor: nwse-resize; }
+
+.rew-resize-zone--nw::after,
+.rew-resize-zone--ne::after,
+.rew-resize-zone--sw::after,
+.rew-resize-zone--se::after {
+  inset: 4px;
+  border-radius: 2px;
+}
+
+/* ══════════════════════════════════════
+   Container query: window < 460px →
+   single column form layout
+   ══════════════════════════════════════ */
+@container rew-body (max-width: 460px) {
+  .olm-capture-lead {
+    grid-template-columns: 1fr !important;
+  }
+
+  .olm-cover-capture {
+    width: 96px !important;
+    justify-self: center;
+    border-radius: 18px;
+  }
+}
+
+/* ══════════════════════════════════════
+   Override capture-lead inside rew-body:
+   wider image column (132px)
+   ══════════════════════════════════════ */
+.rew-body .olm-capture-lead {
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 16px;
+}
+
+/* ══════════════════════════════════════
+   Mobile (< 640px viewport):
+   Compact centered sheet, NO drag/resize.
+   JS !important inline styles are
+   overridden here with CSS !important.
+   ══════════════════════════════════════ */
+@media (max-width: 640px) {
+  .rew-window {
+    /* Full override: compact centered sheet */
+    left: 16px !important;
+    top: 50% !important;
+    right: 16px !important;
+    bottom: auto !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 120px) !important;
+    transform: translateY(-50%) !important;
+    border-radius: 22px;
+    touch-action: auto;
+    user-select: auto;
+    -webkit-user-select: auto;
+  }
+
+  .rew-header {
+    cursor: default;
+    touch-action: auto;
+    padding-inline: 56px 14px;
+  }
+
+  .rew-resize-layer {
+    display: none !important;
+  }
+
+  .rew-body .olm-capture-lead {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rew-body .olm-cover-capture {
+    width: 96px !important;
+    justify-self: center;
+    border-radius: 18px;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .rew-window { animation: none; }
+}

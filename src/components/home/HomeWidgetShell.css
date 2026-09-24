@@ -1,0 +1,50 @@
+.home-widget-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(100%, 430px);
+  margin-inline: auto;
+  padding: 10px 12px 0;
+}
+
+.home-widget-shell {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  /* Phase 2B: the shell now sits inside an edit-capable row instead of being a
+     direct flex item, so it must keep owning its children's margins (the shell
+     was an independent formatting context as a flex item). Without this, the
+     check-in/presence margins escape the bare shell and the resting Home
+     spacing drifts. */
+  display: flow-root;
+}
+
+.home-widget-shell--surface {
+  border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+  background: color-mix(in srgb, var(--rune-surface-content, var(--surface)) 84%, transparent);
+  box-shadow: var(--rune-shadow-content, 0 8px 24px color-mix(in srgb, var(--text) 8%, transparent));
+}
+
+[data-theme='dark'] .home-widget-shell--surface {
+  border-color: color-mix(in srgb, var(--border) 68%, var(--accent) 12%);
+  background: color-mix(in srgb, var(--rune-surface-content, var(--surface)) 78%, transparent);
+}
+
+.home-widget-shell--bare {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.home-widget-shell--island { min-height: 52px; border-radius: 999px; }
+.home-widget-shell--small { aspect-ratio: 1; border-radius: 24px; }
+.home-widget-shell--medium { min-height: 96px; border-radius: 24px; }
+.home-widget-shell--large { min-height: 0; border-radius: 28px; }
+.home-widget-shell--orb { aspect-ratio: 1; border-radius: 50%; }
+
+@media (max-width: 374px) {
+  .home-widget-stack {
+    gap: 12px;
+    padding-inline: 10px;
+  }
+}

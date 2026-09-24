@@ -1,0 +1,5 @@
+import {beforeEach,describe,expect,it,vi} from 'vitest';
+const mocks=vi.hoisted(()=>({saveAsset:vi.fn(),deleteAssets:vi.fn()}));
+vi.mock('@/store/assets',()=>mocks);const {saveAsset,deleteAssets}=mocks;
+import {importComicImages} from './importComic';
+describe('comic import rollback',()=>{beforeEach(()=>{saveAsset.mockReset().mockImplementation(async()=>`asset-${saveAsset.mock.calls.length}`);deleteAssets.mockReset().mockResolvedValue(undefined);vi.stubGlobal('createImageBitmap',vi.fn(async()=>({width:100,height:160,close:vi.fn()})));});it('removes assets saved before cancellation',async()=>{const controller=new AbortController();const files=[new File(['a'],'1.png',{type:'image/png'}),new File(['b'],'2.png',{type:'image/png'})];await expect(importComicImages(files,{title:'x',direction:'ltr',mode:'single'},progress=>{if(progress.stage==='saving'&&progress.completed===1)controller.abort();},controller.signal)).rejects.toThrow();expect(saveAsset).toHaveBeenCalledTimes(1);expect(deleteAssets).toHaveBeenCalledWith(['asset-1']);});});

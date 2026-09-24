@@ -1,0 +1,143 @@
+/* ════════════════════════════════════════
+   CallTextComposer — in-call text input
+   Desktop: floating panel above CallControls
+   Mobile : keyboard-safe bottom composer
+   ════════════════════════════════════════ */
+
+.cc-textcomposer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 4px);
+  z-index: 6;
+  width: min(460px, calc(100% - 32px));
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  animation: cc-tc-in 0.18s ease both;
+}
+
+@keyframes cc-tc-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.cc-textcomposer-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 6px 6px 6px 14px;
+  border-radius: 24px;
+  background: rgba(24, 21, 19, 0.82);
+  border: 1px solid rgba(255, 250, 242, 0.16);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.38);
+}
+
+.cc-active--cool .cc-textcomposer-bar {
+  background: rgba(19, 22, 26, 0.82);
+  border-color: rgba(242, 248, 255, 0.16);
+}
+
+.cc-textcomposer-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 24px;
+  max-height: 120px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  resize: none;
+  outline: none;
+  color: var(--cc-text, #f3efe9);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.cc-textcomposer-input::-webkit-scrollbar { display: none; }
+.cc-textcomposer-input::placeholder { color: var(--cc-muted, #948c80); }
+
+.cc-textcomposer-send {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 252, 246, 0.92);
+  color: #201d19;
+  transition: opacity 0.15s, transform 0.12s;
+}
+
+.cc-textcomposer-send svg { width: 18px; height: 18px; }
+.cc-textcomposer-send:active { transform: scale(0.93); }
+
+.cc-textcomposer-send:disabled {
+  opacity: 0.34;
+  cursor: default;
+}
+
+.cc-textcomposer-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 157, 142, 0.55), 0 0 12px rgba(74, 157, 142, 0.25);
+}
+
+.cc-textcomposer-send:focus-visible {
+  outline: 2px solid rgba(74, 157, 142, 0.7);
+  outline-offset: 2px;
+}
+
+.cc-textcomposer-close:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+.cc-textcomposer-close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 252, 246, 0.08);
+  border: 1px solid rgba(255, 250, 242, 0.14);
+  color: var(--cc-soft, #ccc4b8);
+}
+
+.cc-textcomposer-close svg { width: 13px; height: 13px; }
+
+/* ── Mobile: keyboard-safe composer, sits above CallControls ── */
+.cc-textcomposer.is-mobile {
+  position: fixed;
+  left: 0;
+  right: 0;
+  /* No keyboard → float above the call dock. Keyboard open → inline style
+     overrides `bottom` with the visualViewport inset. */
+  bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+  transform: none;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 12px;
+  animation: none;
+  z-index: 210;
+}
+
+.cc-textcomposer.is-mobile .cc-textcomposer-bar {
+  border-radius: 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-textcomposer { animation: none; }
+}

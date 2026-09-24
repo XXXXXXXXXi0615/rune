@@ -1,0 +1,91 @@
+.diary-lock-page {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 88px 18px calc(var(--bottom-dock-safe-offset, 112px) + 24px);
+}
+
+.diary-lock-card {
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 26px;
+  border-radius: 28px;
+  color: var(--text);
+  text-align: center;
+}
+
+.lunaris-journal-mark { color: var(--accent); transform-origin: center; }
+.lunaris-journal-mark.is-generating { animation: journalMarkBreath 1.8s ease-in-out infinite; }
+.lunaris-journal-mark.is-complete { animation: journalMarkComplete 420ms ease-out both; }
+@keyframes journalMarkBreath { 50% { transform: rotate(5deg) scale(.9); opacity: .7; } }
+@keyframes journalMarkComplete { 50% { transform: scale(1.16); } }
+
+.diary-lock-card h1 { margin: 0; font-size: 22px; }
+.diary-lock-card > p { margin: 0; color: var(--text-3); font-size: 13px; }
+.diary-lock-guard { width: 126px; height: 112px; border: 0; background: transparent; cursor: pointer; }
+.diary-lock-guard img { width: 100%; height: 100%; object-fit: contain; }
+.diary-lock-guard-message { min-height: 18px; color: var(--text-2); font-size: 12px; }
+.diary-lock-card input,
+.diary-lock-settings input,
+.diary-lock-settings select {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 13px;
+  border: 1px solid color-mix(in srgb, var(--text) 11%, transparent);
+  border-radius: 13px;
+  outline: none;
+  background: var(--glass-bg-soft);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+}
+.diary-lock-card input:focus,
+.diary-lock-settings input:focus,
+.diary-lock-settings select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+.diary-lock-primary { width: 100%; min-height: 46px; border: 0; border-radius: 13px; background: var(--accent); color: white; cursor: pointer; font-weight: 650; }
+.diary-lock-link,
+.diary-lock-danger-link { border: 0; background: transparent; color: var(--text-3); cursor: pointer; font-size: 12px; }
+.diary-lock-danger-link { color: var(--danger); margin-top: 5px; }
+.diary-lock-hint { align-self: flex-start; color: var(--text-3); }
+.diary-lock-disclaimer { font-size: 10px !important; line-height: 1.45; }
+.diary-lock-clear-confirm { width: 100%; display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; background: color-mix(in srgb, var(--danger) 7%, transparent); }
+.diary-lock-clear-confirm strong { font-size: 11px; color: var(--danger); }
+.diary-lock-clear-confirm button { min-height: 40px; border: 0; border-radius: 10px; cursor: pointer; }
+.diary-lock-clear-confirm button:disabled { opacity: .4; }
+
+.diary-lock-settings-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  display: grid; place-items: center; padding: 18px;
+  background: rgba(20, 18, 18, .28); backdrop-filter: blur(12px);
+}
+.diary-lock-settings { width: min(520px, 100%); max-height: min(720px, 88dvh); display: flex; flex-direction: column; overflow: hidden; border-radius: 24px; }
+.diary-lock-settings > header { display: flex; justify-content: space-between; padding: 17px 18px 12px; border-bottom: 1px solid var(--border); }
+.diary-lock-settings > header div { display: flex; flex-direction: column; gap: 3px; }
+.diary-lock-settings > header span { color: var(--text-3); font-size: 11px; }
+.diary-lock-settings > header button { width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--text); cursor: pointer; }
+.diary-lock-settings-body { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 13px; padding: 16px 18px; }
+.diary-lock-settings label { display: flex; flex-direction: column; gap: 6px; color: var(--text-2); font-size: 12px; }
+.diary-lock-settings > footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); }
+.diary-lock-settings > footer button,
+.diary-recovery-key button { min-height: 42px; padding: 0 14px; border: 1px solid var(--border); border-radius: 11px; background: var(--glass-bg); color: var(--text); cursor: pointer; }
+.diary-lock-settings > footer .primary,
+.diary-recovery-key button { background: var(--accent); color: white; border-color: var(--accent); }
+.diary-lock-settings > footer .danger { color: var(--danger); margin-right: auto; }
+.diary-lock-error { color: var(--danger); font-size: 12px; }
+.diary-recovery-key { display: flex; flex-direction: column; gap: 14px; text-align: center; }
+.diary-recovery-key code { padding: 14px; border-radius: 12px; background: var(--surface-2); color: var(--accent); overflow-wrap: anywhere; }
+.diary-recovery-key p { color: var(--text-3); font-size: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lunaris-journal-mark { animation: none !important; }
+}
+
+@media (max-width: 560px) {
+  .diary-lock-settings-overlay { align-items: end; padding: 0; }
+  .diary-lock-settings { width: 100%; max-height: 88dvh; border-radius: 24px 24px 0 0; }
+  .diary-lock-settings > footer { flex-wrap: wrap; }
+  .diary-lock-settings > footer button { flex: 1; }
+}

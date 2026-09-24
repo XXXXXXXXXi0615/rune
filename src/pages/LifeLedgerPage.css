@@ -1,0 +1,46 @@
+.life-ledger-page { width: 100%; min-width: 0; padding: 18px 14px calc(var(--mobile-dock-height, 88px) + 24px); color: var(--text-1); }
+.ll-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.ll-header > div > span { color: var(--accent); font-size: 9px; letter-spacing: .12em; }
+.ll-header h1 { margin: 3px 0 2px; font-size: 24px; line-height: 1.2; }
+.ll-header p, .ll-header small { margin: 0; color: var(--text-3); font-size: 11px; line-height: 1.5; }
+.ll-header small { flex: none; padding: 7px 9px; border: 1px solid var(--border-subtle); border-radius: 10px; text-align: right; }
+.ll-tabs, .ll-subtabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 0 0 18px; }
+.ll-tabs button, .ll-subtabs button { min-width: 0; min-height: 44px; border: 1px solid var(--border-subtle); border-radius: 12px; background: color-mix(in srgb, var(--surface-2) 72%, transparent); color: var(--text-2); font: inherit; font-size: 13px; }
+.ll-tabs button.is-active, .ll-subtabs button.is-active { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 13%, var(--surface-1)); color: var(--text-1); }
+.life-ledger-page h2 { margin: 0 0 12px; font-size: 16px; }
+.ll-counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ll-counts article, .ll-card { min-width: 0; border: 1px solid var(--border-subtle); border-radius: 16px; background: color-mix(in srgb, var(--surface-1) 82%, transparent); }
+.ll-counts article { display: flex; flex-direction: column; justify-content: center; min-height: 82px; padding: 14px; }
+.ll-counts strong { font-size: 24px; }
+.ll-counts span { color: var(--text-3); font-size: 12px; }
+.ll-counts article:last-child { grid-column: 1 / -1; }
+.ll-list { display: grid; gap: 10px; }
+.ll-card { padding: 14px; overflow-wrap: anywhere; }
+.ll-card .ll-card { padding: 0; border: 0; background: none; }
+.ll-card header { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--text-3); font-size: 11px; }
+.ll-card h3 { margin: 8px 0 5px; font-size: 15px; }
+.ll-card p { margin: 5px 0; color: var(--text-2); font-size: 12px; line-height: 1.55; }
+.ll-kind { padding: 3px 7px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); }
+.ll-kind--income { color: var(--success, #39855d); }
+.ll-kind--expense { color: var(--danger, #b85b5b); }
+.ll-money { font-size: 17px !important; font-weight: 600; }
+.ll-provenance { display: block; margin-top: 9px; color: var(--text-3); font: 9px/1.5 ui-monospace, monospace; overflow-wrap: anywhere; }
+.ll-asset { margin-top: 10px; min-height: 34px; border-radius: 11px; background: var(--surface-2); color: var(--text-3); font-size: 10px; }
+.ll-asset img { display: block; width: 100%; max-height: 180px; object-fit: cover; border-radius: inherit; }
+.ll-asset span { display: block; padding: 10px; }
+.ll-lifecycle { margin: 12px 0 0; padding: 0 0 0 18px; border-left: 1px solid var(--border-subtle); list-style: none; }
+.ll-lifecycle li { position: relative; padding: 0 0 12px 8px; font-size: 12px; }
+.ll-lifecycle li::before { content: ''; position: absolute; left: -22px; top: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.ll-lifecycle time { float: right; color: var(--text-3); font-size: 10px; }
+.ll-nutrition { display: flex; gap: 6px; overflow-x: auto; margin: -4px 0 12px; scrollbar-width: none; }
+.ll-nutrition span { flex: none; padding: 6px 8px; border-radius: 9px; background: var(--surface-2); color: var(--text-3); font-size: 10px; }
+.ll-empty { display: grid; place-items: center; min-height: 180px; border: 1px dashed var(--border-subtle); border-radius: 16px; color: var(--text-3); font-size: 13px; text-align: center; }
+.ll-bridge-group { margin-top: 20px; }
+.ll-bridge-group h3 { margin: 0 0 10px; font-size: 14px; color: var(--text-2); }
+.ll-bridge-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ll-bridge-btn { min-height: 44px; border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border-subtle)); border-radius: 12px; background: color-mix(in srgb, var(--accent) 8%, var(--surface-1)); color: var(--accent); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: background .15s, border-color .15s; }
+@media (hover: hover) and (pointer: fine) {
+  .ll-bridge-btn:hover { background: color-mix(in srgb, var(--accent) 16%, var(--surface-1)); border-color: color-mix(in srgb, var(--accent) 65%, var(--border-subtle)); }
+}
+.ll-bridge-btn:active { transform: scale(0.97); }
+@media (min-width: 400px) { .life-ledger-page { padding-inline: 18px; } .ll-counts { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ll-counts article:last-child { grid-column: auto; } }

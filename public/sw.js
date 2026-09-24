@@ -3,11 +3,12 @@
    Do NOT cache user data (API responses, localStorage is client-side). */
 
 const CACHE_PREFIX = 'lunartide-'
-const CACHE_NAME = 'lunartide-v2'
+const CACHE_NAME = 'lunartide-v3'
+const APP_BASE = new URL('./', self.registration.scope)
 const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  new URL('./', APP_BASE).href,
+  new URL('index.html', APP_BASE).href,
+  new URL('manifest.json', APP_BASE).href,
 ]
 
 self.addEventListener('install', (event) => {
@@ -44,7 +45,7 @@ self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(async () => {
-        const cached = await caches.match('/index.html')
+        const cached = await caches.match(new URL('index.html', APP_BASE).href)
         return cached || Response.error()
       })
     )

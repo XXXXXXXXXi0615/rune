@@ -61,6 +61,7 @@ export function retrieveRelevantMemories(options: {
         entry.triggerText,
         entry.bodyThoughts,
         entry.nextStep,
+        entry.linkedForumPostContent,  // include forum bookmark content
       ]
         .filter(Boolean)
         .join(' ');

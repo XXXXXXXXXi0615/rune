@@ -8,15 +8,48 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.lunartide-game-saves/
 dist
 dist-ssr
+dist-*/
+dist.*/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+artifacts/
+screenshots/
+e2e-screenshots/
+.cache/
+.vite/
+.tmp/
+tmp/
 *.local
+.auth/
+.codebuddy/
+.workbuddy/
+
+# Local credentials and machine-specific environment configuration
+.env
+.env.*
+!.env.example
+
+# Local databases and user-generated runtime data
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.realm
+local-data/
+user-assets/
+tmp-*.png
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+**/.DS_Store
 *.suo
 *.ntvs*
 *.njsproj

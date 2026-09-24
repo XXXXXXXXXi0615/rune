@@ -1,4 +1,3 @@
-import { BackButton } from '@/components/layout/BackButton';
 import { AvatarImage } from '@/components/ui/AvatarImage';
 import { ChatPresenceIndicator } from '@/components/chat/ChatPresenceIndicator';
 import { t } from '@/i18n';
@@ -8,60 +7,80 @@ interface ChatHeaderProps {
   name: string;
   status: ChatPresenceStatus;
   statusDetail?: string;
+  aiState?: 'idle' | 'thinking' | 'streaming' | 'error';
+  modelTag?: string | null;
   avatarConfig?: AvatarImageMeta;
   fallbackInitial: string;
   avatarColor: string;
-  backTo?: string;
-  onBackground?: () => void;
+  onBack?: () => void;
+  onSidebarToggle?: () => void;
+  sidebarCollapsed?: boolean;
   onMore?: () => void;
+  memoryLabel?: string;
+  onMemory?: () => void;
+  headerPhrase?: string;
+  dotColor?: string;
 }
 
 export function ChatHeader({
   name,
   status,
   statusDetail,
+  aiState,
+  modelTag,
   avatarConfig,
   fallbackInitial,
   avatarColor,
-  backTo = '/chat',
-  onBackground,
+  onBack,
+  onSidebarToggle,
+  sidebarCollapsed,
   onMore,
+  memoryLabel,
+  onMemory,
+  headerPhrase,
+  dotColor,
 }: ChatHeaderProps) {
   return (
     <div className="chat-header">
-      <BackButton to={backTo} />
-      <span className={`luna-avatar-ring luna-avatar-ring--${status}`}>
-        <AvatarImage
-          avatarConfig={avatarConfig}
-          fallbackInitial={fallbackInitial}
-          initial={fallbackInitial}
-          color={avatarColor}
-          size={36}
-          className="chat-header-avatar"
-          label={name}
-        />
-      </span>
-      <div className="chat-header-info">
-        <div className="chat-header-name">{name}</div>
-        {statusDetail && (
-          <div style={{ fontSize: 11, color: 'var(--text-3)', lineHeight: 1.3 }}>{statusDetail}</div>
+      {/* Left: back + Avatar + Name */}
+      <div className="chat-header-left">
+        {onBack && (
+          <button className="btn-icon chat-header-back-btn" onClick={onBack} aria-label="返回首頁">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
         )}
-        <ChatPresenceIndicator status={status} />
+        <span className={`luna-avatar-ring luna-avatar-ring--${status}`}>
+          <AvatarImage
+            avatarConfig={avatarConfig}
+            fallbackInitial={fallbackInitial}
+            initial={fallbackInitial}
+            color={avatarColor}
+            size={30}
+            className="chat-header-avatar"
+            label={name}
+          />
+        </span>
+        <div className="chat-header-info">
+          <div className="chat-header-name">
+            {name}
+            {memoryLabel && onMemory && (
+              <button className="conv-memory-tag" onClick={onMemory} aria-label={`本對話記憶：${memoryLabel}`}>
+                {memoryLabel}
+              </button>
+            )}
+            {modelTag && (
+              <span className="chat-header-model-tag">{modelTag}</span>
+            )}
+          </div>
+          <ChatPresenceIndicator status={status} aiState={aiState} phrase={headerPhrase} dotColor={dotColor} compact />
+        </div>
       </div>
+
+      {/* Right: More menu */}
       <div className="chat-header-actions">
-        <button className="btn-icon" aria-label={t('chat.search')} disabled title={t('chat.search')}>
-          <svg className="icon chat-header-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </button>
-        <button className="btn-icon" onClick={onBackground} aria-label={t('chat.background')} title={t('chat.background')}>
-          <svg className="icon chat-header-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <circle cx="8.5" cy="8.5" r="1.5" />
-            <path d="m21 15-5-5L5 21" />
-          </svg>
-        </button>
+        {onMore && (
         <button className="btn-icon" onClick={onMore} aria-label={t('chat.more')}>
           <svg className="icon chat-header-icon" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="5" r="1" />
@@ -69,6 +88,7 @@ export function ChatHeader({
             <circle cx="12" cy="19" r="1" />
           </svg>
         </button>
+        )}
       </div>
     </div>
   );

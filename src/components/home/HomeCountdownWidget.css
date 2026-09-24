@@ -1,0 +1,306 @@
+/* ================================================================
+   HomeCountdownWidget — Calendar C2
+   Pinned CountdownEvent rows (cover + title + date + day count).
+   Liquid glass rows; detail stays the popover / bottom sheet below.
+   ================================================================ */
+
+.hcap-list {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hcap-item {
+  min-width: 0;
+}
+
+.hcap-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 14px 8px 10px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-1, var(--glass-bg, rgba(255,255,255,0.88))) 88%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-soft, rgba(0,0,0,0.06));
+  box-shadow: var(--shadow-soft, 0 1px 3px rgba(0,0,0,0.04));
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  box-sizing: border-box;
+  color: var(--text, inherit);
+  font-family: inherit;
+  text-align: left;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.hcap-item-btn:focus-visible {
+  outline: 2px solid var(--accent, #5db8a6);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hcap-item-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    border-color: color-mix(in srgb, var(--accent, #5db8a6) 30%, transparent);
+  }
+}
+
+.hcap-item.is-active .hcap-item-btn {
+  border-color: color-mix(in srgb, var(--accent, #5db8a6) 50%, transparent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* Meta (title + date · label) */
+.hcap-item-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hcap-item-meta strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text, inherit);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hcap-item-meta small {
+  font-size: 11px;
+  color: var(--text-3, rgba(0,0,0,0.45));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Count + chevron */
+.hcap-item-count {
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--accent, #5db8a6);
+}
+.hcap-item-count b {
+  font-family: var(--font-display, 'Copernicus', 'EB Garamond', serif);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+.hcap-item-count i {
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+}
+.hcap-item-count .hcap-item-today {
+  font-size: 14px;
+  font-weight: 600;
+}
+.hcap-item-count svg {
+  margin-left: 4px;
+  opacity: 0.5;
+  align-self: center;
+}
+
+/* Elapsed events read as history, not as a countdown. */
+.hcap-item.mode-elapsed .hcap-item-count {
+  color: var(--text-3, rgba(0,0,0,0.45));
+}
+
+/* ── Desktop Popover ── */
+.hcap-popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: transparent;
+}
+.hcap-popover {
+  width: 300px;
+  max-width: calc(100vw - 32px);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface-1, var(--glass-bg, #fff)) 96%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-soft, rgba(0,0,0,0.08));
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  z-index: 9001;
+  overflow: hidden;
+  color: var(--text, inherit);
+  animation: hcap-fade-in 0.15s ease;
+}
+@keyframes hcap-fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Mobile Bottom Sheet ── */
+.hcap-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0,0,0,0.2);
+  animation: hcap-fade-in 0.2s ease;
+}
+.hcap-sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  border-radius: 20px 20px 0 0;
+  background: color-mix(in srgb, var(--surface-1, var(--glass-bg, #fff)) 96%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border-soft, rgba(0,0,0,0.08));
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.08);
+  z-index: 9001;
+  padding: 8px 0 24px;
+  color: var(--text, inherit);
+  animation: hcap-sheet-up 0.25s ease;
+}
+@keyframes hcap-sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ── Expansion content (shared) ── */
+.hcap-expansion {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.hcap-expansion-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.hcap-expansion-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.hcap-expansion-title div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.hcap-expansion-header strong {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hcap-expansion-header small {
+  font-size: 12px;
+  color: var(--text-3, rgba(0,0,0,0.45));
+}
+.hcap-expansion-close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: color-mix(in srgb, var(--text, #000) 6%, transparent);
+  color: var(--text-2, rgba(0,0,0,0.65));
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+.hcap-expansion-close:hover {
+  background: color-mix(in srgb, var(--text, #000) 12%, transparent);
+}
+
+.hcap-expansion-count {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.hcap-expansion-num {
+  font-family: var(--font-display, 'Copernicus', 'EB Garamond', serif);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--accent, #5db8a6);
+  letter-spacing: -1px;
+}
+.hcap-expansion-num.mode-elapsed {
+  color: var(--text-3, rgba(0,0,0,0.45));
+}
+.hcap-expansion-label {
+  font-size: 13px;
+  color: var(--text-2, rgba(0,0,0,0.65));
+}
+
+.hcap-expansion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-soft, rgba(0,0,0,0.06));
+}
+.hcap-expansion-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-soft, rgba(0,0,0,0.1));
+  background: color-mix(in srgb, var(--surface-1) 80%, transparent);
+  color: var(--text, inherit);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.hcap-expansion-btn:hover {
+  background: color-mix(in srgb, var(--surface-1) 90%, transparent);
+}
+.hcap-expansion-btn--secondary {
+  border-style: dashed;
+  color: var(--text-3, rgba(0,0,0,0.5));
+}
+
+/* ── Dark mode ── */
+@media (prefers-color-scheme: dark) {
+  .hcap-item-btn {
+    background: color-mix(in srgb, var(--surface-1, rgba(255,255,255,0.06)) 90%, transparent);
+    border-color: var(--border-soft, rgba(255,255,255,0.08));
+  }
+  .hcap-popover,
+  .hcap-sheet {
+    background: color-mix(in srgb, var(--surface-1, rgba(20,20,19,0.96)) 96%, transparent);
+    border-color: rgba(255,255,255,0.08);
+  }
+}
+
+/* ── Narrow frames ── */
+@media (max-width: 480px) {
+  .hcap-item-btn {
+    gap: 10px;
+    padding: 8px 12px 8px 8px;
+  }
+  .hcap-item-count b {
+    font-size: 20px;
+  }
+  .hcap-item-meta strong {
+    font-size: 13px;
+  }
+}

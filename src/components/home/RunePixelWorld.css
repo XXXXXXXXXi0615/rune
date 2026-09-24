@@ -1,0 +1,178 @@
+.rune-pixel-world {
+  position: relative;
+  width: 100%;
+  padding: 0 14px 24px;
+  overflow: clip;
+}
+
+.rune-pixel-world__viewport {
+  position: relative;
+  width: 100%;
+  height: clamp(132px, 24vw, 184px);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--border) 62%, transparent);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 72% 30%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 34%),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface) 88%, transparent), color-mix(in srgb, var(--bg) 72%, transparent));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--text) 10%, transparent);
+  isolation: isolate;
+}
+
+.rune-pixel-world[data-art-state='available'] .rune-pixel-world__viewport {
+  height: auto;
+  aspect-ratio: 941 / 1672;
+  background: #d9d5c8;
+  box-shadow: 0 16px 34px color-mix(in srgb, #514536 18%, transparent);
+}
+
+.rune-pixel-world__resting-surface {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.rune-pixel-world__resting-orbit {
+  width: 28px;
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 12%, transparent);
+  opacity: .58;
+}
+
+.rune-pixel-world__art,
+.rune-pixel-world__map,
+.rune-pixel-world__ambient,
+.rune-pixel-world__hotspots {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.rune-pixel-world__map {
+  display: block;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 500ms ease;
+}
+
+.rune-pixel-world__map--day { opacity: 1; }
+.rune-pixel-world__map--night { opacity: 0; }
+.rune-pixel-world[data-world-daypart='dawn'] .rune-pixel-world__map--night { opacity: .20; }
+.rune-pixel-world[data-world-daypart='dusk'] .rune-pixel-world__map--night { opacity: .58; }
+.rune-pixel-world[data-world-daypart='night'] .rune-pixel-world__map--night { opacity: 1; }
+
+.rune-pixel-world__ambient {
+  pointer-events: none;
+  background: transparent;
+  transition: background 500ms ease;
+}
+.rune-pixel-world[data-world-daypart='dawn'] .rune-pixel-world__ambient {
+  background: linear-gradient(180deg, rgba(255, 192, 153, .18), transparent 38%);
+}
+.rune-pixel-world[data-world-daypart='dusk'] .rune-pixel-world__ambient {
+  background: linear-gradient(180deg, rgba(224, 143, 131, .16), rgba(79, 76, 139, .08) 58%, transparent);
+}
+
+.rune-pixel-world__hotspots { z-index: 2; }
+
+.rune-world-hotspot {
+  --hotspot-size: 52px;
+  position: absolute;
+  left: calc(var(--hotspot-x) * 100%);
+  top: calc(var(--hotspot-y) * 100%);
+  width: var(--hotspot-size);
+  height: var(--hotspot-size);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff8e9;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rune-world-hotspot__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(244, 225, 179, .55);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 239, 202, .75) 0 22%, rgba(255, 239, 202, .12) 30%);
+  box-shadow: 0 0 0 2px rgba(255, 244, 211, .08);
+  transform: translate(-50%, -50%);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.rune-world-hotspot__label {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 3px);
+  max-width: 132px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 247, 226, .48);
+  border-radius: 999px;
+  background: rgba(34, 39, 58, .78);
+  box-shadow: 0 5px 14px rgba(22, 26, 42, .22);
+  color: #fffaf0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.rune-world-hotspot[data-active='true'] .rune-world-hotspot__core {
+  transform: translate(-50%, -50%) scale(2.2);
+  box-shadow: 0 0 7px rgba(129, 190, 255, .45);
+}
+.rune-world-hotspot:hover .rune-world-hotspot__label,
+.rune-world-hotspot:focus .rune-world-hotspot__label,
+.rune-world-hotspot:focus-visible .rune-world-hotspot__label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.rune-world-hotspot:focus { outline: none; }
+.rune-world-hotspot:focus-visible .rune-world-hotspot__core { border-color: #fff1bd; }
+.rune-world-hotspot:active .rune-world-hotspot__core { transform: translate(-50%, -50%) scale(.9); }
+
+@media (max-width: 390px) {
+  .rune-pixel-world { padding-inline: 10px; }
+  .rune-pixel-world__viewport { border-radius: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rune-pixel-world__map,
+  .rune-pixel-world__ambient,
+  .rune-world-hotspot__core,
+  .rune-world-hotspot__label { transition: none; }
+}
+
+/* The shell already reserves the canonical Dock inset. Home has one scroll owner. */
+.home-view--minimal .world-time { position: relative; margin: 8px auto 0; width: 220px; z-index: 4; }
+.home-view--minimal .world-time__hud {
+  box-sizing: border-box; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 2px; width: 220px; height: 80px;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: 20px; background: color-mix(in srgb, var(--surface) 86%, transparent);
+  color: var(--text); cursor: pointer; list-style: none;
+  box-shadow: 0 4px 16px rgba(63, 52, 42, .06);
+}
+.world-time__hud::-webkit-details-marker { display: none; }
+.world-time__hud time { display: flex; align-items: baseline; gap: 7px; font-variant-numeric: tabular-nums; line-height: 1; }
+.world-time__hm { font-size: 28px; letter-spacing: 1px; }
+.world-time__hud small { font-size: 11px; color: var(--text-2); }
+.world-time__date, .world-time__context { font-size: 10px; line-height: 1.4; color: var(--text-2); }
+.world-time__hud:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.home-view--minimal .world-time__detail { width: min(350px, calc(100vw - 40px)); margin-top: 10px; position: relative; left: 50%; transform: translateX(-50%); }

@@ -1,0 +1,3 @@
+.moon-ripple{position:fixed;z-index:99999;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;pointer-events:none;background:var(--theme-interaction-glow);box-shadow:0 0 16px var(--theme-interaction-glow);animation:moon-ripple 220ms ease-out forwards}
+@keyframes moon-ripple{from{opacity:.82;transform:scale(.6)}to{opacity:0;transform:scale(6)}}
+@media(prefers-reduced-motion:reduce){.moon-ripple{width:36px;height:36px;margin:-18px 0 0 -18px;animation:moon-ripple-reduced 180ms ease-out forwards}@keyframes moon-ripple-reduced{from{opacity:.58}to{opacity:0}}}

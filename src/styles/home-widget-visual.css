@@ -1,0 +1,344 @@
+/* ════════════════════════════════════════════════════════════
+   HOME WIDGET VISUAL SYSTEM — Phase 2.0A
+   Shared widget primitives: tokens, typography, states, motion.
+   Pure visual foundation — no layout / grid / drag changes.
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Tokens (scoped to the home workspace root) ── */
+.hwg-root {
+  /* Surface */
+  --hw-surface: linear-gradient(148deg, rgba(18, 16, 26, 0.72), rgba(12, 10, 20, 0.80));
+  --hw-surface-hover: linear-gradient(148deg, rgba(22, 20, 30, 0.80), rgba(14, 12, 24, 0.86));
+  --hw-surface-subtle: rgba(255, 255, 255, 0.03);
+
+  /* Border */
+  --hw-border: rgba(255, 255, 255, 0.10);
+  --hw-border-hover: rgba(255, 255, 255, 0.18);
+  --hw-border-active: rgba(126, 184, 176, 0.45);
+
+  /* Text */
+  --hw-text: rgba(245, 241, 248, 0.92);
+  --hw-text-secondary: rgba(225, 218, 232, 0.66);
+  --hw-text-muted: rgba(215, 207, 224, 0.48);
+
+  /* Accent */
+  --hw-accent: #7eb8b0;
+  --hw-accent-strong: #9ad0c9;
+  --hw-accent-alpha: rgba(126, 184, 176, 0.16);
+
+  /* Shadow / highlight / radius */
+  --hw-shadow: 0 3px 18px rgba(0, 0, 0, 0.32), 0 1px 2px rgba(0, 0, 0, 0.16);
+  --hw-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --hw-radius: 22px;
+  --hw-radius-sm: 14px;
+  --hw-radius-xs: 10px;
+
+  /* Icon / progress / status */
+  --hw-icon-surface: rgba(126, 184, 176, 0.14);
+  --hw-progress-track: rgba(255, 255, 255, 0.08);
+  --hw-progress-fill: #7eb8b0;
+  --hw-success: #5db872;
+  --hw-success-alpha: rgba(93, 184, 114, 0.16);
+  --hw-warning: #d9a35c;
+  --hw-warning-alpha: rgba(217, 163, 92, 0.16);
+}
+
+[data-theme="light"] .hwg-root {
+  --hw-surface: linear-gradient(148deg, rgba(255, 252, 244, 0.78), rgba(248, 242, 234, 0.82));
+  --hw-surface-hover: linear-gradient(148deg, rgba(255, 253, 246, 0.88), rgba(250, 244, 236, 0.90));
+  --hw-surface-subtle: rgba(0, 0, 0, 0.02);
+
+  --hw-border: rgba(0, 0, 0, 0.08);
+  --hw-border-hover: rgba(0, 0, 0, 0.14);
+  --hw-border-active: rgba(57, 126, 120, 0.55);
+
+  --hw-text: rgba(28, 22, 18, 0.92);
+  --hw-text-secondary: rgba(70, 58, 48, 0.66);
+  --hw-text-muted: rgba(95, 80, 68, 0.58);
+
+  --hw-accent: #397e78;
+  --hw-accent-strong: #2f6a64;
+  --hw-accent-alpha: rgba(57, 126, 120, 0.10);
+
+  --hw-shadow: 0 3px 16px rgba(70, 50, 30, 0.10), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --hw-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.40);
+
+  --hw-icon-surface: rgba(57, 126, 120, 0.10);
+  --hw-progress-track: rgba(0, 0, 0, 0.07);
+  --hw-progress-fill: #397e78;
+  --hw-success: #3f8f52;
+  --hw-success-alpha: rgba(63, 143, 82, 0.12);
+  --hw-warning: #b07d33;
+  --hw-warning-alpha: rgba(176, 125, 51, 0.12);
+}
+
+/* ── Surface primitive ── */
+.hw-surface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--hw-border);
+  border-radius: var(--hw-radius);
+  background: var(--hw-surface);
+  box-shadow: var(--hw-shadow), var(--hw-highlight);
+  overflow: hidden;
+}
+
+.hw-surface--interactive:hover {
+  border-color: var(--hw-border-hover);
+  background: var(--hw-surface-hover);
+}
+
+/* ── Typography hierarchy ──
+   Metric > Widget Title > Secondary Text > Metadata
+*/
+.hw-metric {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--hw-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.hw-metric-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--hw-text-muted);
+}
+
+.hw-title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--hw-text);
+}
+
+.hw-secondary {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--hw-text-secondary);
+}
+
+.hw-meta {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--hw-text-muted);
+}
+
+.hw-kicker {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--hw-text-muted);
+}
+
+/* Size-aware typography */
+[data-home-widget-size="small"] .hw-metric {
+  font-size: 26px;
+}
+
+[data-home-widget-size="small"] .hw-title {
+  font-size: 12px;
+}
+
+[data-home-widget-size="small"] .hw-secondary {
+  font-size: 10px;
+}
+
+[data-home-widget-size="small"] .hw-meta {
+  font-size: 9px;
+}
+
+/* ── Progress primitives ── */
+.hw-progress-ring {
+  display: inline-flex;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.hw-progress-ring__track {
+  stroke: var(--hw-progress-track);
+}
+
+.hw-progress-ring__fill {
+  stroke: var(--hw-progress-fill, var(--hw-accent));
+  transition: stroke-dashoffset 220ms ease, stroke 160ms ease;
+}
+
+.hw-progress-linear {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--hw-progress-track);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.hw-progress-linear__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--hw-progress-fill, var(--hw-accent));
+  transition: width 220ms ease;
+}
+
+/* ── Empty state primitive ── */
+.hw-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  gap: 6px;
+  padding: 12px;
+}
+
+.hw-empty-state__icon {
+  display: inline-flex;
+  line-height: 0;
+  color: var(--hw-text-muted);
+}
+
+.hw-empty-state__title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hw-text-secondary);
+}
+
+.hw-empty-state__desc {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--hw-text-muted);
+}
+
+.hw-empty-state__action {
+  margin-top: 4px;
+}
+
+/* ── Action primitive ── */
+.hw-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: var(--hw-radius-xs);
+  border: 1px solid var(--hw-border);
+  background: transparent;
+  color: var(--hw-text-secondary);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 30px;
+  padding: 4px 12px;
+  transition: border-color 140ms ease, color 140ms ease, background 140ms ease;
+}
+
+.hw-action:hover {
+  border-color: var(--hw-border-active);
+  color: var(--hw-accent);
+}
+
+.hw-action--primary {
+  border-color: var(--hw-border-active);
+  color: var(--hw-accent);
+}
+
+.hw-action--primary:hover {
+  background: var(--hw-accent-alpha);
+}
+
+/* ── State system ── */
+.hw-widget[data-home-widget-state="completed"] .home-widget-icon-shell {
+  color: var(--hw-success);
+  border-color: var(--hw-success-alpha);
+  background: var(--hw-success-alpha);
+}
+
+.hw-widget[data-home-widget-state="completed"] .hw-widget-check {
+  color: var(--hw-success);
+}
+
+.hw-widget[data-home-widget-state="empty"] .hw-title {
+  color: var(--hw-text-secondary);
+}
+
+.hw-widget[data-home-widget-state="disabled"] {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ── Motion foundation ── */
+.hwg-cell:not([data-home-edit-mode]):not(.hwg-cell--dragging-visual) {
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.hwg-cell:not([data-home-edit-mode]):not(.hwg-cell--dragging-visual):hover {
+  transform: translateY(-1px);
+}
+
+.hw-widget[data-home-widget-state="completed"] .home-widget-icon-shell,
+.hw-widget[data-home-widget-state="completed"] .hw-progress-ring__fill {
+  transition: color 200ms ease, border-color 200ms ease, background 200ms ease, stroke-dashoffset 200ms ease;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .hwg-cell:not([data-home-edit-mode]) {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .hwg-cell:not([data-home-edit-mode]):hover,
+  .hwg-cell:not([data-home-edit-mode]):active {
+    transform: none !important;
+  }
+
+  .hw-progress-ring__fill,
+  .hw-progress-linear__fill,
+  .hw-widget[data-home-widget-state="completed"] .home-widget-icon-shell,
+  .hw-widget[data-home-widget-state="completed"] .hw-progress-ring__fill {
+    transition: none !important;
+  }
+
+  .hw-action {
+    transition: none !important;
+  }
+}
+
+/* Home Visual Polish: editorial route language for the default widgets. */
+.home-task-card { position:relative; justify-content:center; gap:18px; padding:18px 20px; overflow:hidden; }
+.home-task-card__copy { display:grid; min-width:0; gap:4px; }
+.home-task-card__copy .hw-title { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.home-task-card__action { align-self:start; margin-top:5px; color:var(--hw-accent); font-size:11px; font-weight:700; }
+.home-task-route,.home-task-progress { position:relative; display:flex; align-items:center; justify-content:space-between; width:min(100%,220px); height:18px; }
+.home-task-route::before,.home-task-progress::before { content:''; position:absolute; left:7px; right:7px; top:50%; height:1px; background:color-mix(in srgb,var(--hw-accent) 24%,var(--hw-border)); }
+.home-task-route>i,.home-task-progress>i { position:relative; z-index:1; width:7px; height:7px; border:1px solid color-mix(in srgb,var(--hw-accent) 40%,var(--hw-border)); border-radius:50%; background:color-mix(in srgb,var(--hw-surface-subtle) 70%,var(--hw-surface)); }
+.home-task-route>i.is-destination { display:grid; width:26px; height:26px; place-items:center; border:0; background:var(--hw-accent-alpha); color:var(--hw-accent); }
+.home-task-route .home-widget-icon-shell { width:auto; height:auto; border:0; background:none; }
+.home-task-progress { margin-top:auto; }
+.home-task-progress>span { position:absolute; z-index:0; left:7px; top:50%; height:2px; border-radius:999px; background:var(--hw-accent); transform:translateY(-50%); transition:width 220ms ease; }
+
+.home-cycle-ring { overflow:visible; filter:drop-shadow(0 5px 10px color-mix(in srgb,var(--hw-accent) 8%,transparent)); }
+.home-cycle-ring__phase { fill:none; stroke-width:6; stroke-linecap:round; transform:rotate(-90deg); transform-origin:40px 40px; opacity:.58; }
+.home-cycle-ring__phase.phase-menstrual { stroke:#ad7481; }
+.home-cycle-ring__phase.phase-follicular { stroke:#69a9a2; }
+.home-cycle-ring__phase.phase-ovulation { stroke:#d5a36f; }
+.home-cycle-ring__phase.phase-luteal { stroke:#9b91b6; }
+.home-cycle-ring__progress { transition:stroke-dashoffset .5s ease; }
+.home-cycle-ring__core { fill:color-mix(in srgb,var(--hw-surface-subtle) 66%,transparent); stroke:var(--hw-border); stroke-width:1; }
+
+.hwg-cell:not([data-home-edit-mode]):not(.hwg-cell--dragging-visual):hover {
+  border-color:var(--hw-border-hover);
+  box-shadow:var(--hw-shadow),var(--hw-highlight),0 7px 18px color-mix(in srgb,var(--hw-accent) 6%,transparent);
+}
+
+@media(max-width:639px){.home-task-card{min-height:148px;padding:16px}}

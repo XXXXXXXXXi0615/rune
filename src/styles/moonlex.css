@@ -1,0 +1,146 @@
+.moonlex-page{min-height:100%;padding:28px clamp(18px,4vw,48px) 100px;color:var(--text);background:radial-gradient(circle at 88% 8%,rgba(76,175,145,.11),transparent 31%),radial-gradient(circle at 8% 48%,rgba(146,119,167,.07),transparent 28%)}
+.moonlex-hero{display:grid;grid-template-columns:auto 1fr;align-items:start;gap:18px;max-width:1240px;margin:0 auto 24px}.moonlex-back{width:38px;height:38px;border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--text);display:grid;place-items:center}.moonlex-kicker,.moonlex-section-heading span{display:block;color:#4caf91;font-size:11px;font-weight:700;letter-spacing:.15em}.moonlex-hero h1{margin:6px 0 4px;font-size:clamp(32px,5vw,54px);font-weight:560;letter-spacing:-.05em}.moonlex-hero p{margin:0;color:var(--text-2);font-size:14px}
+.moonlex-command-bar,.moonlex-filter-row{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:10px}.moonlex-command-bar{padding:10px;border:1px solid rgba(180,160,120,.23);border-radius:20px;background:rgba(255,252,245,.64);backdrop-filter:blur(16px)}.moonlex-search{flex:1;display:flex;align-items:center;gap:7px;min-width:150px}.moonlex-search span{color:var(--text-3);font-size:19px}.moonlex-search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font:inherit}.moonlex-language{display:flex;padding:3px;border-radius:999px;background:rgba(180,160,120,.1)}.moonlex-language button,.moonlex-tabs button{border:0;background:transparent;color:var(--text-2);border-radius:999px;padding:7px 11px;font-size:11px}.moonlex-language button.is-active,.moonlex-tabs button.is-active{background:#4caf91;color:#fff}.moonlex-add-button{border:1px solid rgba(76,175,145,.3);border-radius:13px;background:#4caf91;color:#fff;padding:9px 14px;font-weight:650}.moonlex-add-form{max-width:1240px;margin:10px auto 0;padding:12px;display:grid;grid-template-columns:120px 1fr 1fr 1fr 90px auto;gap:8px;border:1px solid rgba(180,160,120,.23);border-radius:18px;background:rgba(255,252,245,.72)}.moonlex-add-form input,.moonlex-add-form select{min-width:0;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);padding:9px}.moonlex-add-form button{border:0;border-radius:10px;background:#4caf91;color:#fff;padding:9px 14px}.moonlex-filter-row{justify-content:space-between;margin-top:14px}.moonlex-tabs{display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(180,160,120,.09)}.moonlex-difficulty{display:flex;align-items:center;gap:8px;color:var(--text-2);font-size:11px}.moonlex-difficulty select{border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);padding:7px}
+.moonlex-deck-overview,.moonlex-active-stage{max-width:1240px;margin:24px auto 0;min-height:430px}.moonlex-section-heading{display:flex;justify-content:space-between;align-items:end;margin-bottom:14px}.moonlex-section-heading h2{margin:3px 0 0;font-size:21px}.moonlex-section-heading b{font-size:12px;color:var(--text-3)}.moonlex-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}.moonlex-overview-hitbox{border:0;background:transparent;padding:0;min-width:0;text-align:left}.moonlex-card-paper{height:220px;padding:19px;box-sizing:border-box;border:1px solid rgba(180,160,120,.24);border-radius:5px 20px 8px 22px;background:linear-gradient(145deg,rgba(255,253,246,.94),rgba(247,240,225,.86));color:var(--text);box-shadow:0 7px 22px rgba(117,91,49,.1);display:flex;flex-direction:column;align-items:flex-start;transform:rotate(var(--card-tilt));transition:box-shadow .2s ease,transform .2s ease;position:relative;overflow:hidden}.moonlex-card-paper:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.23;background-image:repeating-linear-gradient(8deg,transparent 0 3px,rgba(125,103,73,.035) 4px)}.moonlex-overview-hitbox:hover .moonlex-card-paper,.moonlex-overview-hitbox:focus-visible .moonlex-card-paper{transform:translateY(-4px) rotate(var(--card-tilt));box-shadow:0 14px 32px rgba(117,91,49,.15)}.moonlex-card-meta{width:100%;display:flex;justify-content:space-between}.moonlex-card-meta i{font-size:10px;font-style:normal;color:#4caf91;letter-spacing:.12em}.moonlex-card-meta em{font-size:10px;font-style:normal;color:#e8a030}.moonlex-card-paper>strong{margin-top:27px;font-size:27px;font-weight:580}.moonlex-card-paper ruby rt{font-size:10px;color:var(--text-2)}.moonlex-card-paper>small{color:var(--text-3);margin-top:3px}.moonlex-card-meaning{margin-top:10px;color:var(--text-2);font-size:13px;line-height:1.5}.moonlex-card-footer{width:100%;margin-top:auto;display:flex;align-items:center;justify-content:space-between}.moonlex-mastery{padding:4px 8px;border-radius:999px;font-size:10px;background:rgba(76,175,145,.1);color:#3d8d76}.moonlex-mastery.is-mastered{background:rgba(232,160,48,.12);color:#a86e18}.moonlex-card-footer>span:last-child{color:#e8a030}.moonlex-empty{min-height:300px;display:grid;place-items:center;border:1px dashed var(--border);border-radius:24px;color:var(--text-3)}
+.moonlex-active-stage{position:relative;display:flex;flex-direction:column;align-items:center}.moonlex-active-backdrop{position:absolute;inset:0;border-radius:30px;background:radial-gradient(circle at center,rgba(76,175,145,.08),transparent 65%)}.moonlex-active-card{position:relative;z-index:1;width:min(620px,100%);min-height:390px;padding:27px 34px;box-sizing:border-box;border:1px solid rgba(180,160,120,.28);border-radius:7px 28px 10px 30px;background:linear-gradient(145deg,rgba(255,253,246,.98),rgba(245,237,219,.94));box-shadow:0 26px 70px rgba(92,69,32,.18);display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--text)}.moonlex-active-card header{width:100%;display:flex;justify-content:space-between;color:var(--text-3);font-size:12px}.moonlex-active-card header button{border:0;background:transparent;color:#c98722}.moonlex-active-term{margin-top:35px;display:flex;flex-direction:column;align-items:center}.moonlex-active-term strong{font-size:clamp(38px,7vw,64px);font-weight:570;letter-spacing:-.03em}.moonlex-active-term ruby rt{font-size:12px;color:var(--text-2)}.moonlex-active-term small{margin-top:6px;color:var(--text-2)}.moonlex-active-meaning{margin-top:20px;font-size:21px}.moonlex-active-card q{margin-top:23px;font-size:15px;line-height:1.65}.moonlex-active-card p{margin:5px 0 0;color:var(--text-2);font-size:13px}.moonlex-practice-actions{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:auto;padding-top:24px}.moonlex-practice-actions button{border:1px solid rgba(76,175,145,.25);border-radius:14px;background:rgba(255,255,255,.46);color:var(--text);padding:12px}.moonlex-practice-actions button:last-child{background:#4caf91;color:#fff}.moonlex-card-rail{position:relative;z-index:1;width:min(860px,100%);display:flex;justify-content:center;gap:7px;margin-top:16px;overflow-x:auto;padding:5px}.moonlex-card-rail button{flex:0 0 112px;border:1px solid rgba(180,160,120,.22);border-radius:12px;background:rgba(255,252,245,.65);color:var(--text);padding:8px;text-align:left;opacity:.46;transform:scale(.97);transition:.2s}.moonlex-card-rail button:hover,.moonlex-card-rail button.is-selected{opacity:1;transform:scale(1);border-color:rgba(76,175,145,.5)}.moonlex-card-rail span,.moonlex-card-rail small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.moonlex-card-rail span{font-weight:650}.moonlex-card-rail small{margin-top:2px;color:var(--text-3)}
+.moonlex-stats{max-width:1240px;margin:24px auto 0;padding:15px 20px;border-top:1px solid rgba(180,160,120,.23);display:grid;grid-template-columns:repeat(4,1fr)}.moonlex-stats div{text-align:center}.moonlex-stats strong,.moonlex-stats span{display:block}.moonlex-stats strong{font-size:20px}.moonlex-stats span{margin-top:2px;color:var(--text-3);font-size:10px}
+@media(max-width:900px){.moonlex-add-form{grid-template-columns:1fr 1fr 1fr}.moonlex-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){.moonlex-page{padding:18px 13px 92px}.moonlex-command-bar{flex-wrap:wrap}.moonlex-search{flex-basis:100%;order:-1}.moonlex-language{flex:1}.moonlex-add-form{grid-template-columns:1fr 1fr}.moonlex-filter-row{align-items:stretch;flex-direction:column}.moonlex-tabs{display:grid;grid-template-columns:repeat(4,1fr)}.moonlex-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.moonlex-card-paper{height:185px;padding:14px}.moonlex-card-paper>strong{margin-top:20px;font-size:21px}.moonlex-card-meaning{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.moonlex-active-card{min-height:420px;padding:22px 18px}.moonlex-card-rail{justify-content:flex-start}.moonlex-stats{padding-inline:0}}
+@media(prefers-reduced-motion:reduce){.moonlex-card-paper,.moonlex-card-rail button{transition:none!important}}
+[data-theme='dark'] .moonlex-command-bar,[data-theme='dark'] .moonlex-add-form,[data-theme='dark'] .moonlex-card-rail button{background:rgba(34,35,32,.76)}[data-theme='dark'] .moonlex-card-paper,[data-theme='dark'] .moonlex-active-card{background:linear-gradient(145deg,rgba(45,44,39,.97),rgba(31,32,29,.95))}
+
+/* Phase 1.1: size from the learning surface, including desktop's 430px app frame. */
+.moonlex-page {
+  container: moonlex / inline-size;
+  min-width: 0;
+  padding: 20px 16px var(--dock-content-gap);
+}
+.moonlex-page :is(button, input, select) { font-family: inherit; }
+.moonlex-page :is(button, select) { min-height: 44px; }
+.moonlex-page :is(button, input, select):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.moonlex-page button:disabled { opacity: .45; cursor: default; }
+.moonlex-hero { grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 0; margin-bottom: 20px; }
+.moonlex-back { width: 44px; height: 44px; }
+.moonlex-hero h1 { font-size: clamp(26px, 8cqi, 32px); line-height: 1.25; letter-spacing: -.03em; }
+.moonlex-hero p { font-size: 14px; line-height: 1.5; text-wrap: pretty; }
+.moonlex-command-bar { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 10px; padding: 0; border: 0; background: none; backdrop-filter: none; }
+.moonlex-search { grid-column: 1; grid-row: 1; min-width: 0; min-height: 48px; padding: 0 12px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.moonlex-search input { min-width: 0; font-size: 16px; min-height: 44px; }
+.moonlex-add-button { grid-column: 2; grid-row: 1; width: 44px; min-width: 44px; padding: 0; font-size: 26px; }
+.moonlex-language { grid-column: 1 / -1; grid-row: 2; justify-self: start; flex: none; }
+.moonlex-language button, .moonlex-tabs button { flex: 0 0 auto; white-space: nowrap; font-size: 13px; min-width: 44px; padding: 8px 12px; }
+.moonlex-filter-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.moonlex-tabs { display: flex; min-width: 0; overflow-x: auto; border-radius: 16px; scrollbar-width: thin; }
+.moonlex-difficulty { justify-self: end; font-size: 13px; white-space: nowrap; }
+.moonlex-difficulty select { font: inherit; }
+.moonlex-deck-overview, .moonlex-active-stage { margin-top: 20px; min-height: 0; }
+.moonlex-active-card-wrapper {
+  position: relative;
+  z-index: 20;
+  width: min(620px, calc(100% - 40px));
+  margin: 0 auto;
+}
+.moonlex-active-card { width: 100%; min-height: 400px; padding: 28px; border-radius: 30px; }
+.moonlex-active-card header { padding: 0; min-height: 44px; align-items: center; font-size: 13px; }
+.moonlex-active-card header button { font-size: 13px; }
+.moonlex-active-term { width: 100%; min-width: 0; margin-top: 16px; }
+.moonlex-active-term strong { width: 100%; min-width: 0; font-size: clamp(54px, 10vw, 92px); line-height: 1.12; overflow-wrap: anywhere; }
+.moonlex-active-term ruby { white-space: normal; }
+.moonlex-active-term ruby rt { font-size: 18px; }
+.moonlex-active-term small { font-size: clamp(18px, 5cqi, 22px); line-height: 1.4; overflow-wrap: anywhere; }
+.moonlex-active-meaning { max-width: 100%; margin-top: 16px; font-size: clamp(22px, 6cqi, 28px); line-height: 1.4; overflow-wrap: anywhere; }
+.moonlex-active-card q { max-width: 100%; margin-top: 16px; font-size: clamp(15px, 4cqi, 18px); line-height: 1.5; overflow-wrap: anywhere; }
+.moonlex-active-card p { font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+.moonlex-practice-actions { max-width: 640px; padding-top: 12px; margin-top: 0; }
+.moonlex-card-navigation { display: flex; justify-content: space-between; gap: 12px; width: 100%; margin-top: auto; padding-top: 20px; }
+.moonlex-card-navigation button { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); padding: 8px 16px; white-space: nowrap; }
+.moonlex-card-grid { grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)); }
+.moonlex-card-paper { height: auto; min-height: 220px; }
+.moonlex-card-paper > strong { max-width: 100%; overflow-wrap: anywhere; }
+.moonlex-card-rail { justify-content: flex-start; }
+.moonlex-add-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.moonlex-stats { padding-inline: 0; }
+@container moonlex (max-width: 379px) {
+  .moonlex-filter-row { grid-template-columns: minmax(0, 1fr); }
+  .moonlex-tabs { max-width: 100%; width: max-content; }
+}
+/* The shell already reserves --dock-effective-inset outside its scrollport. */
+.moonlex-page :is(.moonlex-active-card, .moonlex-practice-actions, .moonlex-card-navigation) { scroll-margin-block: var(--dock-content-gap); }
+/* Route-only presentation suppression; persisted Companion preferences remain intact. */
+.companion-pet-host[data-companion-route='/moonlex'][data-pet-pack='clawd'] { display: none; }
+[data-theme='dark'] .moonlex-command-bar { background: none; }
+.moonlex-practice-actions { position: relative; z-index: 1; }
+
+/* Phase 1.2: the header is a flow sibling; zero is the scrollport's safe top,
+   already below its 52px + safe-area reservation. Do not count it twice. */
+.app-main:has(.moonlex-page) {
+  scroll-padding-top: calc(var(--moonlex-toolbar-height, 0px) + var(--dock-content-gap));
+}
+.moonlex-page .moonlex-command-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--bg);
+}
+@container moonlex (min-width: 380px) {
+  .moonlex-tabs { width: max-content; max-width: 100%; }
+  .moonlex-difficulty > span { display: none; }
+}
+
+/* Hidden still permits focus/scrollIntoView to scroll body. Only app-main owns
+   MoonLex scrolling; clip prevents a second, offscreen document scroll range. */
+body:has(.moonlex-page) { overflow: clip; }
+
+/* ── Phase 2A/2B: swipeable fanned deck stage (presentation only) ──────── */
+.moonlex-deck-stage {
+  position: relative;
+  z-index: 1;
+  width: min(640px, 100%);
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  padding-bottom: 36px;
+}
+.moonlex-deck-stage.is-dragging { cursor: grabbing; }
+.moonlex-deck-stage.is-swipe-capturing { cursor: grab; }
+.moonlex-active-card { touch-action: pan-y; will-change: transform; }
+.moonlex-deck-fan-card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(620px, calc(100% - 40px));
+  height: calc(100% - 36px);
+  margin-left: max(-320px, -50%);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 24px 20px;
+  border: 1px solid rgba(180, 160, 120, .2);
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(255, 253, 246, .92), rgba(245, 237, 219, .86));
+  box-shadow: 0 14px 34px rgba(92, 69, 32, .12);
+  color: var(--text-2);
+  overflow: hidden;
+  cursor: pointer;
+  transform-origin: 50% 90%;
+}
+.moonlex-deck-fan-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .5), transparent 46%);
+  opacity: .5;
+}
+.moonlex-deck-fan-card small { font-size: 10px; letter-spacing: .12em; color: #4caf91; }
+.moonlex-deck-fan-card strong { max-width: 100%; font-size: 19px; font-weight: 570; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.moonlex-deck-fan-card span { max-width: 100%; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: .88; }
+[data-theme='dark'] .moonlex-deck-fan-card { background: linear-gradient(145deg, rgba(45, 44, 39, .94), rgba(31, 32, 29, .92)); }
+@media (prefers-reduced-motion: reduce) {
+  .moonlex-active-card, .moonlex-deck-fan-card { transition: none !important; }
+}

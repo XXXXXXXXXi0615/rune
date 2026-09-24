@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, type FormEvent, type ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { useAppStore } from '@/store/useAppStore';
+import { useAppStore, selectPartnerDisplayName } from '@/store/useAppStore';
 import { useToastStore } from '@/store/useToastStore';
 import { savePetImage, deletePetImages } from '@/store/petImages';
 import { AvatarImage } from '@/components/ui/AvatarImage';
@@ -11,7 +11,7 @@ import { compressImageFile, compressedImageName } from '@/utils/imageCompression
 interface ProfileEditSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  /** 'profile' edits profile.displayName/status; 'partner' edits partner.name/status */
+  /** 'profile' edits profile.displayName/status; 'partner' edits partner.displayName/status */
   mode: 'profile' | 'partner';
 }
 
@@ -28,8 +28,8 @@ export function ProfileEditSheet({ isOpen, onClose, mode }: ProfileEditSheetProp
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isUser = mode === 'profile';
-  const currentName = isUser ? profile.displayName : partner.name;
-  const currentStatus = isUser ? profile.status : partner.status;
+  const currentName = isUser ? profile.displayName : selectPartnerDisplayName(partner);
+  const currentStatus = isUser ? (profile.signature ?? '') : partner.status;
   const currentInitial = isUser
     ? (profile.avatarInitial || profile.displayName || 's').charAt(0).toUpperCase()
     : partner.avatarInitial;
@@ -134,11 +134,12 @@ export function ProfileEditSheet({ isOpen, onClose, mode }: ProfileEditSheetProp
     }
     const nextInitial = (avatarInitial || (isUser ? trimmed : 'L')).charAt(0).toUpperCase();
     if (isUser) {
-      updateProfile({ displayName: trimmed, status: status.trim() || '月潮同步中', avatarInitial: nextInitial, avatarColor, avatarImage });
+      updateProfile({ displayName: trimmed, signature: status.trim(), avatarInitial: nextInitial, avatarColor, avatarImage });
     } else {
       updatePartner({
-        name: trimmed,
-        status: status.trim() || '月潮連線中',
+        displayName: trimmed,
+        name: (partner.name || 'LUNARIS'), // systemIdentity stays fixed
+        signature: status.trim(),
         avatarInitial: nextInitial || 'L',
         avatarColor,
         avatarImage,

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToastStore } from '@/store/useToastStore';
+import { AppToast } from '@/components/ui/AppPrimitives';
 
 export function Toast() {
   const message = useToastStore((s) => s.message);
@@ -7,6 +8,10 @@ export function Toast() {
 
   useEffect(() => {
     if (message) {
+      if (AppToast(message)) {
+        setVisible(false);
+        return undefined;
+      }
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(true);
       const timer = setTimeout(() => setVisible(false), 2000);

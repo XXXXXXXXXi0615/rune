@@ -1,0 +1,87 @@
+.lunaris-player-sprite {
+  --lunaris-player-scale: 0.35;
+  --lunaris-frame-width: 192px;
+  --lunaris-frame-height: 208px;
+  position: relative;
+  display: inline-block;
+  width: calc(var(--lunaris-frame-width) * var(--lunaris-player-scale));
+  height: calc(var(--lunaris-frame-height) * var(--lunaris-player-scale));
+  image-rendering: pixelated;
+  line-height: 0;
+  transform-origin: bottom center;
+  filter:
+    drop-shadow(0 6px 0 rgba(13, 10, 18, 0.24))
+    drop-shadow(0 0 10px rgba(124, 190, 255, 0.22));
+}
+
+.lunaris-player-sprite__frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: var(--lunaris-frame-width);
+  height: var(--lunaris-frame-height);
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  transform: scale(var(--lunaris-player-scale));
+  transform-origin: top left;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lunaris-player-sprite--idle {
+  animation: lunarisPlayerBreathe 2.8s steps(3, end) infinite;
+}
+
+.lunaris-player-sprite--walking {
+  animation: lunarisPlayerBob 360ms steps(2, end) infinite;
+}
+
+.lunaris-player-sprite--coding {
+  animation: lunarisPlayerFocus 1.6s ease-in-out infinite;
+}
+
+.lunaris-player-sprite--sleeping {
+  opacity: 0.94;
+  animation: lunarisPlayerSleep 2.4s ease-in-out infinite;
+}
+
+.lunaris-player-sprite--toilet {
+  animation: lunarisPlayerAnnoyed 1.2s steps(2, end) infinite;
+}
+
+.lunaris-player-sprite--left .lunaris-player-sprite__frame {
+  transform:
+    translateX(calc(var(--lunaris-frame-width) * var(--lunaris-player-scale)))
+    scale(calc(var(--lunaris-player-scale) * -1), var(--lunaris-player-scale));
+}
+
+@keyframes lunarisPlayerBreathe {
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes lunarisPlayerBob {
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes lunarisPlayerFocus {
+  50% {
+    filter:
+      drop-shadow(0 6px 0 rgba(13, 10, 18, 0.24))
+      drop-shadow(0 0 16px rgba(105, 220, 160, 0.34));
+  }
+}
+
+@keyframes lunarisPlayerSleep {
+  50% { transform: translateY(2px); opacity: 0.82; }
+}
+
+@keyframes lunarisPlayerAnnoyed {
+  50% { transform: translateY(-1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lunaris-player-sprite {
+    animation: none !important;
+  }
+}

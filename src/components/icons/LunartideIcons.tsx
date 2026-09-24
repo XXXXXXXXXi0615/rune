@@ -81,6 +81,27 @@ export function CountdownIcon({ size = 20, className }: IconProps) {
   );
 }
 
+/* --------------- Clock — clock face --------------- */
+export function ClockIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg {...iconProps(size, className)}>
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+/* --------------- Add — circle with plus --------------- */
+export function AddIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg {...iconProps(size, className)}>
+      <circle cx="12" cy="12" r="9" />
+      <line x1="8" y1="12" x2="16" y2="12" />
+      <line x1="12" y1="8" x2="12" y2="16" />
+    </svg>
+  );
+}
+
 /* --------------- Chat — bubble --------------- */
 export function ChatIcon({ size = 20, className }: IconProps) {
   return (
@@ -256,6 +277,9 @@ export function CheckIcon({ size = 20, className }: IconProps) {
     </svg>
   );
 }
+
+/* --------------- DailyCache — broom / sweep --------------- */
+export { DailyCacheIcon } from './DailyCacheIcon';
 
 /* --------------- Trash --------------- */
 export function TrashIcon({ size = 20, className }: IconProps) {

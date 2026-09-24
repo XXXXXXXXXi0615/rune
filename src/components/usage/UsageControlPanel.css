@@ -1,0 +1,214 @@
+.usage-ctrl-panel {
+  --usage-surface: color-mix(in srgb, var(--surface, #fff9ed) 94%, transparent);
+  --usage-surface-elevated: color-mix(in srgb, var(--surface-2, #efe6d3) 86%, var(--surface, #fff9ed));
+  --usage-text-primary: var(--text, #594737);
+  --usage-text-secondary: var(--text-2, #7d6a55);
+  --usage-border: color-mix(in srgb, var(--text, #594737) 20%, transparent);
+  --usage-divider: color-mix(in srgb, var(--text, #594737) 12%, transparent);
+  --usage-chart-muted: color-mix(in srgb, var(--text-3, #8b7963) 24%, transparent);
+  --usage-chart-primary: var(--accent, #397e78);
+  --usage-chart-peak: var(--coral, #c98270);
+  --usage-button-surface: color-mix(in srgb, var(--surface-2, #efe6d3) 72%, var(--surface, #fff9ed));
+  --usage-button-border: color-mix(in srgb, var(--text, #594737) 22%, transparent);
+  --usage-backdrop: color-mix(in srgb, #493d32 14%, transparent);
+
+  position: relative;
+  z-index: 160;
+}
+
+:root[data-theme='dark'] .usage-ctrl-panel {
+  --usage-surface: color-mix(in srgb, var(--surface, #202a2e) 94%, transparent);
+  --usage-surface-elevated: color-mix(in srgb, var(--surface-2, #293438) 82%, var(--surface, #202a2e));
+  --usage-text-primary: var(--text, #f3eadc);
+  --usage-text-secondary: var(--text-2, #c7b9a9);
+  --usage-border: color-mix(in srgb, var(--text, #f3eadc) 18%, transparent);
+  --usage-divider: color-mix(in srgb, var(--text, #f3eadc) 10%, transparent);
+  --usage-chart-muted: color-mix(in srgb, var(--text-3, #aa9d8e) 22%, transparent);
+  --usage-chart-primary: var(--accent, #74b9ae);
+  --usage-chart-peak: var(--coral, #d99a88);
+  --usage-button-surface: color-mix(in srgb, var(--surface-2, #293438) 76%, transparent);
+  --usage-button-border: color-mix(in srgb, var(--text, #f3eadc) 18%, transparent);
+  --usage-backdrop: color-mix(in srgb, #071015 34%, transparent);
+}
+
+.usage-ctrl-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--usage-backdrop);
+  backdrop-filter: blur(2px) saturate(.9);
+  -webkit-backdrop-filter: blur(2px) saturate(.9);
+}
+
+.usage-ctrl-orb {
+  position: relative;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--usage-chart-primary) 34%, transparent);
+  background: color-mix(in srgb, var(--usage-surface) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(135%);
+  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  color: var(--usage-text-secondary);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform .15s ease, box-shadow .15s ease, color .15s ease, border-color .15s ease;
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--usage-text-primary) 14%, transparent);
+}
+
+.usage-ctrl-island-family{display:flex;align-items:center;gap:0;position:relative;padding:0 2px;border-radius:999px;background:color-mix(in srgb,var(--usage-surface) 64%,transparent);box-shadow:0 4px 14px color-mix(in srgb,var(--usage-text-primary) 10%,transparent)}
+/* Phase D.1 — primary capsule: the main capsule owns the freed middle space and
+   the satellite orb stays physically attached to it. */
+.usage-ctrl-capsule{flex:1 1 auto;min-width:0;overflow:hidden;height:44px;padding:0 10px 0 12px;display:flex;align-items:center;justify-content:center;border:1px solid color-mix(in srgb,var(--usage-chart-primary) 28%,transparent);border-right:0;border-radius:999px 8px 8px 999px;background:color-mix(in srgb,var(--usage-surface) 76%,transparent);color:var(--usage-text-primary);font:650 11px/1 var(--font-body,system-ui);white-space:nowrap;cursor:pointer;box-shadow:inset 0 1px color-mix(in srgb,#fff 40%,transparent)}
+.usage-ctrl-capsule time{font-variant-numeric:tabular-nums;color:var(--usage-text-secondary)}
+.usage-ctrl-summary-narrow{display:none}
+.usage-ctrl-island-family .usage-ctrl-orb{margin-left:-3px;flex:0 0 auto;border-radius:10px 999px 999px 10px;box-shadow:none}
+.usage-ctrl-capsule:focus-visible{outline:2px solid var(--usage-chart-primary);outline-offset:3px}
+
+/* Copy contraction ladder — responsive presentation only. The app shell is a
+   max-430px frame at every outer viewport, so this keys on the top bar's own
+   container width (360 → very narrow, 390 → narrow, 430/1440 frame → full). */
+@container topbar (max-width: 402px) {
+  .usage-ctrl-summary-wide { display: none; }
+  .usage-ctrl-summary-narrow { display: inline; }
+}
+@container topbar (max-width: 368px) {
+  .usage-ctrl-summary-narrow { display: none; }
+}
+
+.usage-ctrl-panel[data-open] .usage-ctrl-orb {
+  color: var(--usage-chart-primary);
+  border-color: color-mix(in srgb, var(--usage-chart-primary) 62%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--usage-chart-primary) 12%, transparent), 0 7px 20px color-mix(in srgb, var(--usage-text-primary) 18%, transparent);
+}
+
+.usage-ctrl-orb:hover { transform: translateY(-1px); }
+.usage-ctrl-orb svg { width: 21px; height: 21px; }
+
+.usage-ctrl-orb:focus-visible,
+.usage-ctrl-close:focus-visible,
+.usage-ctrl-btn:focus-visible {
+  outline: 2px solid var(--usage-chart-primary);
+  outline-offset: 3px;
+}
+
+.usage-ctrl-palette {
+  position: absolute;
+  z-index: 1;
+  top: 46px;
+  right: 0;
+  /* Phase D.1: the panel hangs from the complete utility island geometry and can
+     never exceed it, so it always stays inside the 430px app frame. */
+  width: min(324px, 100%);
+  max-height: min(560px, calc(100dvh - 72px));
+  overflow-y: auto;
+  background: var(--usage-surface);
+  border: 1px solid var(--usage-border);
+  border-radius: 18px;
+  box-shadow: 0 22px 58px color-mix(in srgb, var(--usage-text-primary) 24%, transparent), inset 0 1px 0 color-mix(in srgb, var(--surface-3, #fffdf6) 65%, transparent);
+  color: var(--usage-text-primary);
+  padding: 0 0 14px;
+  animation: uc-palette-in .2s ease both;
+  scrollbar-width: thin;
+  scrollbar-color: var(--usage-chart-muted) transparent;
+  backdrop-filter: blur(24px) saturate(135%);
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
+}
+
+.usage-ctrl-palette[data-subdued] { pointer-events: none; }
+
+@keyframes uc-palette-in {
+  from { opacity: 0; transform: translateY(-6px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.usage-ctrl-grab { display: none; }
+
+.usage-ctrl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 6px;
+}
+
+.usage-ctrl-header h2 { margin: 2px 0 0; font-size: 17px; font-weight: 720; }
+.usage-ctrl-header small { font-size: 11px; color: var(--usage-text-secondary); letter-spacing: .13em; }
+
+.usage-ctrl-close {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--usage-text-secondary);
+  font: 400 26px/1 var(--font-body, system-ui);
+  cursor: pointer;
+}
+.usage-ctrl-close:hover { color: var(--usage-text-primary); background: var(--usage-button-surface); }
+
+.usage-ctrl-today {
+  padding: 4px 16px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--usage-divider);
+}
+.usage-ctrl-today-label { font-size: 12px; color: var(--usage-text-secondary); letter-spacing: .08em; }
+.usage-ctrl-today-value { margin-top: 2px; font-size: 30px; line-height: 1.15; font-weight: 650; font-variant-numeric: tabular-nums; }
+
+.usage-ctrl-checkin { margin: 4px 16px 10px; min-height: 54px; display:grid; grid-template-columns:36px minmax(0,1fr) auto; gap:10px; align-items:center; }
+.usage-ctrl-checkin-mark { width:36px; height:36px; display:grid; place-items:center; border-radius:12px; background:var(--usage-button-surface); color:var(--usage-chart-primary); font-weight:750; }
+.usage-ctrl-checkin > div { min-width:0; display:grid; gap:2px; }
+.usage-ctrl-checkin strong { font-size:13px; }
+.usage-ctrl-checkin small { color:var(--usage-text-secondary); font-size:11px; }
+.usage-ctrl-checkin button { min-width:52px; min-height:44px; border:1px solid var(--usage-button-border); border-radius:12px; background:var(--usage-button-surface); color:var(--usage-text-primary); font-weight:650; cursor:pointer; }
+.usage-ctrl-checkin button:focus-visible { outline:2px solid var(--usage-chart-primary); outline-offset:2px; }
+.usage-ctrl-today-value.is-over { color: var(--usage-chart-peak); }
+
+.usage-ctrl-chart-section { padding: 12px 22px 10px; border-bottom: 1px solid var(--usage-divider); }
+.usage-ctrl-section-label,
+.usage-ctrl-modules-title { margin-bottom: 8px; color: var(--usage-text-secondary); font-size: 11px; letter-spacing: .06em; }
+.usage-ctrl-chart { display: flex; align-items: flex-end; gap: 8px; height: 58px; }
+.usage-ctrl-chart-section{padding:8px 16px}.usage-ctrl-chart{height:36px;gap:7px}.usage-ctrl-chart span{flex:1;min-height:4px;border-radius:4px 4px 2px 2px;background:var(--usage-chart-muted)}.usage-ctrl-chart span.is-today{background:var(--usage-chart-primary)}
+.usage-ctrl-chart-bar { flex: 1; min-height: 4px; border-radius: 5px 5px 2px 2px; background: var(--usage-chart-muted); transition: height .3s ease; }
+.usage-ctrl-chart-bar.is-today { background: var(--usage-chart-primary); }
+.usage-ctrl-chart-bar:nth-last-child(2):not(.is-today) { background: color-mix(in srgb, var(--usage-chart-peak) 70%, var(--usage-chart-muted)); }
+
+.usage-ctrl-modules { padding: 10px 16px 6px; }
+.usage-ctrl-module-row { display: flex; align-items: center; justify-content: space-between; min-height: 34px; font-size: 14px; }
+.usage-ctrl-module-row span:last-child { color: var(--usage-text-secondary); font-variant-numeric: tabular-nums; }
+.usage-ctrl-empty { min-height: 48px; display: grid; place-items: center; color: var(--usage-text-secondary); font-size: 13px; }
+
+.usage-ctrl-lock { margin: 0 16px; padding: 10px 0; border-top: 1px solid var(--usage-divider); }
+.usage-ctrl-lock-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--usage-text-secondary); font-size: 12px; }
+.usage-ctrl-lock-status { display: flex; align-items: center; gap: 8px; color: var(--usage-text-primary); font-weight: 650; white-space: nowrap; }
+.usage-ctrl-lock-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--usage-text-secondary); }
+.usage-ctrl-lock-dot.is-on { background: var(--success, #4e8b62); }
+
+.usage-ctrl-actions { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 6px 16px 2px; }
+.usage-ctrl-btn {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--usage-button-border);
+  background: var(--usage-button-surface);
+  color: var(--usage-text-primary);
+  font: 650 13px/1 var(--font-body, system-ui);
+  cursor: pointer;
+}
+.usage-ctrl-btn:hover { background: var(--usage-surface-elevated); }
+
+@media (max-width: 767px) {
+  .usage-ctrl-palette {
+    position: absolute;
+    top: 46px;
+    right: 0;
+    width: min(324px, 100%);
+    max-height: calc(100dvh - 72px - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .usage-ctrl-palette { animation: none; }
+}

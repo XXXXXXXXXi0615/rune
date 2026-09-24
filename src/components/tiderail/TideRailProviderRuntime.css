@@ -1,0 +1,25 @@
+.tr-ai-error {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--danger, #b84d4d) 24%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--danger, #b84d4d) 7%, transparent);
+}
+
+.tr-ai-error > span {
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.tr-ai-error > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tr-ai-error button {
+  min-height: 44px;
+}

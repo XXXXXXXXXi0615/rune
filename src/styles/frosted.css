@@ -39,9 +39,10 @@
   }
 }
 
-/* Navigation and headers keep enough opacity to remain legible. */
+/* Navigation and headers keep enough opacity to remain legible.
+   .desktop-sidebar excluded: Phase 1.4 true transparency (zero fill, no blur —
+   wallpaper must pass through the sidebar continuously). */
 .bottom-nav,
-.desktop-sidebar,
 .desktop-header,
 .mobile-header,
 .chat-header {
@@ -58,7 +59,6 @@
 }
 
 .nav-item.active,
-.desktop-nav-item.active,
 .memory-tab.active,
 .bg-type-tab.active,
 .adv-tab--active,
@@ -68,7 +68,6 @@
   box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 12%, transparent), inset 0 1px 0 var(--glass-edge);
 }
 
-.desktop-nav-item,
 .desktop-collapse-btn,
 .home-theme-toggle,
 .theme-toggle,
@@ -191,6 +190,21 @@
   -webkit-backdrop-filter: blur(10px) saturate(112%);
 }
 
+/* Message deletion dialog: lighter backdrop so the source message stays readable. */
+.msg-delete-overlay.active {
+  background: rgba(20, 18, 24, 0.10);
+  backdrop-filter: blur(4px) saturate(105%);
+  -webkit-backdrop-filter: blur(4px) saturate(105%);
+}
+
+.msg-delete-dialog {
+  border: 0;
+  background: var(--glass-bg-strong);
+  box-shadow: var(--glass-shadow-float);
+  backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+}
+
 /* Settings rows and compact sub-surfaces. */
 #settings-view .settings-group-card {
   border: 0;
@@ -269,9 +283,10 @@
 }
 
 /* ═════════════════════════════════════════════════════════
-   SIDEBAR — quiet flat rows (Lunartide Minimal pass)
-   Presentation only: reduce card feeling, restrained active
-   tint, keep indicator, keep route/icon/label ownership.
+   SIDEBAR — Phase 1.4 true transparency override layer
+   The sidebar base paints nothing: wallpaper passes through.
+   Active state = accent rail + accent icon + stronger label.
+   Hover (pointer-only) = very low alpha highlight, no shadow.
    ═════════════════════════════════════════════════════════ */
 .desktop-nav-item {
   background: transparent;
@@ -280,13 +295,24 @@
   -webkit-backdrop-filter: none;
 }
 
-.desktop-nav-item:hover {
-  background: var(--surface-2);
-  box-shadow: none;
+@media (hover: hover) and (pointer: fine) {
+  .desktop-nav-item:hover {
+    background: var(--sidebar-glass-hover);
+    box-shadow: none;
+  }
 }
 
 .desktop-nav-item.active {
-  background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+  background: transparent;
   border-color: transparent;
   box-shadow: none;
+}
+
+.desktop-sidebar {
+  padding: 16px 12px;
+  border-right: 1px solid var(--sidebar-glass-border);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }

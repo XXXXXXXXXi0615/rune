@@ -7,6 +7,7 @@ export interface HtmlPreview {
   id: string;
   title: string;
   html: string;
+  tags: string[];
   createdAt: number;
   updatedAt: number;
 }
@@ -18,7 +19,12 @@ export function loadPreviews(): HtmlPreview[] {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) {
+        return parsed.map((p: Record<string, unknown>) => ({
+          ...p,
+          tags: Array.isArray(p.tags) ? (p.tags as string[]) : [],
+        })) as HtmlPreview[];
+      }
     }
   } catch {}
   return [];
@@ -35,7 +41,7 @@ export function addPreview(preview: HtmlPreview): HtmlPreview[] {
   return list;
 }
 
-export function updatePreview(id: string, patch: Partial<Pick<HtmlPreview, 'title' | 'html'>>): HtmlPreview[] {
+export function updatePreview(id: string, patch: Partial<Pick<HtmlPreview, 'title' | 'html' | 'tags'>>): HtmlPreview[] {
   const list = loadPreviews();
   const item = list.find((p) => p.id === id);
   if (item) {

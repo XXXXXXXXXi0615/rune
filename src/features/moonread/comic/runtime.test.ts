@@ -1,0 +1,2 @@
+import {describe,expect,it} from 'vitest';import {arrowPageDelta,normalizeComicPage} from './runtime';
+describe('comic runtime',()=>{it('normalizes progress page',()=>{expect(normalizeComicPage(-3,10)).toBe(0);expect(normalizeComicPage(99,10)).toBe(9);expect(normalizeComicPage(3.6,10)).toBe(4)});it('reverses physical arrow navigation for RTL',()=>{expect(arrowPageDelta('ArrowRight','ltr')).toBe(1);expect(arrowPageDelta('ArrowRight','rtl')).toBe(-1);expect(arrowPageDelta('ArrowLeft','rtl')).toBe(1)});});

@@ -1,0 +1,179 @@
+.hwg-widget--hydration {
+  --hyd-accent: var(--teal, #4e9b92);
+  --hyd-tint: rgba(96, 168, 190, 0.14);
+  --hyd-border: rgba(96, 168, 190, 0.28);
+  --hyd-bar: linear-gradient(90deg, rgba(96, 168, 190, 0.45), var(--teal, #4e9b92));
+}
+
+.hyd-widget {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.hyd-widget__icon {
+  display: inline-flex;
+  align-self: flex-start;
+}
+
+.hyd-widget__total {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--hwg-text);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.hyd-widget__total strong {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--hyd-accent);
+}
+
+.hyd-widget__total span {
+  font-size: 11px;
+  color: var(--hwg-text-muted);
+}
+
+.hyd-widget__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--hwg-bg-solid);
+  overflow: hidden;
+}
+
+.hyd-widget__bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--hyd-bar);
+  transition: width 0.35s ease;
+}
+
+.hyd-widget__meta {
+  font-size: 10px;
+  color: var(--hwg-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hyd-widget__hint {
+  font-size: 10px;
+  color: var(--hwg-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Wide mini water level ── */
+.hyd-widget__wave {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--hwg-bg-solid);
+  border: 1px solid var(--hyd-border);
+  overflow: hidden;
+}
+
+.hyd-widget__wave i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--hyd-accent) 55%, transparent), color-mix(in srgb, var(--hyd-accent) 22%, transparent));
+  transition: height 0.35s ease;
+}
+
+.hyd-widget__wave--done {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--hyd-accent) 35%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hyd-widget__wave i { transition: height 120ms ease; }
+}
+
+.hyd-widget__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.hyd-widget__quick {
+  min-height: 32px;
+  border: 1px solid var(--hyd-border);
+  border-radius: 12px;
+  background: var(--hyd-tint);
+  color: var(--hyd-accent);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 10px;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.hyd-widget__quick:hover { background: var(--hyd-border); }
+.hyd-widget__quick:active { transform: scale(0.96); }
+
+.hyd-widget__quick small { font-size: 9px; opacity: 0.8; margin-left: 2px; font-weight: 600; }
+
+/* ── Small (2×2) ── */
+.hyd-widget--small { justify-content: center; align-items: center; text-align: center; }
+.hyd-widget--small .hyd-widget__icon { align-self: center; }
+.hyd-widget--small .hyd-widget__title { font-size: 11px; font-weight: 700; color: var(--hwg-text-muted); }
+.hyd-widget--small .hyd-widget__total { font-size: 12px; }
+.hyd-widget--small .hyd-widget__total strong { font-size: 22px; }
+.hyd-widget--small .hyd-widget__bar { width: 84%; align-self: center; }
+.hyd-widget--small .hyd-widget__quick { min-height: 34px; padding: 4px 14px; }
+
+/* ── Wide (4×2) ── */
+.hyd-widget--wide {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+.hyd-widget--wide .hyd-widget__main {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.hyd-widget--wide .hyd-widget__title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hwg-text);
+}
+
+.hyd-widget--wide .hyd-widget__total strong { font-size: 26px; }
+
+.hyd-widget--wide .hyd-widget__actions {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+}
+
+.hyd-widget--wide .hyd-widget__quick { min-height: 44px; min-width: 56px; }
+
+/* ── Light mode ── */
+[data-theme="light"] .hwg-widget--hydration {
+  --hyd-accent: rgba(38, 108, 116, 0.95);
+  --hyd-tint: rgba(96, 168, 190, 0.10);
+  --hyd-border: rgba(96, 168, 190, 0.30);
+}
+
+/* ── Cell overflow guard ── */
+.hwg-cell[data-widget-id="home-hydration"] {
+  overflow: hidden;
+}

@@ -45,7 +45,25 @@ interface CountdownSectionProps {
 export function CountdownSection({ countdowns }: CountdownSectionProps) {
   const togglePin = useAppStore((s) => s.togglePinCountdown);
   const deleteCountdown = useAppStore((s) => s.deleteCountdown);
+  const addTodo = useAppStore((s) => s.addTodo);
   const countdownDrawer = useDrawer('countdown');
+
+  const handleCreateTodo = (c: CountdownItem) => {
+    addTodo({
+      title: c.title.slice(0, 40),
+      date: c.targetDate,
+      time: c.targetTime || undefined,
+      priority: 'medium',
+      category: 'life',
+      notes: `來自倒數：${c.title}`,
+      repeat: 'none',
+      countdownRef: {
+        type: c.type,
+        color: c.color,
+        customTypeLabel: c.customTypeLabel,
+      },
+    });
+  };
 
   const sorted = [...countdowns].sort((a, b) => {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
@@ -92,6 +110,17 @@ export function CountdownSection({ countdowns }: CountdownSectionProps) {
                   </div>
                 </div>
                 <div className="countdown-actions">
+                  <button
+                    className="countdown-pin"
+                    onClick={() => handleCreateTodo(c)}
+                    aria-label="建立待辦"
+                    style={{ marginRight: 2 }}
+                  >
+                    <svg className="icon" viewBox="0 0 24 24" style={{ width: 14, height: 14 }}>
+                      <path d="M9 11l3 3L22 4" />
+                      <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                    </svg>
+                  </button>
                   <button
                     className={`countdown-pin ${c.pinned ? 'pinned' : ''}`}
                     onClick={() => togglePin(c.id)}

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Lunartide outline mark</title>
+  <desc id="desc">Amber and tide-cyan twin curves forming a circular tidal symbol.</desc>
+  <style>
+    .mark-line {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 3.25;
+      vector-effect: non-scaling-stroke;
+      stroke-dasharray: 260;
+      stroke-dashoffset: 260;
+      animation: mark-draw 780ms cubic-bezier(.22,.61,.36,1) forwards;
+    }
+    .mark-amber { stroke: #efb26f; }
+    .mark-cyan { stroke: #65d7d2; animation-delay: 110ms; }
+    @keyframes mark-draw { to { stroke-dashoffset: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .mark-line { animation: none; stroke-dashoffset: 0; }
+    }
+  </style>
+  <g class="mark-line mark-amber">
+    <path d="M80 18A62 62 0 0 0 80 142"/>
+    <path d="M80 18C49 18 48 49 65 78C84 109 82 142 80 142"/>
+  </g>
+  <g class="mark-line mark-cyan">
+    <path d="M80 18A62 62 0 0 1 80 142"/>
+    <path d="M80 18C111 18 112 49 95 78C76 109 78 142 80 142"/>
+  </g>
+</svg>

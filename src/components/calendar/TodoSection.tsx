@@ -1,6 +1,6 @@
 import type { TodoItem } from '@/types';
 import { useAppStore } from '@/store/useAppStore';
-import { LowPriorityIcon, MediumPriorityIcon, HighPriorityIcon } from '@/components/icons/LunartideIcons';
+import { LowPriorityIcon, MediumPriorityIcon, HighPriorityIcon, TodoIcon } from '@/components/icons/LunartideIcons';
 import { t } from '@/i18n';
 
 const PRIORITY_ICONS: Record<TodoItem['priority'], { icon: typeof LowPriorityIcon; color: string; labelKey: string; rank: number }> = {
@@ -49,7 +49,11 @@ export function TodoSection({ todos, selectedDate, onAddTodo, onEditTodo }: Todo
       </div>
 
       {dateTodos.length === 0 ? (
-        <p className="calendar-empty">{t('calendar.noTodos')}</p>
+        <div className="calendar-empty-card">
+          <span className="calendar-empty-icon"><TodoIcon size={28} /></span>
+          <p className="calendar-empty-text">今天還沒有安排任何事情。</p>
+          <button type="button" className="calendar-empty-btn" onClick={onAddTodo}>新增待辦</button>
+        </div>
       ) : (
         <div className="todo-list">
           {dateTodos.map((todo) => {

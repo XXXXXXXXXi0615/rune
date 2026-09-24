@@ -1,0 +1,811 @@
+/* Rune Login Gate — portrait-first composition. Auth remains owned by AuthGate/useAppStore. */
+.rune-login-gate {
+  --rlg-night: #071121;
+  --rlg-night-soft: #10284a;
+  --rlg-ink: #172b53;
+  --rlg-ink-soft: #52617a;
+  --rlg-ink-faint: #7d899d;
+  --rlg-surface: rgba(252, 250, 247, 0.82);
+  --rlg-input: rgba(255, 255, 255, 0.66);
+  --rlg-action: rgba(222, 231, 246, 0.48);
+  --rlg-action-hover: rgba(222, 231, 246, 0.76);
+  --rlg-line: rgba(178, 153, 111, 0.34);
+  --rlg-line-strong: rgba(85, 103, 139, 0.3);
+  --rlg-accent-shadow: rgba(55, 105, 190, 0.3);
+  --rlg-focus-border: #9bcdf4;
+  --rlg-focus-outline: rgba(180, 220, 252, 0.68);
+  --rlg-focus-ring: rgba(132, 190, 244, 0.14);
+  --rlg-danger: #a44f59;
+  --rlg-danger-ring: rgba(164, 79, 89, 0.12);
+  --rlg-shadow:
+    0 26px 74px rgba(1, 8, 25, 0.26),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 0 30px rgba(225, 236, 255, 0.08) inset;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100svh;
+  overflow-x: clip;
+  overflow-y: auto;
+  box-sizing: border-box;
+  color: var(--rlg-ink);
+  background:
+    radial-gradient(circle at 50% 24%, rgba(92, 137, 226, 0.2), transparent 34%),
+    linear-gradient(160deg, var(--rlg-night), var(--rlg-night-soft) 56%, #071326);
+  font-family: var(--font-ui, -apple-system, "PingFang TC", "Noto Sans TC", sans-serif);
+}
+
+.rlg-atmosphere,
+.rlg-ambient-glow,
+.rlg-moon-disc,
+.rlg-orbits,
+.rlg-star {
+  position: absolute;
+  pointer-events: none;
+}
+
+.rlg-atmosphere {
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.rlg-ambient-glow {
+  top: -8%;
+  left: 50%;
+  width: min(122vw, 760px);
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: rgba(75, 122, 218, 0.22);
+  filter: blur(88px);
+}
+
+.rlg-moon-disc {
+  top: 34px;
+  left: 50%;
+  width: min(108vw, 448px);
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 50%;
+  opacity: 0.72;
+  background:
+    radial-gradient(
+      circle at 34% 30%,
+      rgba(255, 255, 255, 0.98),
+      rgba(214, 227, 255, 0.88) 34%,
+      rgba(111, 151, 228, 0.52) 65%,
+      rgba(33, 69, 136, 0.12) 72%,
+      transparent 73%
+    );
+  box-shadow: 0 0 90px rgba(142, 176, 255, 0.34);
+}
+
+.rlg-orbits {
+  top: 228px;
+  left: 50%;
+  width: 640px;
+  translate: -50% -50%;
+}
+
+.rlg-orbits ellipse {
+  stroke: rgba(210, 188, 139, 0.38);
+  stroke-width: 1.1;
+}
+
+.rlg-star {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  color: #fff4cc;
+  background: currentColor;
+  box-shadow: 0 0 13px 4px rgba(154, 190, 255, 0.6);
+}
+
+.rlg-star::before,
+.rlg-star::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  content: "";
+  translate: -50% -50%;
+  background: currentColor;
+}
+
+.rlg-star::before {
+  width: 1px;
+  height: 22px;
+}
+
+.rlg-star::after {
+  width: 22px;
+  height: 1px;
+}
+
+.rlg-star--one {
+  top: 20%;
+  left: 8%;
+}
+
+.rlg-star--two {
+  top: 24%;
+  right: 10%;
+  scale: 0.68;
+}
+
+.rlg-star--three {
+  right: 8%;
+  bottom: 10%;
+  scale: 0.76;
+}
+
+.rlg-theme-toggle {
+  position: fixed;
+  z-index: 5;
+  top: max(14px, calc(env(safe-area-inset-top) + 10px));
+  right: max(14px, calc(env(safe-area-inset-right) + 10px));
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(224, 210, 178, 0.3);
+  border-radius: 50%;
+  color: #ead9ac;
+  background: rgba(10, 25, 51, 0.52);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  cursor: pointer;
+  transition:
+    background var(--rune-motion-quick, 140ms) ease,
+    color var(--rune-motion-quick, 140ms) ease,
+    transform var(--rune-motion-instant, 80ms) ease;
+}
+
+.rlg-theme-toggle:active {
+  transform: translateY(var(--rune-press-offset, 1px)) scale(var(--rune-press-scale, 0.98));
+}
+
+.rlg-theme-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rlg-theme-toggle:focus-visible {
+  outline: 1px solid #b4d8ff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px rgba(135, 191, 244, 0.14);
+}
+
+.rlg-composition {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: max(100dvh, 700px);
+  margin: 0 auto;
+  padding:
+    max(40px, calc(env(safe-area-inset-top) + 24px))
+    16px
+    calc(28px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.rlg-portrait {
+  position: relative;
+  z-index: 0;
+  flex: 0 0 auto;
+  width: min(94vw, 390px);
+  height: clamp(320px, 45dvh, 410px);
+  filter:
+    drop-shadow(0 24px 30px rgba(0, 5, 18, 0.42))
+    drop-shadow(0 0 24px rgba(204, 224, 255, 0.12));
+}
+
+.rlg-portrait::after {
+  position: absolute;
+  z-index: -1;
+  right: 17%;
+  bottom: 2%;
+  left: 17%;
+  height: 12%;
+  content: "";
+  border-radius: 50%;
+  background: rgba(26, 72, 160, 0.38);
+  filter: blur(34px);
+}
+
+.rlg-panel {
+  position: relative;
+  z-index: 2;
+  width: min(calc(100vw - 32px), 390px);
+  margin-top: -62px;
+  padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
+  overflow: visible;
+  border: 1px solid rgba(232, 213, 174, 0.5);
+  border-radius: 24px;
+  box-sizing: border-box;
+  background: var(--rlg-surface);
+  box-shadow: var(--rlg-shadow);
+  backdrop-filter: blur(26px) saturate(1.08);
+  -webkit-backdrop-filter: blur(26px) saturate(1.08);
+  animation: rlg-rise var(--rune-motion-surface, 320ms) var(--rune-spring-surface, cubic-bezier(0.22, 0.68, 0.32, 1)) both;
+}
+
+.rlg-brand {
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  margin-bottom: 2px;
+}
+
+.rlg-brand-wordmark {
+  display: block;
+  width: min(176px, 62%);
+  height: auto;
+}
+
+.rlg-greeting {
+  margin-bottom: 17px;
+  text-align: center;
+}
+
+.rlg-greeting h1 {
+  margin: 0;
+  color: var(--rlg-ink);
+  font: 600 22px/1.2 var(--font-display, var(--font-ui));
+  letter-spacing: 0.005em;
+}
+
+.rlg-greeting p {
+  margin: 0;
+  color: var(--rlg-ink-soft);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.rlg-ready-copy,
+.rlg-returning-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.rlg-ready-copy p {
+  margin-top: 3px;
+  color: var(--rlg-ink-faint);
+  font-size: 12.5px;
+}
+
+.rlg-returning-kicker {
+  font-size: 14px !important;
+  font-weight: 550;
+}
+
+.rlg-returning-support {
+  margin-top: 2px !important;
+  color: var(--rlg-ink-faint) !important;
+  font-size: 12.5px !important;
+}
+
+.rlg-form,
+.rlg-generated {
+  display: flex;
+  flex-direction: column;
+}
+
+.rlg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rlg-field > span:not(.rlg-input-shell) {
+  color: var(--rlg-ink-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.rlg-input-shell {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.rlg-field input {
+  width: 100%;
+  height: 50px;
+  padding: 0 14px;
+  border: 1px solid var(--rlg-line-strong);
+  border-radius: 13px;
+  box-sizing: border-box;
+  color: var(--rlg-ink);
+  background: var(--rlg-input);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  outline: 1px solid transparent;
+  outline-offset: 1px;
+  appearance: none;
+  transition:
+    border-color var(--rune-motion-quick, 140ms) ease,
+    box-shadow var(--rune-motion-quick, 140ms) ease,
+    outline-color var(--rune-motion-quick, 140ms) ease;
+}
+
+.rlg-input-shell input {
+  padding-right: 54px;
+}
+
+.rlg-access-visibility {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: var(--rlg-ink-faint);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color var(--rune-motion-quick, 140ms) ease,
+    background var(--rune-motion-quick, 140ms) ease,
+    transform var(--rune-motion-instant, 80ms) ease;
+}
+
+.rlg-access-visibility svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rlg-access-visibility:active:not(:disabled) {
+  transform: scale(var(--rune-press-scale, 0.98));
+}
+
+.rlg-access-visibility:focus-visible {
+  outline: 1px solid var(--rlg-focus-outline);
+  outline-offset: 0;
+  box-shadow: 0 0 0 3px var(--rlg-focus-ring);
+}
+
+.rlg-access-visibility:disabled {
+  cursor: wait;
+  opacity: 0.48;
+}
+
+.rlg-field input::placeholder {
+  color: var(--rlg-ink-faint);
+}
+
+.rlg-field input:focus {
+  border-color: var(--rlg-focus-border);
+  box-shadow: 0 0 0 3px var(--rlg-focus-ring);
+}
+
+.rlg-field input:focus-visible {
+  outline-color: var(--rlg-focus-outline);
+}
+
+.rlg-field input[aria-invalid="true"] {
+  border-color: var(--rlg-danger);
+  box-shadow: 0 0 0 3px var(--rlg-danger-ring);
+}
+
+.rlg-field input:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.rlg-access-display {
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px dashed var(--rlg-line-strong);
+  border-radius: 13px;
+  box-sizing: border-box;
+  background: var(--rlg-input);
+}
+
+.rlg-access-display code {
+  color: var(--rlg-ink);
+  font: 15px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.055em;
+  overflow-wrap: anywhere;
+}
+
+.rlg-validation-slot {
+  display: flex;
+  align-items: flex-start;
+  min-height: 40px;
+  max-height: 40px;
+  padding-top: 5px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.rlg-validation-slot[data-has-message="true"] {
+  color: var(--rlg-danger);
+}
+
+.rlg-error {
+  margin: 0;
+  color: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.rlg-note {
+  margin: 0;
+  color: var(--rlg-ink-soft);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.rlg-cta {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 50px;
+  margin-top: 1px;
+  border: 0;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(110deg, #254d98, #4f8fe9 50%, #2b5aac);
+  box-shadow: 0 9px 22px var(--rlg-accent-shadow);
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    filter var(--rune-motion-quick, 140ms) ease,
+    transform var(--rune-motion-instant, 80ms) ease,
+    box-shadow var(--rune-motion-quick, 140ms) ease;
+}
+
+.rlg-cta:active:not(:disabled) {
+  transform: translateY(var(--rune-press-offset, 1px)) scale(var(--rune-press-scale, 0.98));
+}
+
+.rlg-cta:focus-visible {
+  outline: 1px solid var(--rlg-focus-outline);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px var(--rlg-focus-ring), 0 9px 22px var(--rlg-accent-shadow);
+}
+
+.rlg-cta:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.rlg-button-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.rlg-loading-mark {
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid rgba(255, 255, 255, 0.42);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: rlg-spin 0.8s linear infinite;
+}
+
+.rlg-compact-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.rlg-action {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  height: 44px;
+  border: 1px solid var(--rlg-line-strong);
+  border-radius: 12px;
+  color: var(--rlg-ink-soft);
+  background: var(--rlg-action);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--rune-motion-quick, 140ms) ease,
+    color var(--rune-motion-quick, 140ms) ease,
+    transform var(--rune-motion-instant, 80ms) ease;
+}
+
+.rlg-action:active:not(:disabled) {
+  transform: translateY(var(--rune-press-offset, 1px)) scale(var(--rune-press-scale, 0.98));
+}
+
+.rlg-action:focus-visible {
+  outline: 1px solid var(--rlg-focus-outline);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px var(--rlg-focus-ring);
+}
+
+.rlg-action:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.rlg-action svg {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rlg-theme-toggle:hover {
+    color: #fff0c7;
+    background: rgba(10, 25, 51, 0.68);
+  }
+
+  .rlg-cta:hover:not(:disabled) {
+    filter: brightness(1.07);
+  }
+
+  .rlg-action:hover:not(:disabled) {
+    color: var(--rlg-ink);
+    background: var(--rlg-action-hover);
+  }
+
+  .rlg-access-visibility:hover:not(:disabled) {
+    color: var(--rlg-ink);
+    background: var(--rlg-action);
+  }
+}
+
+@keyframes rlg-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rlg-spin {
+  to { transform: rotate(360deg); }
+}
+
+[data-theme="light"] .rune-login-gate {
+  --rlg-night: #15294c;
+  --rlg-night-soft: #2b507d;
+}
+
+[data-theme="light"] .rlg-theme-toggle {
+  color: #f5e5bb;
+  background: rgba(16, 37, 72, 0.42);
+}
+
+[data-theme="dark"] .rune-login-gate {
+  --rlg-surface: rgba(14, 29, 55, 0.8);
+  --rlg-input: rgba(255, 255, 255, 0.06);
+  --rlg-action: rgba(255, 255, 255, 0.06);
+  --rlg-action-hover: rgba(255, 255, 255, 0.11);
+  --rlg-ink: #edf4ff;
+  --rlg-ink-soft: #bdcae0;
+  --rlg-ink-faint: #929fb6;
+  --rlg-line: rgba(220, 190, 130, 0.34);
+  --rlg-line-strong: rgba(194, 210, 239, 0.24);
+  --rlg-danger: #d58b92;
+  --rlg-danger-ring: rgba(213, 139, 146, 0.13);
+  --rlg-shadow:
+    0 26px 74px rgba(0, 5, 18, 0.34),
+    0 1px 0 rgba(255, 255, 255, 0.16) inset,
+    0 0 30px rgba(179, 207, 255, 0.05) inset;
+}
+
+[data-theme="dark"] .rlg-brand-wordmark {
+  filter: brightness(2.25) saturate(0.68) drop-shadow(0 0 12px rgba(121, 168, 255, 0.18));
+}
+
+@media (min-width: 761px) {
+  .rlg-moon-disc {
+    top: 18px;
+    width: min(48vw, 590px);
+  }
+
+  .rlg-orbits {
+    top: 292px;
+    width: min(68vw, 800px);
+  }
+
+  .rlg-star--one {
+    top: 22%;
+    left: 20%;
+  }
+
+  .rlg-star--two {
+    top: 18%;
+    right: 20%;
+  }
+
+  .rlg-star--three {
+    right: 15%;
+    bottom: 14%;
+  }
+
+  .rlg-composition {
+    width: min(100%, 760px);
+    min-height: max(100dvh, 760px);
+    padding-top: max(28px, calc(env(safe-area-inset-top) + 20px));
+    padding-bottom: calc(32px + env(safe-area-inset-bottom));
+  }
+
+  .rlg-portrait {
+    width: min(70vw, 610px);
+    height: clamp(530px, 67dvh, 650px);
+  }
+
+  .rlg-panel {
+    margin-top: clamp(-220px, -23dvh, -168px);
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+}
+
+@media (max-width: 374px) {
+  .rlg-composition {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .rlg-panel {
+    width: calc(100vw - 24px);
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .rlg-brand-wordmark {
+    width: 164px;
+  }
+}
+
+@media (max-height: 720px) and (max-width: 760px) {
+  .rlg-composition {
+    min-height: 670px;
+    padding-top: max(30px, calc(env(safe-area-inset-top) + 18px));
+  }
+
+  .rlg-portrait {
+    height: 310px;
+  }
+
+  .rlg-panel {
+    margin-top: -54px;
+  }
+}
+
+/* Visual-viewport equivalent for the mobile keyboard: the auth card wins; hero art yields. */
+@media (max-height: 620px) and (max-width: 760px) {
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-composition {
+    min-height: 100dvh;
+    padding-top: max(8px, calc(env(safe-area-inset-top) + 6px));
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-portrait {
+    width: min(70vw, 270px);
+    height: 146px;
+    opacity: 0.48;
+    transform: translateY(-18px);
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-panel {
+    margin-top: -44px;
+    padding: 14px 18px calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-brand {
+    min-height: 38px;
+    margin-bottom: 0;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-brand-wordmark {
+    width: 132px;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-greeting {
+    margin-bottom: 9px;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-greeting h1 {
+    font-size: 19px;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-returning-kicker,
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-returning-support {
+    font-size: 11.5px !important;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-field {
+    gap: 4px;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-field input,
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-cta {
+    min-height: 46px;
+    height: 46px;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-access-visibility {
+    top: 1px;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-validation-slot {
+    min-height: 36px;
+    max-height: 36px;
+    padding-top: 3px;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-error {
+    font-size: 11.5px;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-moon-disc {
+    top: -82px;
+    width: 300px;
+    opacity: 0.34;
+  }
+
+  .rune-login-gate:has(.rlg-field input:focus) .rlg-orbits {
+    top: 88px;
+    opacity: 0.34;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rlg-panel,
+  .rlg-loading-mark {
+    animation-duration: 1ms;
+  }
+
+  .moon-gate-frost-artwork__reveal,
+  .rlg-theme-toggle,
+  .rlg-field input,
+  .rlg-access-visibility,
+  .rlg-cta,
+  .rlg-action {
+    transition-duration: 1ms;
+  }
+}

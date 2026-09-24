@@ -1,0 +1,50 @@
+/* ── Gomoku Interactive Chat Card ── */
+.gomoku-card {
+  max-width: 360px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.gomoku-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  font-size: 13px;
+}
+.gomoku-card__title {
+  font-weight: 700;
+  color: var(--text);
+}
+.gomoku-card__result {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 12px;
+}
+.gomoku-card__turn {
+  color: var(--text-2);
+  font-size: 12px;
+  margin-left: auto;
+}
+.gomoku-turn-stone { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border: 1px solid rgba(0,0,0,.22); border-radius: 50%; vertical-align: -1px; }
+.gomoku-turn-stone.is-black { background: #242321; }
+.gomoku-turn-stone.is-white { background: #fff; }
+.gomoku-card__board {
+  margin: 10px auto;
+  cursor: default;
+}
+.gomoku-card__footer {
+  padding: 8px 14px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  font-size: 12px;
+  color: var(--text-3);
+  text-align: center;
+}
+@media (max-width: 390px) {
+  .gomoku-card { max-width: 100%; }
+}

@@ -1,0 +1,178 @@
+/* ══════════════════════════════════════
+   FloatingEditorWindow
+   Reusable draggable floating editor
+   ══════════════════════════════════════ */
+
+.few-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 160;
+  min-height: 0;
+}
+
+.few-window {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 48px);
+  min-height: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 20px 60px rgba(0, 0, 0, 0.28),
+    0 4px 16px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  animation: fewSlideIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fewSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ── Header (drag handle) ── */
+.few-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 48px;
+  padding: 0 14px 0 18px;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+.few-header:active {
+  cursor: grabbing;
+}
+.few-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.few-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  flex-shrink: 0;
+}
+.few-close:hover {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  color: var(--danger);
+}
+
+/* ── Body (own scrollbar) ── */
+.few-body {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 18px;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+
+/* ── Footer (fixed) ── */
+.few-footer {
+  flex-shrink: 0;
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-2) 40%, var(--surface));
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.few-footer button {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+.few-footer .few-btn-cancel {
+  background: var(--glass-bg);
+  color: var(--text-2);
+}
+.few-footer .few-btn-cancel:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.few-footer .few-btn-confirm {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.few-footer .few-btn-confirm:hover {
+  filter: brightness(1.08);
+}
+
+/* ── Mobile: compact centered panel ── */
+@media (max-width: 520px) {
+  .few-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .few-window {
+    left: 16px !important;
+    right: 16px;
+    top: 50% !important;
+    width: auto !important;
+    max-width: 100%;
+    max-height: calc(100dvh - 120px);
+    border-radius: 22px;
+    transform: translateY(-50%);
+    animation: fewSlideIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .few-header {
+    cursor: default;
+    touch-action: auto;
+  }
+  .few-footer {
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  }
+}

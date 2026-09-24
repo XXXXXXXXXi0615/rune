@@ -1,0 +1,102 @@
+/* 留言板投影 in 朋友圈 — cream pearl, warm beige, soft amber. */
+.moments-board {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.moments-board__actions { display: flex; justify-content: flex-end; }
+
+.moments-board__add {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.moments-board__add:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.moments-board__recent {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.moments-board-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Image region always fills its box: no checkerboard bleed-through. */
+.moments-board-card__image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface) 96%, color-mix(in srgb, var(--accent) 8%, transparent));
+}
+
+.moments-board-card__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.moments-board-card__body {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px 12px;
+}
+
+.moments-board-card__body h3 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moments-board-card__body p {
+  margin: 0;
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-2);
+  font-size: 12px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.moments-board-card__body small { color: var(--text-3); font-size: 10px; }
+
+.moments-board-card__open {
+  justify-self: start;
+  min-height: 30px;
+  margin-top: 2px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 430px) {
+  .moments-board__recent { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

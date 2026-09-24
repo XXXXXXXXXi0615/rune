@@ -54,6 +54,22 @@ export function ChatPresenceIcon({ status }: { status: ChatPresenceStatus }) {
       </svg>
     );
   }
+  if (status === 'disabled') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="15" y1="9" x2="9" y2="15" stroke="white" strokeWidth="2" strokeLinecap="round" />
+        <line x1="9" y1="9" x2="15" y2="15" stroke="white" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (status === 'unlinked') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
+      </svg>
+    );
+  }
   // offline (default)
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">

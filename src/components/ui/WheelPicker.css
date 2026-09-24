@@ -1,0 +1,122 @@
+/* ══════════════════════════════════════
+   iOS-style Wheel Picker
+   ══════════════════════════════════════ */
+
+.wheel-picker {
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  background: var(--surface-2);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.wheel-picker-columns {
+  display: flex;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.wheel-picker-column {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.wheel-picker-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: auto;
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.wheel-picker-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+  border-radius: 10px;
+}
+.wheel-picker-scroll::-webkit-scrollbar { display: none; }
+
+.wheel-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text-3);
+  padding: 0 8px;
+  scroll-snap-align: center;
+  opacity: .42;
+  transition: color 0.15s ease, font-weight 0.15s ease, opacity 0.15s ease;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.wheel-picker-item.is-selected {
+  color: var(--text);
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* ── Fade masks (top/bottom gradient) ── */
+.wheel-picker-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 84px;
+  z-index: 2;
+  pointer-events: none;
+}
+.wheel-picker-mask--top {
+  top: 0;
+  background: linear-gradient(to bottom, var(--surface-2) 0%, transparent 100%);
+}
+.wheel-picker-mask--bottom {
+  bottom: 0;
+  background: linear-gradient(to top, var(--surface-2) 0%, transparent 100%);
+}
+
+/* ── Center highlight bar ── */
+.wheel-picker-highlight {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  z-index: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+/* ── Item near center gets accent color ── */
+/* This effect is native — the item closest to center naturally snaps there. */
+/* We rely on scroll-snap for positioning. */
+
+/* ── Bare mode (no masks/highlight, for sheet embedding) ── */
+.wheel-picker--bare {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+/* ── Column separators ── */
+.wheel-picker-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text-2);
+  padding: 0 2px;
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}

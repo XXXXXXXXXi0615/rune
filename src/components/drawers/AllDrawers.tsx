@@ -5,8 +5,6 @@ import { AttachmentDrawer } from '@/components/chat/AttachmentDrawer';
 import { ExportDrawer } from '@/components/memory/ExportDrawer';
 import { TodoForm } from '@/components/calendar/TodoForm';
 import { CountdownForm } from '@/components/calendar/CountdownForm';
-import { WaterSettings } from '@/components/calendar/WaterSettings';
-
 export function AllDrawers() {
   const closeDrawer = useDrawerStore((s) => s.closeDrawer);
   const activeDrawer = useDrawerStore((s) => s.activeDrawer);
@@ -69,15 +67,6 @@ export function AllDrawers() {
       </DrawerContainer>
 
       <DrawerContainer
-        isOpen={activeDrawer === 'water'}
-        onClose={closeDrawer}
-        title="飲水設定"
-        id="water-drawer"
-      >
-        <WaterSettings onDone={closeDrawer} />
-      </DrawerContainer>
-
-      <DrawerContainer
         isOpen={activeDrawer === 'icon-editor'}
         onClose={closeDrawer}
         title="桌面圖標編輯器"
@@ -107,6 +96,7 @@ export function AllDrawers() {
           <AttachmentDrawer onPhoto={handlePhoto} onFile={handleFile} />
         </div>
       </DrawerContainer>
+
     </>
   );
 }

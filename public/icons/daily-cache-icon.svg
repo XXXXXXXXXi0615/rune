@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.7"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role="img"
+  aria-labelledby="title">
+  <title id="title">每日緩存</title>
+
+  <!-- 月牙：避免像同步／重新整理圖示 -->
+  <path d="M14.8 3.9a7.1 7.1 0 1 0 4.1 12.7
+           6.2 6.2 0 0 1-4.1-12.7Z"/>
+
+  <!-- 可整理的小碎屑 -->
+  <circle cx="18.3" cy="7.2" r="0.8" fill="currentColor" stroke="none"/>
+  <circle cx="17.1" cy="10.3" r="0.55" fill="currentColor" stroke="none" opacity="0.72"/>
+
+  <!-- 緩存承接盤 -->
+  <path d="M5.1 16.3h13.8"/>
+  <path d="M6 16.3l.85 3.05h10.3L18 16.3"/>
+</svg>

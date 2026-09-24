@@ -1,142 +1,136 @@
-/* ================================================================
-   MUSIC PLAYER — Vinyl Record Style
-   ================================================================ */
+/* ── Music Center ── */
+.mc-page { padding-bottom: calc(74px + 12px + env(safe-area-inset-bottom, 0px) + 24px); }
+.mc-header { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px 0; }
+.mc-title { font-size: 24px; font-weight: 700; color: var(--text); margin: 0; }
+.mc-subtitle { font-size: 12px; color: var(--text-3); margin: 2px 0 0; }
 
-.vinyl-player {
-  display: flex; flex-direction: column;
-  align-items: center;
-  gap: var(--sp-16); padding: var(--sp-8) 0 var(--sp-4);
+.mc-layout { display: flex; gap: 0; padding: 12px 0; min-height: 60vh; }
+@media (max-width: 640px) { .mc-layout { flex-direction: column; } }
+
+.mc-sidebar {
+  width: 160px; flex-shrink: 0; padding: 0 12px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+@media (max-width: 640px) {
+  .mc-sidebar { width: 100%; flex-direction: row; overflow-x: auto; gap: 4px; padding: 0 16px 8px; }
+}
+.mc-sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+@media (max-width: 640px) { .mc-sidebar-divider { display: none; } }
+.mc-nav-item {
+  padding: 8px 12px; border-radius: 8px; border: 0; background: transparent;
+  color: var(--text-3); font: inherit; font-size: 13px; font-weight: 500; text-align: left;
+  cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+}
+.mc-nav-item:hover { background: var(--surface-2); color: var(--text); }
+.mc-nav-item.active { background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); font-weight: 600; }
+
+.mc-main { flex: 1; min-width: 0; padding: 0 16px; }
+
+.mc-section { margin-bottom: 24px; }
+.mc-section h2 { font-size: 16px; font-weight: 700; color: var(--text); margin: 0 0 10px; }
+.mc-section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.mc-section-count { font-size: 12px; color: var(--text-3); }
+
+.mc-search-bar { margin-bottom: 14px; }
+.mc-search-input {
+  width: 100%; padding: 10px 14px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text); font: inherit; font-size: 13px; outline: none;
+}
+.mc-search-input:focus { border-color: var(--accent); }
+.mc-search-input::placeholder { color: var(--text-3); }
+
+.mc-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; padding: 40px 20px; color: var(--text-3); text-align: center;
+}
+.mc-empty p { font-size: 13px; margin: 0; }
+.mc-import-btn {
+  padding: 8px 18px; border-radius: 10px; border: 1px solid var(--accent);
+  background: var(--accent); color: #fff; font: inherit; font-size: 13px;
+  font-weight: 600; cursor: pointer; margin-top: 4px;
+}
+.mc-import-btn:hover { filter: brightness(1.08); }
+
+.mc-track-list { display: flex; flex-direction: column; }
+.mc-track-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px;
+  cursor: pointer; transition: background 0.12s ease; min-height: 60px;
+  appearance: none; -webkit-appearance: none; border: 0; width: 100%;
+  background: transparent; font: inherit; color: inherit; text-align: left;
+}
+.mc-track-row:hover { background: var(--surface-2); }
+.mc-track-row:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 50%, transparent); outline-offset: -2px; }
+.mc-track-row.playing { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.mc-track-cover {
+  flex-shrink: 0; width: 46px; height: 46px; border-radius: 12px; overflow: hidden;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+  display: grid; place-items: center; color: var(--accent); position: relative;
+}
+.mc-track-cover img { width: 100%; height: 100%; object-fit: cover; }
+.mc-track-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mc-track-meta strong { font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mc-track-meta span { font-size: 11px; color: var(--text-3); }
+.mc-playing-indicator {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: rgba(0,0,0,0.25); color: #fff; font-size: 10px; font-weight: 700;
 }
 
-/* --- Vinyl Disc --- */
-.vinyl-disc {
-  width: 200px; height: 200px;
-  border-radius: 50%;
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+/* ── Now playing bar ── */
+.mc-nowbar {
+  position: fixed; bottom: calc(var(--bottom-dock-height, 84px) + var(--bottom-dock-safe-offset, 20px));
+  left: 0; right: 0; z-index: 95;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px; gap: 12px;
+  background: var(--glass-bg-strong); backdrop-filter: blur(18px);
+  border-top: 1px solid var(--border);
 }
-.vinyl-disc.spinning {
-  animation: vinyl-spin 4s linear infinite;
-}
-@keyframes vinyl-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+.mc-nowbar-title { font-size: 13px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.mc-ctrl-btn { width: 28px; height: 28px; border: 0; background: transparent; color: var(--text-3); cursor: pointer; display: grid; place-items: center; border-radius: 6px; }
+.mc-ctrl-btn:hover { color: var(--text); background: var(--surface-2); }
+.mc-ctrl-btn.active { color: var(--accent); }
 
-/* Grooves — radial gradient simulating vinyl record */
-.vinyl-grooves {
-  position: absolute; inset: 0; border-radius: 50%;
-  background:
-    repeating-radial-gradient(circle at center,
-      rgba(40,40,40,1) 0px, rgba(50,50,50,1) 1px,
-      rgba(40,40,40,1) 2px, rgba(55,55,55,1) 3px,
-      rgba(35,35,35,1) 4px, rgba(50,50,50,1) 5px,
-      rgba(40,40,40,1) 6px, rgba(45,45,45,1) 7px,
-      rgba(35,35,35,1) 8px, rgba(52,52,52,1) 9px,
-      rgba(40,40,40,1) 10px
-    );
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.05);
-}
+@media (prefers-reduced-motion: reduce) { .mc-playing-indicator { animation: none; } }
 
-/* Center label */
-.vinyl-label {
+/* ── Music Dock ── */
+.md-nav {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  transform: translateX(-50%); z-index: 120;
+  width: min(500px, calc(100vw - 24px));
+  display: grid; grid-template-columns: repeat(var(--md-count, 5), minmax(0, 1fr));
+  padding: 5px; border-radius: 26px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  box-shadow: 0 14px 36px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.14);
+  isolation: isolate;
+}
+.md-nav__indicator {
+  position: absolute; top: 5px; bottom: 5px; left: 5px;
+  width: calc((100% - 10px) / var(--md-count, 5));
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,0.16);
+  transition: transform 300ms cubic-bezier(.22,1,.36,1);
+  pointer-events: none; z-index: 0;
+}
+@media (prefers-reduced-motion: reduce) { .md-nav__indicator { transition: none; } }
+.md-nav__btn {
   position: relative; z-index: 1;
-  width: 76px; height: 76px;
-  border-radius: 50%;
-  background: var(--coral);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; min-height: 56px; padding: 5px 0;
+  border: 0; background: transparent; color: var(--text-3);
+  font: inherit; font-size: 10px; font-weight: 500;
+  cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent;
+  appearance: none; -webkit-appearance: none;
 }
-.vinyl-label-text {
-  font-size: 9px; font-weight: 600; color: #fff;
-  text-align: center; line-height: 1.3; padding: 4px;
-  overflow: hidden; text-overflow: ellipsis;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-  word-break: break-word;
-}
-.vinyl-label-empty {
-  font-size: 24px; color: rgba(255,255,255,0.5);
+.md-nav__btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  outline-offset: -2px; border-radius: 18px;
 }
 
-/* --- Track Info --- */
-.vinyl-track-name {
-  font-family: var(--f-d);
-  font-size: 18px; font-weight: 500;
-  color: var(--text); text-align: center;
-  max-width: 260px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.vinyl-time-row {
-  display: flex; justify-content: space-between;
-  width: 100%; max-width: 260px;
-  font-size: var(--fs-caption); color: var(--text-3);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Progress bar */
-.vinyl-progress {
-  width: 100%; max-width: 260px;
-  -webkit-appearance: none; appearance: none;
-  height: 4px; border-radius: 2px;
-  background: var(--surface-2); outline: none; cursor: pointer;
-}
-.vinyl-progress::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: var(--accent); cursor: pointer;
-  border: 2px solid var(--bg);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-}
-.vinyl-progress::-moz-range-thumb {
-  width: 14px; height: 14px; border-radius: 50%;
-  background: var(--accent); cursor: pointer;
-  border: 2px solid var(--bg);
-}
-
-/* Controls */
-.vinyl-controls {
-  display: flex; align-items: center; justify-content: center;
-  gap: var(--sp-16);
-}
-.vinyl-btn-play {
-  width: 52px; height: 52px; border-radius: 50%;
-  background: var(--accent); color: var(--on-primary);
-  display: flex; align-items: center; justify-content: center;
-  border: none; cursor: pointer;
-  transition: transform var(--dur-fast), opacity var(--dur-normal);
-}
-.vinyl-btn-play:hover { opacity: 0.85; }
-.vinyl-btn-play:active { transform: scale(0.92); }
-
-/* --- Waveform Row --- */
-.waveform-row {
-  display: flex; align-items: center; gap: 12px;
-  width: 100%; max-width: 300px;
-}
-.waveform-bar {
-  flex: 1; height: 40px;
-  display: flex; align-items: flex-end; gap: 1px;
-  cursor: pointer; position: relative;
-}
-.waveform-bar-item {
-  flex: 1; min-width: 0;
-  border-radius: 1px;
-  background: var(--text-3);
-  opacity: 0.35;
-  transition: background var(--dur-fast), opacity var(--dur-fast);
-}
-.waveform-bar-item.played {
-  background: var(--accent);
-  opacity: 0.85;
-}
-
-/* --- Empty State --- */
-.vinyl-empty {
-  display: flex; flex-direction: column; align-items: center;
-  gap: var(--sp-12); padding: var(--sp-12) 0;
-}
-.vinyl-empty-text {
-  font-size: var(--fs-body); color: var(--text-3);
-  text-align: center; line-height: 1.6;
+[data-theme="dark"] .md-nav {
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 14px 36px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
 }

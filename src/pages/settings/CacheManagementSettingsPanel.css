@@ -1,0 +1,17 @@
+.settings-cache-managed-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  padding: 14px;
+}
+
+.settings-cache-managed-intro {
+  margin: 0;
+  padding: 2px 4px 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-3);
+}

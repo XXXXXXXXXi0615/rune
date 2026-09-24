@@ -1,4 +1,4 @@
-export type MemoryMoodIconName = 'all' | 'joy' | 'anger' | 'sadness' | 'fatigue' | 'music' | 'neutral';
+export type MemoryMoodIconName = 'all' | 'joy' | 'anger' | 'sadness' | 'fatigue' | 'music' | 'panic';
 
 interface MoodIconProps {
   mood: MemoryMoodIconName;
@@ -61,10 +61,10 @@ export function MoodIcon({ mood, size = 18, className }: MoodIconProps) {
           <circle cx="17" cy="16" r="3" />
         </>
       )}
-      {mood === 'neutral' && (
+      {mood === 'panic' && (
         <>
-          <circle cx="12" cy="12" r="8" />
-          <path d="M8.5 12h7" />
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 5 L13 7 L11 9 L13 11 L11 13 L13 15 L11 17 L12 19" />
         </>
       )}
     </svg>

@@ -1,12 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { toLocalDateString } from '@/utils/date';
 import { useSystemState } from '@/core/systemBridge';
-import { DailyCacheIcon } from '@/components/icons/DailyCacheIcon';
-import { useDailyCacheWindowStore } from '@/store/useDailyCacheWindowStore';
-import { HomeFixedClockSection } from '@/components/home/HomeFixedClockSection';
-import { HomePresencePill } from '@/components/home/HomePresencePill';
-import { HomePhotoWall } from '@/components/home/HomePhotoWall';
+import { HomeWidgetStack } from '@/components/home/HomeWidgetStack';
 import '@/styles/dailytide.css';
 import '@/styles/home-presence-pill.css';
 import '@/styles/home-storybook.css';
@@ -16,39 +12,15 @@ function useNow() {
   return now;
 }
 
-function HomeMobileToolbar() {
-  const openCacheWindow = useDailyCacheWindowStore((s) => s.openWindow);
-  return (
-    <div className="home-mobile-toolbar" role="toolbar" aria-label="首頁工具列">
-      <button
-        type="button"
-        className="dc-toolbar-btn"
-        onClick={openCacheWindow}
-        aria-label="每日緩存"
-        title="每日緩存"
-      >
-        <DailyCacheIcon size={20} />
-      </button>
-    </div>
-  );
-}
-
 export function HomePage() {
   const now = useNow();
-  const runDailyDietSettlement = useAppStore((s) => s.runDailyDietSettlement);
-
   const systemState = useSystemState();
 
   const todayStr = toLocalDateString(now);
 
-  useEffect(() => {
-    runDailyDietSettlement();
-  }, [runDailyDietSettlement]);
-
   const diaryEntries = useAppStore((s) => s.diaryEntries || []);
   const activityLogs = useAppStore((s) => s.activityLogs || []);
   const healthRecords = useAppStore((s) => s.healthRecords);
-  const mealEntries = useAppStore((s) => s.mealEntries);
   const focusSessionLog = useAppStore((s) => s.focusSessionLog || []);
   const todos = useAppStore((s) => s.todos);
   const todayStrForTodos = toLocalDateString(new Date());
@@ -59,10 +31,7 @@ export function HomePage() {
 
   const echoState = useMemo(() => {
     const todayStartMs = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()).getTime();
-    const todayEndMs = todayStartMs + 86400000;
-
     const todayDiaryCount = diaryEntries.filter(d => toLocalDateString(new Date(d.date)) === todayStr).length;
-    const todayMeals = mealEntries.filter(m => m.createdAt >= todayStartMs && m.createdAt < todayEndMs).length;
     const todaySleepRecord = healthRecords.find(r => r.type === 'sleep' && r.date === todayStr);
     const todaySleepMin = todaySleepRecord?.sleepDurationMinutes || 0;
     const todayFocus = focusSessionLog.filter(f => f.date === todayStr).reduce((sum, f) => sum + (f.actualFocusMinutes || 0), 0);
@@ -70,7 +39,6 @@ export function HomePage() {
 
     const activityRaw =
       (todayDiaryCount > 0 ? 1 : 0) +
-      (todayMeals > 0 ? 1 : 0) +
       (todaySleepMin >= 360 ? 1 : 0) +
       (todayFocus >= 25 ? 1 : 0) +
       (todayPending > 0 ? 0.5 : 0);
@@ -86,7 +54,7 @@ export function HomePage() {
     else if (intensity > 0.65) echoMood = 'resonant';
 
     return { intensity, mood: echoMood, activityScore, aiPulse };
-  }, [diaryEntries, mealEntries, healthRecords, focusSessionLog, activityLogs, todayStr, todayTodoItems, systemState]);
+  }, [diaryEntries, healthRecords, focusSessionLog, activityLogs, todayStr, todayTodoItems, systemState]);
 
   const echoCSS = useMemo(() => {
     const i = echoState.intensity;
@@ -106,11 +74,7 @@ export function HomePage() {
 
   return (
     <section className="view home-view home-view--apple-health home-view--minimal" style={echoCSS} data-echo={echoState.mood} data-clawd-anchor="home">
-      <div className="home-fixed-zone">
-        <HomeFixedClockSection />
-        <HomePresencePill />
-      </div>
-      <HomePhotoWall />
+      <HomeWidgetStack />
     </section>
   );
 }

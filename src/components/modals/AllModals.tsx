@@ -6,6 +6,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { MoonIcon, TodoIcon, WaterIcon } from '@/components/icons/LunartideIcons';
 import { t } from '@/i18n';
 import { toLocalDateString } from '@/utils/date';
+import { useHydrationStore } from '@/store/useHydrationStore';
 
 function DangerZoneModal({ onClose }: { onClose: () => void }) {
   const clearAllData = useAppStore((s) => s.clearAllData);
@@ -55,17 +56,19 @@ interface MenuItemData {
 
 function MenuModalContent({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
-  const openSheet = useModalStore((s) => s.openSheet);
-  const addWater = useAppStore((s) => s.addWater);
-  const resetWaterIfNeeded = useAppStore((s) => s.resetWaterIfNeeded);
+  const addHydrationEntry = useHydrationStore((s) => s.addEntry);
 
   const items: MenuItemData[] = [
     {
       icon: <MoonIcon size={18} />,
-      iconClass: 'mood',
-      label: t('menu.mood'),
-      hint: t('menu.moodHint'),
-      action: () => { onClose(); openSheet('mood'); },
+      iconClass: 'period',
+      label: '記錄生理周期',
+      hint: '記錄開始、結束日期與備註',
+      action: () => {
+        onClose();
+        const today = toLocalDateString();
+        navigate(`/calendar?action=period&date=${today}`);
+      },
     },
     {
       icon: <TodoIcon size={18} />,
@@ -74,8 +77,7 @@ function MenuModalContent({ onClose }: { onClose: () => void }) {
       hint: t('menu.todoHint'),
       action: () => {
         onClose();
-        const today = toLocalDateString();
-        navigate(`/calendar?action=new&date=${today}`);
+        navigate('/quests');
       },
     },
     {
@@ -85,8 +87,7 @@ function MenuModalContent({ onClose }: { onClose: () => void }) {
       hint: t('menu.waterHint'),
       action: () => {
         onClose();
-        resetWaterIfNeeded();
-        addWater(250);
+        addHydrationEntry(250);
       },
     },
   ];
@@ -103,12 +104,12 @@ function MenuModalContent({ onClose }: { onClose: () => void }) {
       >
         <div className="menu-modal-head">
           <span className="menu-modal-title">{t('menu.title')}</span>
-          <div className="menu-modal-close" onClick={onClose}>
-            <svg className="icon" viewBox="0 0 24 24" style={{ width: 16, height: 16 }}>
+          <button type="button" className="menu-modal-close" onClick={onClose} aria-label="關閉">
+            <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
-          </div>
+          </button>
         </div>
         <div className="menu-modal-body">
           {items.map((item, i) => (

@@ -1,0 +1,382 @@
+/* ══════════════════════════════════════════
+   Period Ticket Archive — paper browse surface.
+   Reuses the PeriodTicketCard paper language (warm cream ↔ deep cocoa).
+   No second ticket skin. Semantic tokens via var(--*).
+   Desktop max ~860px, mobile single/two-column compact, reduced-motion safe.
+   ══════════════════════════════════════════ */
+
+/* ── Compact entry on the Period canonical surface (Phase 3D §3) ── */
+.pta-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border) 80%);
+  border-radius: var(--pb-radius-sm, 22px);
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+}
+.pta-entry-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pta-entry-title {
+  margin: 3px 0 0;
+  font-size: 15px;
+  font-weight: 750;
+  color: var(--text);
+}
+.pta-entry-all {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+}
+.pta-entry-all:hover { text-decoration: underline; }
+.pta-entry-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.pta-entry-ticket {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 12px 6px 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border) 70%);
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--surface) 94%, var(--surface-2) 90%);
+  color: var(--text);
+  cursor: pointer;
+  transform: rotate(var(--pta-rotate, 0deg));
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+[data-theme='light'] .pta-entry-ticket {
+  background: linear-gradient(180deg, #faf4e6 0%, #f1e6cf 100%);
+}
+[data-theme='dark'] .pta-entry-ticket {
+  background: linear-gradient(180deg, #2e271c 0%, #3c2f1e 100%);
+  border-color: color-mix(in srgb, #e8c878 26%, transparent);
+}
+.pta-entry-ticket:hover,
+.pta-entry-ticket:focus-visible {
+  transform: translateY(-2px) rotate(var(--pta-rotate, 0deg));
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--text) 12%, transparent);
+}
+.pta-entry-ticket:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.pta-entry-brand {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--border) 58%);
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+.pta-entry-date { font-size: 14px; font-weight: 800; letter-spacing: 0.03em; }
+.pta-entry-flow {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-2);
+  padding: 2px 7px;
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  border-radius: 999px;
+}
+
+@media (max-width: 560px) {
+  .pta-entry { padding: 14px; }
+  .pta-entry-row { gap: 8px; }
+  .pta-entry-ticket { min-height: 40px; padding: 5px 10px 5px 7px; }
+}
+
+#period-ticket-archive.pta-view {
+  width: min(calc(100% - var(--period-content-gutter, 24px) * 2), var(--pta-max, 860px));
+  margin-inline: auto;
+  padding: 8px 16px 40px;
+  color: var(--text);
+}
+
+/* ── Header ── */
+.pta-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg);
+  padding: 12px 0;
+}
+@supports (top: env(safe-area-inset-top)) {
+  .pta-header { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+}
+.pta-heading { flex: 1; }
+.pta-heading h1 {
+  margin: 0;
+  font-family: var(--f-d);
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+.pta-heading p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.pta-count {
+  min-width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Empty state ── */
+.pta-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 56px 16px 48px;
+  text-align: center;
+}
+.pta-empty-ticket {
+  position: relative;
+  width: 200px;
+  height: 118px;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border) 78%);
+  border-radius: 3px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, transparent) 0%, color-mix(in srgb, var(--surface-2) 88%, transparent) 100%);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--text) 7%, transparent);
+  transform: rotate(-2deg);
+}
+.pta-empty-brand {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--text-3);
+}
+.pta-empty-line {
+  display: block;
+  height: 1px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 14%, transparent);
+}
+.pta-empty-line--short { width: 62%; margin-top: 8px; }
+.pta-empty p { margin: 0; font-size: 15px; font-weight: 700; color: var(--text); }
+.pta-empty-sub { font-weight: 500 !important; color: var(--text-3) !important; }
+
+/* ── Content ── */
+.pta-content { display: flex; flex-direction: column; gap: 34px; }
+.pta-eyebrow {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--text-3);
+}
+.pta-stack-section { display: flex; flex-direction: column; gap: 12px; }
+.pta-groups { display: flex; flex-direction: column; gap: 26px; }
+
+.pta-year { display: flex; flex-direction: column; gap: 16px; }
+.pta-year-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+.pta-month { display: flex; flex-direction: column; gap: 10px; }
+.pta-month-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
+/* ── Ticket Stack ── */
+.pta-stack {
+  position: relative;
+  min-height: 132px;
+  filter: drop-shadow(0 10px 24px color-mix(in srgb, var(--text) 10%, transparent));
+}
+.pta-stack-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border) 70%);
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--surface) 92%, var(--surface-2) 88%);
+  color: var(--text);
+  cursor: pointer;
+  transform: translateY(calc(4px * var(--pta-stack-depth, 0))) rotate(var(--pta-rotate, 0deg));
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+[data-theme='light'] .pta-stack-card {
+  background: linear-gradient(180deg, #f6f0e2 0%, #efe4cd 100%);
+}
+[data-theme='dark'] .pta-stack-card {
+  background: linear-gradient(180deg, #2c251b 0%, #382c1c 100%);
+  border-color: color-mix(in srgb, #e8c878 30%, transparent);
+}
+.pta-stack-card.is-top { z-index: 1; }
+.pta-stack-card:not(.is-top) { z-index: 0; }
+.pta-stack-card:hover,
+.pta-stack-card:focus-visible {
+  z-index: 2;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 6%, transparent),
+    0 12px 30px color-mix(in srgb, var(--text) 14%, transparent);
+}
+.pta-stack-card:hover.is-top,
+.pta-stack-card:focus-visible.is-top {
+  transform: translateY(-3px) rotate(var(--pta-rotate, 0deg));
+}
+.pta-stack-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.pta-stack-brand {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--border) 58%);
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+}
+.pta-stack-date { font-size: 18px; font-weight: 800; letter-spacing: 0.05em; }
+.pta-stack-flow {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-2);
+  padding: 2px 8px;
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  border-radius: 999px;
+}
+.pta-stack-stale {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--danger);
+}
+
+/* ── Preview Grid ── */
+.pta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.pta-preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 14px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border) 72%);
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--surface) 94%, var(--surface-2) 90%);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transform: rotate(var(--pta-rotate, 0deg));
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+[data-theme='light'] .pta-preview {
+  background: linear-gradient(180deg, #faf4e6 0%, #f1e6cf 100%);
+}
+[data-theme='dark'] .pta-preview {
+  background: linear-gradient(180deg, #2e271c 0%, #3c2f1e 100%);
+  border-color: color-mix(in srgb, #e8c878 26%, transparent);
+}
+.pta-preview:hover,
+.pta-preview:focus-visible {
+  transform: translateY(-2px) rotate(var(--pta-rotate, 0deg));
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--text) 12%, transparent);
+}
+.pta-preview:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.pta-preview-date {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+.pta-preview-dl { display: flex; flex-wrap: wrap; gap: 6px; }
+.pta-preview-kv {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.pta-preview-kv b {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--text-3);
+}
+.pta-preview-kv span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+.pta-preview-stale {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--danger);
+}
+
+/* ── Responsive: 390px ── */
+@media (max-width: 560px) {
+  .pta-grid { grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 10px; }
+  .pta-preview { padding: 12px 12px 10px; }
+  .pta-stack { min-height: 120px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pta-stack-card,
+  .pta-preview {
+    transition: none;
+  }
+  .pta-stack-card:hover.is-top,
+  .pta-stack-card:focus-visible.is-top,
+  .pta-preview:hover,
+  .pta-preview:focus-visible {
+    transform: rotate(var(--pta-rotate, 0deg));
+  }
+}

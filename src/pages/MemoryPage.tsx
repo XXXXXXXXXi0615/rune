@@ -1,469 +1,656 @@
-import { useState, useMemo, useRef } from 'react'
-import { createPortal } from 'react-dom'
-import { useSearchParams } from 'react-router-dom'
-import { Header } from '@/components/layout/Header'
-import { BackButton } from '@/components/layout/BackButton'
-import { Card } from '@/components/ui/Card'
-import { QuickJournalForm } from '@/components/memory/QuickJournalForm'
-import { MemoryDetail } from '@/components/memory/MemoryDetail'
-import { DiaryPanel } from '@/components/memory/DiaryPanel'
-import { HealthImportSheet, SleepLineIcon } from '@/components/memory/HealthImportSheet'
-import { MoodIcon, type MemoryMoodIconName } from '@/components/memory/MoodIcon'
-import { LocationIcon } from '@/components/icons/LocationIcon'
-import { useAppStore } from '@/store/useAppStore'
-import { LunaMessage } from '@/components/layout/LunaMessage'
-import { t } from '@/i18n'
-import type { MemoryEntry } from '@/types'
-import { computeMemoryStats, formatStatsSummary } from '@/ai/memorySummary'
-import { formatSleepDuration } from '@/utils/healthImport'
-import { loadPreviews, addPreview, updatePreview, deletePreview, type HtmlPreview } from '@/config/htmlPreviews'
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { BackButton } from '@/components/layout/BackButton';
+import { Card } from '@/components/ui/Card';
+import { UniversalSheet } from '@/components/ui/UniversalSheet';
+import { CalendarPopup } from '@/components/ui/CalendarPopup';
+import { MemoryParticleHeatmap } from '@/components/home/MemoryParticleHeatmap';
+import { MoodIcon } from '@/components/memory/MoodIcon';
+import { useAppStore } from '@/store/useAppStore';
+import { useToastStore } from '@/store/useToastStore';
+import { loadPeriodRecords, type PeriodRecord } from '@/utils/periodStorage';
+import { compressImageFile } from '@/utils/imageCompression';
+import { t } from '@/i18n';
+import type { MemoryEntry, DiaryEntry, TodoItem, HealthRecord } from '@/types';
 
-type View = 'menu' | 'form' | 'detail'
-type MemoryTab = 'memory' | 'diary' | 'moonwindow'
-type EmotionFilter = 'all' | 'joy' | 'anger' | 'sad' | 'tired' | 'music' | 'health'
-type MapMood = 'joy' | 'sad' | 'anger' | 'tired' | 'music'
+/* ── Types ── */
 
-/* ── Emotion filter chips ── */
-const EMOTIONS: { key: EmotionFilter; icon: MemoryMoodIconName; labelKey: string }[] = [
-  { key: 'all', icon: 'all', labelKey: 'memory.filter.all' },
-  { key: 'joy', icon: 'joy', labelKey: 'memory.filter.joy' },
-  { key: 'anger', icon: 'anger', labelKey: 'memory.filter.anger' },
-  { key: 'sad', icon: 'sadness', labelKey: 'memory.filter.sadness' },
-  { key: 'tired', icon: 'fatigue', labelKey: 'memory.filter.fatigue' },
-  { key: 'music', icon: 'music', labelKey: 'memory.filter.music' },
-  { key: 'health', icon: 'all', labelKey: '健康' },
-]
+type EventType = 'birthday' | 'anniversary' | 'important';
+type Reminder = 'none' | 'same_day' | 'day_before' | 'three_days_before' | 'week_before' | 'two_weeks_before' | 'one_month_before';
+type Recurrence = 'none' | 'weekly' | 'monthly' | 'yearly';
 
-const MAP_MOOD_META: Record<MapMood, { icon: MemoryMoodIconName; label: string }> = {
-  joy: { icon: 'joy', label: 'memory.mapMood.joy' },
-  sad: { icon: 'sadness', label: 'memory.mapMood.sad' },
-  anger: { icon: 'anger', label: 'memory.mapMood.anger' },
-  tired: { icon: 'fatigue', label: 'memory.mapMood.tired' },
-  music: { icon: 'music', label: 'memory.mapMood.music' },
+interface CalendarEvent {
+  id: string;
+  type: EventType;
+  title: string;
+  date: string; // YYYY-MM-DD
+  note?: string;
+  color?: string;
+  reminder: Reminder;
+  recurrence: Recurrence;
+  cover?: string;
+  createdAt: number;
 }
 
-function memoryMapMood(entry: MemoryEntry): MapMood {
-  const text = `${entry.scene} ${entry.triggerText} ${entry.bodyThoughts}`.toLowerCase()
-  if (/音樂|歌曲|歌單|耳機|旋律|music|song/.test(text)) return 'music'
-  if (entry.anxietyLevel >= 7) return 'sad'
-  if (entry.anxietyLevel >= 5) return 'anger'
-  if (entry.anxietyLevel >= 3) return 'joy'
-  return 'tired'
+const EVENT_STORAGE_KEY = 'lunartide_calendar_events_v1';
+
+const EVENT_LABELS: Record<EventType, string> = {
+  birthday:     '\u{1F382} 生日',
+  anniversary: '\u{1F389} 紀念日',
+  important:   '\u{2B50} 重要日',
+};
+
+const EVENT_COLORS: Record<EventType, string> = {
+  birthday:     '#f59e0b',
+  anniversary: '#ec4899',
+  important:   '#6366f1',
+};
+
+const REMINDER_LABELS: Record<Reminder, string> = {
+  none:              '無',
+  same_day:          '當天',
+  day_before:        '1天前',
+  three_days_before: '3天前',
+  week_before:       '1週前',
+  two_weeks_before:  '2週前',
+  one_month_before:  '1月前',
+};
+
+const RECURRENCE_LABELS: Record<Recurrence, string> = {
+  none:    '不重複',
+  weekly:  '每週',
+  monthly: '每月',
+  yearly:  '每年',
+};
+
+/* ── Helpers ── */
+
+function uid(): string {
+  return crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
-/** Build a content summary — prefers AI-generated summary field */
-function memorySummary(m: { bodyThoughts: string; scene: string; triggerText: string; summary?: string }): string {
-  // Prefer the AI-generated summary field
-  if (m.summary && m.summary.trim()) return m.summary.trim();
-  const raw = (m.bodyThoughts || m.scene || m.triggerText || '').replace(/\s+/g, ' ').trim()
-  if (!raw) return '未命名記憶'
-  return raw.length > 40 ? raw.slice(0, 40) + '…' : raw
-}
-
-/** Extract simple tags from memory text */
-function memoryTags(m: { triggerText: string; bodyThoughts: string }): string[] {
-  const combined = (m.triggerText + ' ' + m.bodyThoughts).toLowerCase()
-  const tags: string[] = []
-  const patterns: [RegExp, string][] = [
-    [/工作|上班|加班|開會|老闆|同事/, '工作'],
-    [/學校|上課|考試|老師|同學|作業/, '學校'],
-    [/咖啡|茶|飲料|早餐|午餐|晚餐|吃/, '飲食'],
-    [/夢|睡|醒|床|失眠|睏/, '睡眠'],
-    [/哭|難過|傷心|憂鬱|焦慮|壓力/, '情緒'],
-    [/開心|快樂|高興|幸福|喜歡|愛/, '快樂'],
-    [/音樂|歌|曲|聽|耳機/, '音樂'],
-    [/走路|散步|運動|跑步|健身/, '移動'],
-    [/車|站|捷運|公車|火車/, '通勤'],
-    [/雨|天氣|冷|熱|風/, '天氣'],
-  ]
-  for (const [re, tag] of patterns) {
-    if (re.test(combined)) tags.push(tag)
+function loadEvents(): CalendarEvent[] {
+  try {
+    const data = JSON.parse(localStorage.getItem(EVENT_STORAGE_KEY) || '[]');
+    return data.map((ev: any) => ({ reminder: 'none' as const, recurrence: 'none' as const, ...ev }));
+  } catch {
+    return [];
   }
-  return tags.slice(0, 3)
 }
+
+function saveEvents(events: CalendarEvent[]) {
+  try {
+    localStorage.setItem(EVENT_STORAGE_KEY, JSON.stringify(events));
+  } catch { /* unavailable */ }
+}
+
+function dateKey(ts: number): string {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function formatDateDisplay(ds: string): string {
+  if (!ds) return '';
+  const [y, m, d] = ds.split('-');
+  return `${parseInt(y)}年${parseInt(m)}月${parseInt(d)}日`;
+}
+
+/* ── Mood mapping (for calendar stats bar, kept from original) ── */
+
+function memoryMapMood(entry: MemoryEntry): 'joy' | 'sad' | 'anger' | 'tired' | 'music' {
+  const text = `${entry.scene} ${entry.triggerText} ${entry.bodyThoughts}`.toLowerCase();
+  if (/音樂|歌曲|歌單|耳機|旋律|music|song/.test(text)) return 'music';
+  if (entry.anxietyLevel >= 7) return 'sad';
+  if (entry.anxietyLevel >= 5) return 'anger';
+  if (entry.anxietyLevel >= 3) return 'joy';
+  return 'tired';
+}
+
+/* ══════════════════════════════════════
+   Event Form Modal
+   ══════════════════════════════════════ */
+
+function EventForm({ editing, onSave, onClose }: {
+  editing: CalendarEvent | null;
+  onSave: (data: { type: EventType; title: string; date: string; note?: string; color?: string; reminder: Reminder; recurrence: Recurrence; cover?: string }) => void;
+  onClose: () => void;
+}) {
+  const [type, setType] = useState<EventType>(editing?.type || 'important');
+  const [title, setTitle] = useState(editing?.title || '');
+  const [date, setDate] = useState(editing?.date || '');
+  const [note, setNote] = useState(editing?.note || '');
+  const [reminder, setReminder] = useState<Reminder>(editing?.reminder || 'none');
+  const [recurrence, setRecurrence] = useState<Recurrence>(editing?.recurrence || 'none');
+  const [cover, setCover] = useState(editing?.cover || '');
+  const [submitted, setSubmitted] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  const handleSave = () => {
+    setSubmitted(true);
+    if (!title.trim() || !date.trim()) return;
+    onSave({
+      type,
+      title: title.trim(),
+      date: date.trim(),
+      note: note.trim() || undefined,
+      color: EVENT_COLORS[type],
+      reminder,
+      recurrence,
+      cover: cover || undefined,
+    });
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const blob = await compressImageFile(file, {
+        maxWidth: 512, maxHeight: 512, outputType: 'image/webp', quality: 0.75,
+      });
+      const reader = new FileReader();
+      reader.onload = () => setCover(reader.result as string);
+      reader.readAsDataURL(blob);
+    } catch {
+      // fallback
+    }
+    setUploading(false);
+  };
+
+  const REMINDER_OPTIONS: { value: Reminder; label: string }[] = [
+    { value: 'none', label: '無' },
+    { value: 'same_day', label: '當天' },
+    { value: 'day_before', label: '1天前' },
+    { value: 'three_days_before', label: '3天前' },
+    { value: 'week_before', label: '1週前' },
+    { value: 'two_weeks_before', label: '2週前' },
+    { value: 'one_month_before', label: '1月前' },
+  ];
+
+  const RECURRENCE_OPTIONS: { value: Recurrence; label: string }[] = [
+    { value: 'none', label: '不重複' },
+    { value: 'weekly', label: '每週' },
+    { value: 'monthly', label: '每月' },
+    { value: 'yearly', label: '每年' },
+  ];
+
+  const fmtDate = (d: string) => {
+    if (!d) return '選擇日期';
+    const parts = d.split('-');
+    return `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日`;
+  };
+
+  return (
+    <UniversalSheet
+      title={editing ? '編輯事件' : '新增事件'}
+      onClose={onClose}
+      saveDisabled={!title.trim() || !date.trim()}
+      saveLabel={editing ? '儲存' : '新增'}
+      onSave={handleSave}
+    >
+      {/* Title */}
+      <div className="calendar-event-sheet-field">
+        <label className="calendar-event-sheet-label" htmlFor="cal-event-title-input">標題 *</label>
+        <input
+          id="cal-event-title-input"
+          className={`calendar-event-sheet-input${submitted && !title.trim() ? ' error' : ''}`}
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="事件名稱"
+          autoFocus
+        />
+      </div>
+
+      {/* Type — Luna tags */}
+      <div className="calendar-event-sheet-field">
+        <label className="calendar-event-sheet-label">類型</label>
+        <div className="cal-event-tag-row">
+          {(Object.keys(EVENT_COLORS) as EventType[]).map(t => (
+            <button
+              key={t}
+              type="button"
+              className={`cal-event-tag${type === t ? ' active' : ''}`}
+              data-type={t}
+              onClick={() => setType(t)}
+            >
+              {EVENT_LABELS[t]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Date — CalendarPopup */}
+      <div className="calendar-event-sheet-field">
+        <label className="calendar-event-sheet-label">日期 *</label>
+        <div className="cal-event-date-wrapper">
+          <div
+            className={`cal-event-date-trigger${submitted && !date.trim() ? ' error' : ''}`}
+            onClick={() => setShowCalendar(v => !v)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowCalendar(v => !v); } }}
+          >
+            <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            <span className={`cal-event-date-text${!date ? ' placeholder' : ''}`}>
+              {date ? fmtDate(date) : '選擇日期'}
+            </span>
+            <svg className={`cal-event-date-chevron${showCalendar ? ' open' : ''}`} viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+          {showCalendar && (
+            <CalendarPopup
+              value={date}
+              onSelect={d => { setDate(d); setShowCalendar(false); }}
+              onClose={() => setShowCalendar(false)}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Reminder — Luna tags */}
+      <div className="calendar-event-sheet-field">
+        <label className="calendar-event-sheet-label">提醒</label>
+        <div className="cal-event-tag-row">
+          {REMINDER_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`cal-event-tag cal-event-reminder-tag${reminder === opt.value ? ' active' : ''}`}
+              onClick={() => setReminder(opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Recurrence — Luna tags */}
+      <div className="calendar-event-sheet-field">
+        <label className="calendar-event-sheet-label">重複</label>
+        <div className="cal-event-tag-row">
+          {RECURRENCE_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`cal-event-tag cal-event-reminder-tag${recurrence === opt.value ? ' active' : ''}`}
+              onClick={() => setRecurrence(opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Cover */}
+      <div className="calendar-event-sheet-field">
+        <label className="calendar-event-sheet-label">封面圖片</label>
+        <div className="cal-event-cover-row">
+          {cover ? (
+            <div className="cal-event-cover-preview">
+              <img src={cover} alt="" className="cal-event-cover-img" />
+              <button type="button" className="cal-event-cover-remove" onClick={() => setCover('')} aria-label="移除封面">&#x2715;</button>
+            </div>
+          ) : (
+            <label className="cal-event-cover-add">
+              <svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              <span>{uploading ? '壓縮中…' : '上傳封面'}</span>
+              <input type="file" accept="image/*" onChange={handleCoverUpload} hidden />
+            </label>
+          )}
+        </div>
+      </div>
+
+      {/* Note */}
+      <div className="calendar-event-sheet-field">
+        <label className="calendar-event-sheet-label" htmlFor="cal-event-note-input">備註</label>
+        <textarea
+          id="cal-event-note-input"
+          className="calendar-event-sheet-input calendar-event-sheet-textarea"
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          placeholder="備註…"
+          rows={2}
+        />
+      </div>
+    </UniversalSheet>
+  );
+}
+
+/* ══════════════════════════════════════
+   Main Page
+   ══════════════════════════════════════ */
 
 export function MemoryPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const initialView: View = searchParams.get('action') === 'new' ? 'form' : 'menu'
-  const initialTabParam = searchParams.get('tab')
-  const initialTab: MemoryTab = initialTabParam === 'diary' || initialTabParam === 'moonwindow' ? initialTabParam : 'memory'
-  const [view, setView] = useState<View>(initialView)
-  const [activeTab, setActiveTab] = useState<MemoryTab>(initialTab)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
-  const [emotionFilter, setEmotionFilter] = useState<EmotionFilter>('all')
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
-  const [healthImportOpen, setHealthImportOpen] = useState(false)
-  const memoryEntries = useAppStore(s => s.memoryEntries)
-  const healthRecords = useAppStore(s => s.healthRecords)
-  const locations = useAppStore(s => s.locations)
-  const deleteMemoryEntry = useAppStore(s => s.deleteMemoryEntry)
+  const memoryEntries = useAppStore(s => s.memoryEntries);
+  const diaryEntries = useAppStore(s => s.diaryEntries);
+  const todos = useAppStore(s => s.todos);
+  const healthRecords = useAppStore(s => s.healthRecords);
+  const showToast = useToastStore(s => s.showToast);
 
-  const selectedEntry = useMemo(
-    () => memoryEntries.find(e => e.id === selectedId) ?? null,
-    [memoryEntries, selectedId],
-  )
+  const [events, setEvents] = useState<CalendarEvent[]>(loadEvents);
+  const [periodRecords, setPeriodRecords] = useState<PeriodRecord[]>(() => {
+    try { return loadPeriodRecords(); } catch { return []; }
+  });
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [eventModalOpen, setEventModalOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
 
-  const locationStats = useMemo(() => locations.map((location) => {
-    const entries = memoryEntries.filter((entry) => (
-      entry.location?.id === location.id
-      || (!entry.location?.id && entry.location?.name === location.name)
-    ))
-    const moodCounts = entries.reduce<Record<MapMood, number>>((counts, entry) => {
-      const mood = memoryMapMood(entry)
-      counts[mood] += 1
-      return counts
-    }, { joy: 0, sad: 0, anger: 0, tired: 0, music: 0 })
-    const primaryMood = (Object.entries(moodCounts) as [MapMood, number][])
-      .sort((left, right) => right[1] - left[1])[0]?.[0] || 'tired'
-    return { location, entries, count: entries.length, moodCounts, primaryMood }
-  }), [locations, memoryEntries])
+  const persistEvents = (next: CalendarEvent[]) => {
+    setEvents(next);
+    saveEvents(next);
+  };
 
-  const selectedLocationStats = useMemo(
-    () => locationStats.find((item) => item.location.id === selectedLocationId) || null,
-    [locationStats, selectedLocationId],
-  )
+  /* ── Calendar stats (kept from original) ── */
+  const calStats = useMemo(() => {
+    const now = new Date();
+    const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const monthDays = new Set<string>();
+    for (const e of memoryEntries) {
+      const key = dateKey(e.createdAt);
+      if (key.startsWith(ym)) monthDays.add(key);
+    }
+    let streak = 0;
+    const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    for (;;) {
+      const key = dateKey(cursor.getTime());
+      if (monthDays.has(key) || (streak === 0 && dateKey(now.getTime()) === key && monthDays.has(key))) {
+        if (monthDays.has(key)) streak++;
+        cursor.setDate(cursor.getDate() - 1);
+      } else {
+        if (streak === 0 && dateKey(now.getTime()) === key) {
+          cursor.setDate(cursor.getDate() - 1);
+          continue;
+        }
+        break;
+      }
+    }
+    const recent = [...memoryEntries].sort((a, b) => b.createdAt - a.createdAt).slice(0, 7);
+    const moodCounts = new Map<string, number>();
+    for (const e of recent) {
+      const m = memoryMapMood(e);
+      moodCounts.set(m, (moodCounts.get(m) || 0) + 1);
+    }
+    let recentMood: string | null = null;
+    let max = 0;
+    for (const [m, c] of moodCounts) { if (c > max) { max = c; recentMood = m; } }
+    return { monthDays: monthDays.size, streak, recentMood };
+  }, [memoryEntries]);
 
-  /* ── Filtered memories ── */
-  const filteredMemories = useMemo(() => {
-    let entries = memoryEntries
-    if (emotionFilter === 'health') entries = entries.filter(e => e.cardType === 'health');
-    else if (emotionFilter !== 'all') entries = entries.filter(e => memoryMapMood(e) === emotionFilter)
-    if (selectedLocationId) entries = entries.filter((entry) => (
-      entry.location?.id === selectedLocationId
-      || (!entry.location?.id && entry.location?.name === selectedLocationStats?.location.name)
-    ))
-    return entries
-  }, [memoryEntries, emotionFilter, selectedLocationId, selectedLocationStats])
+  /* ── Date detail ── */
+  const dateDetail = useMemo(() => {
+    if (!selectedDate) return null;
+    const dateDiary = diaryEntries.filter(e => e.date === selectedDate);
+    const dateTodos = todos.filter(e => e.date === selectedDate);
+    const dateSleep = healthRecords.filter(
+      r => r.type === 'sleep' && r.date === selectedDate
+    );
+    const datePeriod = periodRecords.filter(
+      r => selectedDate >= r.startDate && selectedDate <= r.endDate
+    );
+    return { diary: dateDiary, todos: dateTodos, sleep: dateSleep, period: datePeriod };
+  }, [selectedDate, diaryEntries, todos, healthRecords, periodRecords]);
 
-  const handleOpenDetail = (id: string) => { setSelectedId(id); setView('detail') }
-  const handleBackFromDetail = () => { setSelectedId(null); setView('menu') }
-  const handleFormDone = () => {
-    setSelectedLocationId(null)
-    setSearchParams({}, { replace: true })
-    setView('menu')
-  }
+  /* ── Events for selected date ── */
+  const dateEvents = useMemo(() => {
+    if (!selectedDate) return [];
+    // Show events on selected date, sorted by MM-DD (recurring annually)
+    const selectedMd = selectedDate.slice(5);
+    return events
+      .filter(e => e.date === selectedDate || e.date.slice(5) === selectedMd)
+      .sort((a, b) => a.createdAt - b.createdAt);
+  }, [selectedDate, events]);
 
-  /* ═══════════════ MOON WINDOW TAB ═══════════════ */  const renderMoonWindow = () => {    const [previews, setPreviews] = useState<HtmlPreview[]>(() => loadPreviews());    const [adding, setAdding] = useState(false);    const [editingId, setEditingId] = useState<string | null>(null);    const [title, setTitle] = useState('');    const [htmlCode, setHtmlCode] = useState('');    const [previewId, setPreviewId] = useState<string | null>(null);    const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);    const fileRef = useRef<HTMLInputElement>(null);    const handleAdd = () => {      if (!title.trim() || !htmlCode.trim()) return;      const now = Date.now();      const item: HtmlPreview = { id: crypto.randomUUID(), title: title.trim(), html: htmlCode, createdAt: now, updatedAt: now };      const updated = addPreview(item);      setPreviews(updated);      setTitle(''); setHtmlCode(''); setAdding(false);    };    const handleEdit = () => {      if (!editingId || !title.trim() || !htmlCode.trim()) return;      const updated = updatePreview(editingId, { title: title.trim(), html: htmlCode });      setPreviews(updated);      setEditingId(null); setTitle(''); setHtmlCode('');    };    const handleDelete = (id: string) => {      const updated = deletePreview(id);      setPreviews(updated);      setDeleteConfirm(null);      if (previewId === id) setPreviewId(null);    };    const startEdit = (p: HtmlPreview) => {      setEditingId(p.id); setTitle(p.title); setHtmlCode(p.html); setAdding(false); setPreviewId(null);    };    const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {      const file = e.target.files?.[0];      if (!file) return;      const reader = new FileReader();      reader.onload = () => {        if (typeof reader.result === 'string') {          setTitle(file.name.replace(/\.html?$/, ''));          setHtmlCode(reader.result);          setAdding(true);        }        if (fileRef.current) fileRef.current.value = '';      };      reader.readAsText(file);    };    const isEditing = adding || editingId !== null;    return (      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '0 16px' }}>        {/* Header */}        <Card>          <div style={{ padding: '12px 0' }}>            <h3 style={{ fontSize: 16, fontWeight: 600, margin: '0 0 4px' }}>月映窗</h3>            <p style={{ fontSize: 12, color: 'var(--text-3)', margin: 0 }}>保存與預覽 HTML 小作品</p>          </div>        </Card>        {/* Add / Edit form */}        {isEditing ? (          <Card>            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>              <input                className="quick-sheet-input"                value={title}                onChange={e => setTitle(e.target.value)}                placeholder="標題"                style={{ fontSize: 14 }}              />              <textarea                className="quick-sheet-textarea"                value={htmlCode}                onChange={e => setHtmlCode(e.target.value)}                placeholder="貼上 HTML 程式碼…"                rows={6}                style={{ fontSize: 12, fontFamily: 'monospace' }}              />              <div style={{ display: 'flex', gap: 8 }}>                <button type="button" className="btn-ghost" onClick={() => { setAdding(false); setEditingId(null); setTitle(''); setHtmlCode(''); }}>                  取消                </button>                <button type="button" className="btn-primary" onClick={editingId ? handleEdit : handleAdd}>                  {editingId ? '儲存' : '新增'}                </button>              </div>            </div>          </Card>        ) : (          <div style={{ display: 'flex', gap: 8 }}>            <button type="button" className="btn-primary" onClick={() => { setAdding(true); setTitle(''); setHtmlCode(''); }} style={{ flex: 1, fontSize: 13 }}>              + 新增 HTML            </button>            <button type="button" className="btn-ghost" onClick={() => fileRef.current?.click()} style={{ fontSize: 13 }}>              上傳 .html            </button>            <input ref={fileRef} type="file" accept=".html,.htm" style={{ display: 'none' }} onChange={handleFileImport} />          </div>        )}        {/* Preview modal */}        {previewId && (() => {          const p = previews.find(x => x.id === previewId);          if (!p) return null;          return (            <Card>              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>                <span style={{ fontSize: 13, fontWeight: 600 }}>{p.title}</span>                <button type="button" onClick={() => setPreviewId(null)} style={{ background: 'none', border: 'none', color: 'var(--text-3)', cursor: 'pointer', fontSize: 18 }}>×</button>              </div>              <iframe                srcDoc={p.html}                sandbox="allow-scripts"                style={{ width: '100%', height: 300, border: '1px solid var(--border)', borderRadius: 8, background: '#fff' }}                title={p.title}              />            </Card>          );        })()}        {/* List */}        {previews.length === 0 && !isEditing ? (          <Card>            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-3)', fontSize: 13 }}>              <svg viewBox="0 0 24 24" style={{ width: 32, height: 32, stroke: 'var(--text-3)', fill: 'none', strokeWidth: 1.5, margin: '0 auto 12px', opacity: 0.4 }}>                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" />              </svg>              <p>還沒有收進月映窗的頁面。</p>            </div>          </Card>        ) : (          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>            {previews.map(p => (              <div key={p.id} style={{ padding: '10px 14px', background: 'var(--surface-2)', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>                <div style={{ flex: 1, minWidth: 0 }}>                  <div style={{ fontSize: 13, fontWeight: 600 }}>{p.title}</div>                  <div style={{ fontSize: 10, color: 'var(--text-3)' }}>{new Date(p.createdAt).toLocaleDateString('zh-TW')}</div>                </div>                <button type="button" onClick={() => setPreviewId(p.id)}                  style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-2)', cursor: 'pointer', padding: '3px 10px', fontSize: 11 }}>                  預覽                </button>                <button type="button" onClick={() => startEdit(p)}                  style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-2)', cursor: 'pointer', padding: '3px 10px', fontSize: 11 }}>                  編輯                </button>                {deleteConfirm === p.id ? (                  <>                    <button type="button" onClick={() => handleDelete(p.id)}                      style={{ background: 'var(--danger)', border: 'none', borderRadius: 6, color: '#fff', cursor: 'pointer', padding: '3px 8px', fontSize: 10 }}>確認</button>                    <button type="button" onClick={() => setDeleteConfirm(null)}                      style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-2)', cursor: 'pointer', padding: '3px 8px', fontSize: 10 }}>取消</button>                  </>                ) : (                  <button type="button" onClick={() => setDeleteConfirm(p.id)}                    style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '3px 6px', fontSize: 11 }}>刪除</button>                )}              </div>            ))}          </div>        )}      </div>    );  };
+  /* ── Current month events ── */
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const currentMonthEvents = useMemo(() =>
+    events
+      .filter(e => e.date.startsWith(currentMonth))
+      .sort((a, b) => a.date.localeCompare(b.date)),
+  [events, currentMonth]);
 
-  /* ═══════════════ CARD WALL ═══════════════ */
-  const renderCardWall = () => (
-    <Card>
-      <div className="emotion-filter">
-        {EMOTIONS.map(em => (
-          <button
-            key={em.key} type="button"
-            className={`emotion-chip ${emotionFilter === em.key ? 'active' : ''}`}
-            onClick={() => setEmotionFilter(em.key)}
-          >
-            <MoodIcon mood={em.icon} size={15} />
-            <span>{t(em.labelKey)}</span>
-          </button>
-        ))}
-        {selectedLocationStats && (
-          <button type="button" className="emotion-chip active" onClick={() => setSelectedLocationId(null)} style={{ background: 'var(--accent-soft)', borderColor: 'var(--accent)', color: 'var(--accent)' }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-              <circle cx="12" cy="10" r="2.5" />
-            </svg>
-            <span>{selectedLocationStats.location.name}</span>
-            <span aria-hidden="true">×</span>
-          </button>
-        )}
-      </div>
+  /* ── Date click handler ── */
+  const handleDayClick = useCallback((dk: string) => {
+    setSelectedDate(prev => prev === dk ? null : dk);
+  }, []);
 
-      {filteredMemories.length === 0 ? (
-        <div className="memory-empty">
-          <div className="memory-empty-icon">
-            <svg className="icon" viewBox="0 0 24 24" style={{ width: 40, height: 40, stroke: 'var(--text-3)', opacity: 0.25 }}>
-              <path d="M21 10.5c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div className="memory-empty-text" style={{ fontWeight: 500, marginBottom: 4 }}>
-            {selectedLocationStats ? `${selectedLocationStats.location.name} 還沒有記憶` : '還沒有記憶'}
-          </div>
-          <div className="memory-empty-sub">
-            {selectedLocationStats ? '去這個地方記錄一些什麼吧' : '點擊右上角 + 新增第一段記憶'}
-          </div>
-        </div>
-      ) : (
-        <div className="memory-card-wall">
-          {filteredMemories.map(m => {
-            const date = new Date(m.createdAt)
-            const dateStr = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
-            const loc = m.location?.name?.trim() || ''
-            const locOrig = m.location?.rawName?.trim() || ''
-            const tags = memoryTags(m)
-            const healthRecord = m.healthRecordId
-              ? healthRecords.find((record) => record.id === m.healthRecordId)
-              : undefined
-            return (
-              <div key={m.id} className="memory-wall-card" onClick={() => handleOpenDetail(m.id)}>
-                <button
-                  type="button"
-                  className="memory-wall-delete"
-                  onClick={e => { e.stopPropagation(); setDeleteConfirmId(m.id) }}
-                  aria-label="刪除記憶"
-                  title="刪除"
-                >×</button>
-                <div className={`memory-wall-emoji ${m.cardType === 'health' ? 'health' : ''}`}>
-                  {m.cardType === 'health'
-                    ? <SleepLineIcon size={30} />
-                    : <MoodIcon mood={MAP_MOOD_META[memoryMapMood(m)].icon} size={28} />}
-                </div>
-                {m.cardType === 'health' && <div className="memory-card-type-badge">{t('health.badge')}</div>}
-                <div className="memory-wall-scene">{m.summary || m.scene || '未命名記憶'}</div>
-                {m.summary && m.scene !== m.summary && (
-                  <div className="memory-wall-summary" style={{ fontSize: 11, color: 'var(--text-3)', opacity: 0.7 }}>{m.scene}</div>
-                )}
-                {!m.summary && <div className="memory-wall-summary">{memorySummary(m)}</div>}
-                {m.cardType === 'health' && healthRecord && (
-                  <div className="sleep-card-metrics">
-                    {healthRecord.sleepDurationMinutes !== undefined && (
-                      <span>
-                        <strong>{formatSleepDuration(healthRecord.sleepDurationMinutes)}</strong>
-                        <small>{t('health.duration')}</small>
-                      </span>
-                    )}
-                    {healthRecord.sleepStart && healthRecord.sleepEnd && (
-                      <span>
-                        <strong>{healthRecord.sleepStart}–{healthRecord.sleepEnd}</strong>
-                        <small>{t('health.sleepWindow')}</small>
-                      </span>
-                    )}
-                    {healthRecord.wakeCount !== undefined && (
-                      <span>
-                        <strong>{healthRecord.wakeCount}</strong>
-                        <small>{t('health.wakeTimes')}</small>
-                      </span>
-                    )}
-                  </div>
-                )}
-                {loc && (
-                  <div className="memory-wall-location">
-                    <span className="memory-wall-location-main">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-                        <circle cx="12" cy="10" r="2.5" />
-                      </svg>
-                      {loc}
-                    </span>
-                    {locOrig && <span className="memory-wall-location-orig">{locOrig}</span>}
-                  </div>
-                )}
-                {tags.length > 0 && (
-                  <div className="memory-wall-tags">
-                    {tags.map(t => <span key={t} className="memory-tag-pill">{t}</span>)}
-                  </div>
-                )}
-                <div className="memory-wall-date">{dateStr}</div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-      {/* Emotion Heatmap — monthly grid */}
-      <EmotionHeatmap entries={memoryEntries} />
-    </Card>
-  )
+  /* ── Event actions ── */
+  const handleAddEvent = (data: { type: EventType; title: string; date: string; note?: string; color?: string; reminder: Reminder; recurrence: Recurrence; cover?: string }) => {
+    const ev: CalendarEvent = { id: uid(), ...data, createdAt: Date.now() };
+    persistEvents([ev, ...events]);
+    setEventModalOpen(false);
+    showToast('已新增事件');
+  };
 
-  /* ═══════════════ MENU ═══════════════ */
-  const renderMenu = () => (
-    <>
-      <div className="memory-tabs" role="tablist" aria-label={t('memory.tabsLabel')}>
-        {(['memory', 'diary', 'moonwindow'] as const).map(tab => (
-          <button
-            key={tab} type="button" role="tab"
-            aria-selected={activeTab === tab}
-            className={`memory-tab ${activeTab === tab ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab(tab)
-              setSelectedLocationId(null)
-              setSearchParams(tab === 'memory' ? {} : { tab }, { replace: true })
-            }}
-          >
-            {tab === 'memory' ? t('memory.tabMemory') : tab === 'diary' ? t('memory.tabDiary') : '月映窗'}
-          </button>
-        ))}
-        <button type="button" className="memory-tab memory-tab-add" onClick={() => setView('form')} aria-label="新增記憶">
-          <svg className="icon" viewBox="0 0 24 24" style={{ width: 14, height: 14 }}>
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          className="memory-tab memory-tab-health"
-          onClick={() => setHealthImportOpen(true)}
-          aria-label={t('health.importTitle')}
-          title={t('health.importTitle')}
-        >
-          <SleepLineIcon size={17} />
-        </button>
-      </div>
-      {/* Memory stats banner */}
-      {activeTab === 'memory' && (() => {
-        const stats = computeMemoryStats(memoryEntries);
-        return (
-          <div style={{ padding: '0 16px 8px' }}>
-            <div style={{
-              fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6,
-              padding: '10px 14px', background: 'var(--surface-2)', borderRadius: 12,
-              display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center',
-            }}>
-              <span style={{ fontWeight: 500 }}>{formatStatsSummary(stats)}</span>
-              {stats.dominantCategory && (
-                <span style={{
-                  fontSize: 10, fontWeight: 500, padding: '2px 8px', borderRadius: 8,
-                  background: 'var(--accent-soft)', color: 'var(--accent)',
-                }}>
-                  {stats.dominantCategory === 'dialogue' ? '對話' :
-                   stats.dominantCategory === 'emotion' ? '情緒' :
-                   stats.dominantCategory === 'reading' ? '閱讀' :
-                   stats.dominantCategory === 'idea' ? '想法' :
-                   stats.dominantCategory === 'achievement' ? '成就' : '系統'}
-                </span>
-              )}
-            </div>
-          </div>
-        );
-      })()}
-      {activeTab === 'memory' && renderCardWall()}
-      {activeTab === 'diary' && <Card><DiaryPanel /></Card>}
-      {activeTab === 'moonwindow' && renderMoonWindow()}
-    </>
-  )
+  const handleEditEvent = (id: string, data: { type: EventType; title: string; date: string; note?: string; color?: string; reminder: Reminder; recurrence: Recurrence; cover?: string }) => {
+    persistEvents(events.map(e => e.id === id ? { ...e, ...data } : e));
+    setEditingEvent(null);
+    setEventModalOpen(false);
+    showToast('已更新事件');
+  };
 
+  const handleDeleteEvent = (id: string) => {
+    persistEvents(events.filter(e => e.id !== id));
+    showToast('已刪除事件');
+  };
+
+  /* ── Render ── */
   return (
     <section id="memory-view" className="view">
-      {view === 'menu' ? (
-        <>
-          <BackButton to="/" />
-          <Header eyebrow={activeTab === 'memory' ? t('memory.headerArchive') : activeTab === 'diary' ? t('memory.headerTimeline') : t('memory.headerMap')} title={
-            activeTab === 'memory' ? t('memory.tabMemory') : activeTab === 'diary' ? t('memory.tabDiary') : '月映窗'
-          } />
-          <LunaMessage page="memory" memoryCount={memoryEntries.length} emotion={emotionFilter} />
-          {renderMenu()}
-        </>
-      ) : view === 'form' ? (
-        <>
-          <BackButton />
-          <Header eyebrow="記憶存檔" title="今日心緒" />
-          <Card><QuickJournalForm onDone={handleFormDone} /></Card>
-        </>
-      ) : view === 'detail' && selectedEntry ? (
-        <>
-          <BackButton />
-          <Header eyebrow="記憶存檔" title="記憶詳情" />
-          <Card><MemoryDetail entry={selectedEntry} onBack={handleBackFromDetail} /></Card>
-        </>
-      ) : null}
+      <header className="memory-page-header">
+        <BackButton to="/" />
+        <div className="memory-page-heading">
+          <h1>{t('calendar.title')}</h1>
+        </div>
+        <div style={{ width: 44 }} />
+      </header>
 
-      {/* Delete confirmation — centered modal */}
-      {deleteConfirmId && createPortal(
-        <div
-          className="confirm-sheet-overlay active"
-          onClick={() => setDeleteConfirmId(null)}
-          onKeyDown={(e) => { if (e.key === 'Escape') setDeleteConfirmId(null); }}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 300 }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: 'var(--surface-1)', borderRadius: 20,
-              padding: '24px 20px 20px', maxWidth: 320, width: 'calc(100vw - 48px)',
-              boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
-              textAlign: 'center',
-            }}
-          >
-            <div style={{ marginBottom: 16 }}>
-              <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 6, color: 'var(--text)' }}>
-                確定要刪除這條記憶嗎？
-              </p>
-              <p style={{ fontSize: 12, color: 'var(--text-3)' }}>
-                刪除後無法復原
-              </p>
+      <div className="calendar-scroll">
+        {/* Calendar */}
+        <Card className="memory-calendar-card memory-calendar-main">
+          <div className="cal-stats-bar">
+            <div className="cal-stat-item">
+              <span className="cal-stat-value">{calStats.monthDays}</span>
+              <span className="cal-stat-label">{t('memory.calMonthDays')}</span>
             </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                type="button"
-                className="btn-ghost"
-                onClick={() => setDeleteConfirmId(null)}
-                style={{ flex: 1, fontSize: 14 }}
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                className="btn-primary"
-                style={{ flex: 1, fontSize: 14, background: 'var(--danger)', borderColor: 'var(--danger)' }}
-                onClick={() => { deleteMemoryEntry(deleteConfirmId); setDeleteConfirmId(null); }}
-              >
-                確認刪除
-              </button>
+            <div className="cal-stat-divider" />
+            <div className="cal-stat-item">
+              <span className="cal-stat-value">{calStats.streak}</span>
+              <span className="cal-stat-label">{t('memory.calStreak')}</span>
+            </div>
+            <div className="cal-stat-divider" />
+            <div className="cal-stat-item">
+              <span className="cal-stat-value cal-stat-mood">
+                {calStats.recentMood
+                  ? <MoodIcon mood={calStats.recentMood as any} size={18} />
+                  : '—'}
+              </span>
+              <span className="cal-stat-label">{t('memory.calRecentMood')}</span>
             </div>
           </div>
-        </div>,
-        document.body,
+          <MemoryParticleHeatmap onDayClick={handleDayClick} />
+        </Card>
+
+        {/* Date Detail Panel */}
+        {selectedDate && (
+          <Card className="calendar-detail-card">
+            <div className="calendar-detail-header">
+              <h3 className="calendar-detail-title">
+                {formatDateDisplay(selectedDate)}
+                <span className="calendar-detail-weekday">
+                  {new Date(selectedDate).toLocaleDateString('zh-TW', { weekday: 'long' })}
+                </span>
+              </h3>
+              <button type="button" className="calendar-detail-close" onClick={() => setSelectedDate(null)} aria-label="關閉詳情">&#x2715;</button>
+            </div>
+
+            {dateDetail && (
+              <div className="calendar-detail-body">
+                {/* Events on this date */}
+                {dateEvents.length > 0 && (
+                  <div className="calendar-detail-section">
+                    <div className="calendar-detail-section-title">事件</div>
+                    {dateEvents.map(ev => (
+                      <div key={ev.id} className="calendar-detail-event">
+                        <span className="calendar-detail-event-tag" style={{ background: ev.color || EVENT_COLORS[ev.type] }}>
+                          {EVENT_LABELS[ev.type]}
+                        </span>
+                        <span className="calendar-detail-event-title">{ev.title}</span>
+                        {ev.note && <span className="calendar-detail-event-note">{ev.note}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Diary */}
+                <div className="calendar-detail-section">
+                  <div className="calendar-detail-section-title">
+                    日記
+                    {dateDetail.diary.length > 0 && <span className="calendar-detail-badge">{dateDetail.diary.length}</span>}
+                  </div>
+                  {dateDetail.diary.length === 0 ? (
+                    <div className="calendar-detail-empty">尚無日記</div>
+                  ) : dateDetail.diary.map(entry => (
+                    <div key={entry.id} className="calendar-detail-item">
+                      <div className="calendar-detail-item-title">{entry.title || '（無標題）'}</div>
+                      {entry.content && <div className="calendar-detail-item-body">{entry.content.slice(0, 120)}{entry.content.length > 120 ? '…' : ''}</div>}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Todos */}
+                <div className="calendar-detail-section">
+                  <div className="calendar-detail-section-title">
+                    待辦
+                    {dateDetail.todos.length > 0 && <span className="calendar-detail-badge">{dateDetail.todos.length}</span>}
+                  </div>
+                  {dateDetail.todos.length === 0 ? (
+                    <div className="calendar-detail-empty">尚無待辦</div>
+                  ) : dateDetail.todos.map(todo => (
+                    <div key={todo.id} className={`calendar-detail-item${todo.completed ? ' done' : ''}`}>
+                      <span className="calendar-detail-item-check">{todo.completed ? '✓' : '○'}</span>
+                      <span className="calendar-detail-item-title">{todo.title}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Sleep */}
+                <div className="calendar-detail-section">
+                  <div className="calendar-detail-section-title">
+                    睡眠
+                    {dateDetail.sleep.length > 0 && <span className="calendar-detail-badge">{dateDetail.sleep.length}</span>}
+                  </div>
+                  {dateDetail.sleep.length === 0 ? (
+                    <div className="calendar-detail-empty">尚無睡眠記錄</div>
+                  ) : dateDetail.sleep.map(rec => (
+                    <div key={rec.id} className="calendar-detail-item">
+                      <span className="calendar-detail-item-title">
+                        睡眠 {rec.sleepDurationMinutes != null ? `${Math.floor(rec.sleepDurationMinutes / 60)}h${rec.sleepDurationMinutes % 60}m` : '—'}
+                      </span>
+                      {rec.sleepStart && <span className="calendar-detail-item-meta">{rec.sleepStart} ~ {rec.sleepEnd}</span>}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Period */}
+                <div className="calendar-detail-section">
+                  <div className="calendar-detail-section-title">
+                    生理期
+                    {dateDetail.period.length > 0 && <span className="calendar-detail-badge">{dateDetail.period.length}</span>}
+                  </div>
+                  {dateDetail.period.length === 0 ? (
+                    <div className="calendar-detail-empty">尚無生理期記錄</div>
+                  ) : dateDetail.period.map(rec => (
+                    <div key={rec.id} className="calendar-detail-item">
+                      <span className="calendar-detail-item-title">
+                        {rec.startDate} ~ {rec.endDate}
+                      </span>
+                      {rec.symptoms.length > 0 && (
+                        <div className="calendar-detail-item-meta">{rec.symptoms.join('、')}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </Card>
+        )}
+
+        {/* Events Section — Timeline */}
+        <Card className="calendar-timeline-card-section">
+          <div className="calendar-timeline-header">
+            <h3 className="calendar-timeline-title">事件</h3>
+            <button
+              type="button"
+              className="calendar-timeline-add"
+              onClick={() => { setEditingEvent(null); setEventModalOpen(true); }}
+              aria-label="新增事件"
+            >
+              <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+          </div>
+
+          {currentMonthEvents.length === 0 ? (
+            <div className="calendar-timeline-empty">本月尚無事件</div>
+          ) : (
+            <div className="calendar-timeline">
+              <div className="calendar-timeline-rail" />
+              {currentMonthEvents.map(ev => (
+                <div key={ev.id} className="calendar-timeline-card" onClick={() => { setEditingEvent(ev); setEventModalOpen(true); }}>
+                  <div className="calendar-timeline-dot" style={{ background: ev.color || EVENT_COLORS[ev.type] }} />
+                  <div className="calendar-timeline-body">
+                    <div className="calendar-timeline-meta">
+                      <span className="calendar-timeline-date">{formatDateDisplay(ev.date)}</span>
+                      <span className="calendar-timeline-tag" style={{ background: ev.color || EVENT_COLORS[ev.type] }}>
+                        {EVENT_LABELS[ev.type]}
+                      </span>
+                      {ev.reminder && ev.reminder !== 'none' && (
+                        <span className="calendar-timeline-reminder">{REMINDER_LABELS[ev.reminder]}</span>
+                      )}
+                      {ev.recurrence && ev.recurrence !== 'none' && (
+                        <span className="calendar-timeline-reminder">{RECURRENCE_LABELS[ev.recurrence]}</span>
+                      )}
+                    </div>
+                    <div className="calendar-timeline-card-title">{ev.title}</div>
+                    {ev.cover && (
+                      <div className="calendar-timeline-cover-wrap">
+                        <img src={ev.cover} alt="" className="calendar-timeline-cover" />
+                      </div>
+                    )}
+                    {ev.note && <div className="calendar-timeline-note">{ev.note}</div>}
+                  </div>
+                  <button
+                    type="button"
+                    className="calendar-timeline-del"
+                    onClick={e => { e.stopPropagation(); handleDeleteEvent(ev.id); }}
+                    aria-label="刪除事件"
+                  >&#x2715;</button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Event modal */}
+      {eventModalOpen && (
+        <EventForm
+          editing={editingEvent}
+          onSave={editingEvent ? (data) => handleEditEvent(editingEvent.id, data) : handleAddEvent}
+          onClose={() => { setEditingEvent(null); setEventModalOpen(false); }}
+        />
       )}
-      {healthImportOpen && <HealthImportSheet onClose={() => setHealthImportOpen(false)} />}
     </section>
-  )
-}
-
-/* ── Emotion Heatmap ── */
-function EmotionHeatmap({ entries }: { entries: { createdAt: number; anxietyLevel: number }[] }) {
-  const now = new Date()
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-  const firstDow = new Date(now.getFullYear(), now.getMonth(), 1).getDay()
-  const today = now.getDate()
-  const weekdays = ['日','一','二','三','四','五','六']
-
-  // Build emotion map for this month
-  const emotionMap: Record<number, { level: number; color: string }> = {}
-  for (const e of entries) {
-    const d = new Date(e.createdAt)
-    if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
-      const day = d.getDate()
-      const color = e.anxietyLevel >= 7 ? 'rgba(199,107,91,0.3)' : e.anxietyLevel >= 5 ? 'rgba(217,154,43,0.3)' : e.anxietyLevel >= 3 ? 'rgba(127,154,99,0.3)' : 'rgba(142,124,195,0.3)'
-      emotionMap[day] = { level: e.anxietyLevel, color }
-    }
-  }
-
-  const cells: (number | null)[] = []
-  for (let i = 0; i < firstDow; i++) cells.push(null)
-  for (let d = 1; d <= daysInMonth; d++) cells.push(d)
-
-  return (
-    <div>
-      <div style={{ fontSize: 'var(--fs-label)', color: 'var(--text-3)', marginTop: 12, marginBottom: 4, letterSpacing: 1 }}>
-        本月情緒熱力圖
-      </div>
-      <div className="emotion-heatmap">
-        {weekdays.map(w => <div key={w} className="emotion-heatmap-header">{w}</div>)}
-        {cells.map((d, i) => (
-          <div
-            key={i}
-            className={`emotion-heatmap-day${d && emotionMap[d] ? ' has-memory' : ''}${d === today ? ' today' : ''}`}
-            style={d && emotionMap[d] ? { background: emotionMap[d].color } : undefined}
-          >
-            {d || ''}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/* ── Luna Map Comment ── */
-function LunaMapComment({ count, primaryMood }: { count: number; primaryMood: MapMood }) {
-  let messageKey = 'memory.mapLunaQuiet'
-  if (count > 0 && primaryMood === 'music') messageKey = 'memory.mapLunaMusic'
-  else if (count > 0 && (primaryMood === 'sad' || primaryMood === 'anger')) messageKey = 'memory.mapLunaHeavy'
-  else if (count > 0) messageKey = 'memory.mapLunaWarm'
-  return (
-    <div className="memory-location-luna">
-      <SleepLineIcon size={18} />
-      <span>{t(messageKey).replace(/^Luna[:：]\s*/, '')}</span>
-    </div>
-  )
+  );
 }

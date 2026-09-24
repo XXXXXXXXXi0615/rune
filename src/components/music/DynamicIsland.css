@@ -1,0 +1,245 @@
+/* ════════════════════════════════════════
+   DYNAMIC ISLAND — multi-source status center
+   ════════════════════════════════════════ */
+
+.dynamic-island {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 97;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  max-width: min(calc(100vw - 32px), 360px);
+  padding: 0;
+  border-radius: 999px;
+  background: #181715;
+  color: #faf9f5;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition:
+    border-radius 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    padding 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.35s ease,
+    opacity 0.2s ease,
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: di-slide-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes di-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ── Cross-fade between sources ── */
+.dynamic-island.di-transitioning {
+  opacity: 0.5;
+  transform: translateX(-50%) scale(0.96);
+}
+
+/* ── Dark theme ── */
+[data-theme="dark"] .dynamic-island {
+  background: #252320;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ── Source-specific accent glows ── */
+.di-source--ai {
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.35),
+    0 0 0 1px rgba(162, 143, 184, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.di-source--focus {
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.35),
+    0 0 0 1px rgba(204, 120, 92, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.di-source--music {
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.35),
+    0 1px 3px rgba(0,0,0,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.di-source--sleep {
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.35),
+    0 0 0 1px rgba(93, 184, 166, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+/* ── Compact row ── */
+.di-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* ── Cover ── */
+.di-cover {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.di-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.di-cover-emoji {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* ── Text block ── */
+.di-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.di-title {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #faf9f5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.1px;
+}
+.di-subtitle {
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: rgba(250, 249, 245, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Divider ── */
+.di-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+
+/* ── Action button ── */
+.di-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #faf9f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  padding: 0;
+  font-family: inherit;
+}
+.di-action-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.di-action-btn:active {
+  transform: scale(0.92);
+}
+
+/* ── AI thinking pulse ── */
+.di-thinking-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #a28fb8;
+  flex-shrink: 0;
+  animation: di-pulse 1.4s ease-in-out infinite;
+}
+@keyframes di-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ── Expanded state ── */
+.dynamic-island.is-expanded {
+  border-radius: 24px;
+  padding-bottom: 8px;
+}
+
+.di-expanded {
+  width: 100%;
+  padding: 0 16px 4px;
+}
+
+/* ── Progress track ── */
+.di-progress-track {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  position: relative;
+}
+
+.di-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  transition: width 0.3s linear;
+  min-width: 2px;
+}
+
+/* ── Indeterminate progress (AI thinking) ── */
+.di-progress--indeterminate .di-progress-indeterminate {
+  width: 30%;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(162, 143, 184, 0.6), transparent);
+  animation: di-indeterminate 1.5s ease-in-out infinite;
+}
+@keyframes di-indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(430%); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 360px) {
+  .dynamic-island {
+    max-width: calc(100vw - 24px);
+  }
+  .di-title {
+    font-size: 12px;
+  }
+  .di-subtitle {
+    font-size: 9px;
+  }
+}

@@ -1,0 +1,4 @@
+import type { GameParticipant, GameSession } from './types';
+export interface GameInviteCard { type: 'game-invite'; sessionId: string; gameDefinitionId: string; title: string; mode: string; participantSnapshots: Pick<GameParticipant, 'seatId' | 'displayName' | 'avatar'>[]; status: GameSession['status']; route: string }
+export const createGameInviteCard = (session: GameSession, mode: string): GameInviteCard => ({ type: 'game-invite', sessionId: session.id, gameDefinitionId: session.gameDefinitionId, title: session.title, mode, participantSnapshots: session.participants.map(({ seatId, displayName, avatar }) => ({ seatId, displayName, avatar })), status: session.status, route: `/playroom/session/${session.id}` });
+export const toShareableGameResult = (session: GameSession) => ({ sessionId: session.id, gameDefinitionId: session.gameDefinitionId, turns: session.currentTurn, status: session.status, summary: String(session.publicState.summary || '游戏已结束') });

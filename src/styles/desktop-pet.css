@@ -1,0 +1,633 @@
+/* ════════════════════════════════════════
+   Desktop Pet Host, Emotion Palette, & Interactions
+   ════════════════════════════════════════ */
+
+.global-desktop-pet-host {
+  pointer-events: none;
+  isolation: isolate;
+  opacity: 1;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--text) 10%, transparent));
+  will-change: transform;
+  max-width: calc(100vw - 4px);
+  max-height: calc(100vh - 4px);
+  overflow: visible;
+}
+
+.global-desktop-pet-host.is-dragging {
+  filter: drop-shadow(0 5px 9px color-mix(in srgb, var(--text) 18%, transparent));
+}
+
+.global-desktop-pet-host.is-autonomous-walking {
+  transition: transform var(--pet-walk-duration, 1200ms) linear;
+}
+.global-desktop-pet-host.is-autonomous-walking .desktop-pet-avatar {
+  animation: pet-autonomous-walk-bob 520ms ease-in-out infinite;
+}
+.global-desktop-pet-host.is-autonomous-walking .pet-sprite,
+.global-desktop-pet-host.is-autonomous-walking .registered-pet-asset,
+.global-desktop-pet-host.is-autonomous-walking .registered-pet-gif {
+  scale: var(--pet-walk-direction, 1) 1;
+}
+.global-desktop-pet-host.is-autonomous-arriving .desktop-pet-avatar { animation: pet-autonomous-arrive 150ms ease-out both; }
+.global-desktop-pet-host.is-behavior-idleBreathing .desktop-pet-avatar { animation: pet-autonomous-breathe 3.5s ease-in-out infinite; transform-origin: center bottom; }
+.global-desktop-pet-host.is-behavior-idleLook .desktop-pet-avatar { animation: pet-autonomous-look 700ms ease-in-out both; }
+.global-desktop-pet-host.is-behavior-idleBlink .desktop-pet-avatar { animation: pet-autonomous-blink 140ms ease-in-out both; }
+.global-desktop-pet-host.is-behavior-idleShift .desktop-pet-avatar { animation: pet-autonomous-shift 650ms ease-in-out both; }
+
+@keyframes pet-autonomous-breathe { 0%,100% { transform: scaleY(.997); } 50% { transform: scaleY(1.006); } }
+@keyframes pet-autonomous-blink { 0%,100% { opacity: 1; } 50% { opacity: .82; } }
+@keyframes pet-autonomous-look { 0%,100% { transform: rotate(0); } 45%,65% { transform: rotate(1.6deg); } }
+@keyframes pet-autonomous-shift { 0%,100% { transform: translateX(0); } 50% { transform: translateX(1.8%); } }
+@keyframes pet-autonomous-walk-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes pet-autonomous-arrive { 0% { transform: scaleY(1); } 45% { transform: scaleX(1.025) scaleY(.98); } 100% { transform: none; } }
+
+/* ── Body hit target — the ONLY interactive element ── */
+.desktop-pet-body-hit-target {
+  display: block;
+  border: none;
+  background: transparent;
+  padding: 0;
+  outline: none;
+  border-radius: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  z-index: 2;
+}
+
+.desktop-pet-body-hit-target:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Debug overlay — hidden by default, visible only with data-debug-pet-hitbox="true" */
+.desktop-pet-body-hit-target[data-debug-pet-hitbox="true"] {
+  background: rgba(72, 199, 72, 0.18);
+  outline: 1px dashed rgba(72, 199, 72, 0.45);
+  outline-offset: -1px;
+  border-radius: 6px;
+}
+
+/* ── Avatar — visual only, pointer-events: none ── */
+.desktop-pet-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  outline: none;
+  transform: translate3d(var(--pet-follow-x, 0), var(--pet-follow-y, 0), 0) rotate(var(--pet-drag-tilt, 0deg));
+  transform-origin: center 78%;
+  transform-box: border-box;
+  transition: transform 0.28s cubic-bezier(.2,.8,.2,1), filter 0.15s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  touch-action: none;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.desktop-pet-avatar > * {
+  width: var(--pet-visual-size, 100%);
+  height: var(--pet-visual-size, 100%);
+  transform: scale(var(--pet-visual-scale, 1));
+  transform-origin: center bottom;
+  transform-box: border-box;
+  pointer-events: none;
+}
+.desktop-pet-avatar .registered-pet-asset { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; image-rendering: pixelated; pointer-events: none; }
+.desktop-pet-avatar .registered-pet-gif { display: block; width: 100%; height: 100%; image-rendering: pixelated; pointer-events: none; }
+.desktop-pet-avatar .pet-sprite { width: var(--pet-visual-size, 100%); max-width: none; height: auto; aspect-ratio: 192 / 208; transform-origin: center bottom; image-rendering: pixelated; transform: scaleX(var(--pet-flip, 1)) scale(var(--pet-visual-scale, 1)); pointer-events: none; }
+.desktop-pet-avatar .lunaris-pet { display: grid; width: var(--pet-visual-size, 100%); height: var(--pet-visual-size, 100%); place-items: center; pointer-events: none; }
+.desktop-pet-avatar .lunaris-pet__image-wrap { display: contents; pointer-events: none; }
+.desktop-pet-avatar .lunaris-pet__image { image-rendering: pixelated; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; pointer-events: none; }
+
+/* ── Tactile: hover ── */
+.global-desktop-pet-host:has(.desktop-pet-body-hit-target:hover) .desktop-pet-avatar {
+  transform: translateY(-1px);
+}
+
+/* ── Tactile: press ── */
+.global-desktop-pet-host.is-pointer-pressed .desktop-pet-avatar {
+  transform: translateY(1px) scaleX(1.04) scaleY(.95);
+  transform-origin: center bottom;
+  transition-duration: 96ms;
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--text) 12%, transparent));
+}
+
+/* ── Neutral click reactions ── */
+.global-desktop-pet-host.is-behavior-blink .desktop-pet-avatar,
+.global-desktop-pet-host.is-behavior-nod .desktop-pet-avatar {
+  animation: pet-click-bounce 380ms cubic-bezier(.2,.8,.2,1) both;
+}
+.global-desktop-pet-host.is-behavior-squish .desktop-pet-avatar {
+  animation-name: pet-click-squish;
+  animation-duration: 410ms;
+}
+.global-desktop-pet-host.is-behavior-curious .desktop-pet-avatar {
+  animation: pet-curious 420ms cubic-bezier(.2,.8,.2,1) both;
+}
+.global-desktop-pet-host.is-behavior-wiggle .desktop-pet-avatar {
+  animation: pet-wiggle 520ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes pet-click-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(.88); }
+  55% { transform: scale(1.06); }
+  75% { transform: scale(.96); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pet-curious { 0%,100% { transform: rotate(0); } 45% { transform: rotate(4deg) translateY(-2px); } }
+@keyframes pet-wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } 75% { transform: rotate(-3deg); } }
+
+.global-desktop-pet-host.is-behavior-landing .desktop-pet-avatar {
+  animation: pet-landing 190ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes pet-click-squish {
+  0% { transform: scaleY(1) scaleX(1); }
+  35% { transform: scaleY(.88) scaleX(1.08); }
+  65% { transform: scaleY(1.04) scaleX(.97); }
+  100% { transform: scaleY(1) scaleX(1); }
+}
+
+@keyframes pet-landing {
+  0% { transform: translateY(-5px) scale(1); }
+  42% { transform: translateY(6px) scaleX(1.045) scaleY(.95); }
+  72% { transform: translateY(2px) scaleX(.99) scaleY(1.015); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* ── Grab / Struggle / Release — animate the avatar via host class ── */
+.global-desktop-pet-host.is-interaction-grabbed .desktop-pet-avatar {
+  cursor: grabbing;
+  transform: scaleY(.95) rotate(-1deg);
+}
+.global-desktop-pet-host.is-dragging .desktop-pet-avatar {
+  transform: translate3d(0, -2px, 0) rotate(var(--pet-drag-tilt, 0deg)) scaleY(.96);
+  transition: transform 80ms linear;
+}
+
+.desktop-pet-shadow {
+  position: absolute;
+  z-index: 0;
+  height: 14px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text) 20%, transparent);
+  filter: blur(5px);
+  opacity: .24;
+  transform: translateX(-50%);
+  transform-origin: center;
+  transform-box: border-box;
+  transition: width 100ms ease, opacity 100ms ease, transform 100ms ease;
+  pointer-events: none;
+}
+.global-desktop-pet-host.is-dragging .desktop-pet-shadow { opacity: .34; transform: translateX(-50%) scaleX(.96); }
+.global-desktop-pet-host.is-behavior-landing .desktop-pet-shadow { opacity: .3; transform: translateX(-50%) scaleX(1.04); }
+
+.desktop-pet-presentation-stage,
+.desktop-pet-presentation-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: center bottom;
+  transform-box: border-box;
+  pointer-events: none;
+}
+.desktop-pet-presentation-layer {
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity var(--pet-crossfade-ms, 100ms) ease;
+}
+.desktop-pet-presentation-layer--current.is-visible { opacity: 1; }
+.desktop-pet-presentation-layer--outgoing { opacity: 1; }
+.desktop-pet-presentation-layer--outgoing.is-fading { opacity: 0; }
+.global-desktop-pet-host.is-behavior-startledWake .desktop-pet-avatar {
+  animation: pet-startled-wake 460ms cubic-bezier(.2,.9,.2,1) both;
+}
+@keyframes pet-startled-wake {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-5px) scale(1.04); }
+  100% { transform: translateY(0) scale(1); }
+}
+.global-desktop-pet-host.is-interaction-struggling .desktop-pet-avatar {
+  animation: pet-struggle-light 120ms ease-in-out infinite alternate;
+  transform-origin: center 70%;
+}
+.global-desktop-pet-host.is-struggle-strong .desktop-pet-avatar { animation-duration: 82ms; filter: drop-shadow(0 6px 12px rgba(0,0,0,.2)); }
+.global-desktop-pet-host.is-struggle-tired .desktop-pet-avatar { animation-duration: 220ms; opacity: .85; }
+.global-desktop-pet-host.is-interaction-released .desktop-pet-avatar,
+.global-desktop-pet-host.is-interaction-recovering .desktop-pet-avatar {
+  animation: pet-release-recover 600ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes pet-struggle-light { from { transform: translateX(-2px) rotate(-3deg) scaleY(.97); } to { transform: translateX(2px) rotate(3deg) scaleY(1.01); } }
+@keyframes pet-release-recover { 0% { transform: rotate(3deg) scaleY(.97); } 45% { transform: rotate(-2deg) scaleY(1.01); } 100% { transform: none; } }
+
+.global-desktop-pet-host.is-reduced-motion .desktop-pet-avatar {
+  animation: none !important;
+  transform: none !important;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.global-desktop-pet-host.is-reduced-motion.is-autonomous-walking { transition: none; }
+.global-desktop-pet-host.is-reduced-motion .desktop-pet-shadow {
+  transition: opacity 120ms ease, width 120ms ease;
+  transform: translateX(-50%);
+}
+.global-desktop-pet-host.is-reduced-motion .desktop-pet-presentation-layer { transition-duration: 120ms; }
+
+.pet-emotion-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-desktop-pet-host { transition: opacity 120ms ease, transform 120ms ease; }
+}
+
+/* ════════════════════════════════════════
+   Emotion Palette — Floating Panel (Context)
+   ════════════════════════════════════════ */
+.dpet-emotion-palette {
+  align-self: flex-start;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(32px) saturate(1.6);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  border: 1px solid color-mix(in srgb, var(--border) 20%, transparent);
+  box-shadow:
+    0 12px 40px rgba(0,0,0,.30),
+    0 2px 8px rgba(0,0,0,.10),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: dpet-palette-in .18s ease both;
+}
+
+@keyframes dpet-palette-in {
+  from { opacity: 0; transform: translateY(6px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dpet-emotion-palette--mobile {
+  border-radius: 16px 16px 0 0;
+  animation: dpet-palette-mobile-in .25s ease both;
+}
+
+@keyframes dpet-palette-mobile-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Header */
+.dpet-emotion-palette__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 24%, transparent);
+  user-select: none;
+  flex-shrink: 0;
+}
+.dpet-emotion-palette__current{display:grid;grid-template-columns:82px 1fr;gap:12px;align-items:center;margin:0 12px 10px;padding:10px;border:1px solid var(--border);border-radius:14px;background:color-mix(in srgb,var(--surface-2) 88%,transparent)}
+.dpet-emotion-palette__current-visual{height:72px;display:grid;place-items:center;overflow:hidden}.dpet-emotion-palette__current-visual>*{max-width:100%;max-height:100%}.dpet-emotion-palette__current>div:last-child{display:grid;gap:2px}.dpet-emotion-palette__current small{font-size:9px;letter-spacing:.14em;color:var(--text-3)}.dpet-emotion-palette__current span{font-size:11px;color:var(--text-2)}.dpet-emotion-palette__current button{justify-self:start;margin-top:4px;border:1px solid var(--border);border-radius:8px;background:var(--surface-1);color:var(--text);padding:4px 8px}.dpet-emotion-palette__feedback{margin:0 12px 8px;padding:7px 10px;border-radius:9px;background:color-mix(in srgb,var(--accent) 15%,var(--surface-1));color:var(--text);font-size:12px}
+
+.dpet-emotion-palette__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dpet-emotion-palette__close {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background .1s;
+  line-height: 1;
+}
+.dpet-emotion-palette__close:hover { background: var(--surface-2); }
+
+/* Search */
+.dpet-emotion-palette__search {
+  padding: 8px 12px;
+  flex-shrink: 0;
+}
+
+.dpet-emotion-palette__search-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--f-ui);
+  outline: none;
+  box-sizing: border-box;
+}
+.dpet-emotion-palette__search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.dpet-emotion-palette__search-input::placeholder { color: var(--text-3); }
+
+/* Tabs */
+.dpet-emotion-palette__tabs-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dpet-emotion-palette__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px 12px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.dpet-emotion-palette__tabs::-webkit-scrollbar { display: none; }
+
+.dpet-emotion-palette__tabs-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  pointer-events: none;
+  z-index: 1;
+}
+.dpet-emotion-palette__tabs-fade--l {
+  left: 0;
+  background: linear-gradient(to right, color-mix(in srgb, var(--bg) 90%, transparent) 0%, transparent 100%);
+}
+.dpet-emotion-palette__tabs-fade--r {
+  right: 0;
+  background: linear-gradient(to left, color-mix(in srgb, var(--bg) 90%, transparent) 0%, transparent 100%);
+}
+
+.dpet-emotion-palette__tab {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--f-ui);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .1s, color .1s;
+  appearance: none;
+}
+.dpet-emotion-palette__tab:hover { background: var(--surface-2); color: var(--text); }
+.dpet-emotion-palette__tab.is-active {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.dpet-emotion-palette__more-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dpet-emotion-palette__more-drop {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in srgb, var(--border) 20%, transparent);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.20);
+  z-index: 2;
+  min-width: 64px;
+}
+
+/* Grid — scrollable, 4 columns */
+.dpet-emotion-palette__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px 12px 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-3) transparent;
+}
+
+.dpet-emotion-palette__grid::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dpet-emotion-palette__grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dpet-emotion-palette__grid::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text) 18%, transparent);
+  border-radius: 3px;
+}
+
+.dpet-emotion-palette__grid::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--text) 32%, transparent);
+}
+
+.dpet-emotion-palette__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dpet-emotion-palette__item-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  padding: 6px 4px 4px;
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background .1s, border-color .1s;
+  appearance: none;
+  font-family: var(--f-ui);
+  text-align: center;
+  box-sizing: border-box;
+}
+.dpet-emotion-palette__item-preview:hover { background: var(--surface-2); }
+
+.dpet-emotion-palette__item.is-current .dpet-emotion-palette__item-preview {
+  border-color: var(--accent);
+}
+
+.dpet-emotion-palette__item.is-selecting .dpet-emotion-palette__item-preview {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.dpet-emotion-palette__item.is-selecting{transform:scale(.97);transition:transform 120ms ease}.dpet-emotion-palette__item-visual .registered-pet-asset,.dpet-emotion-palette__item-visual .registered-pet-gif,.dpet-emotion-palette__item-visual .lunaris-pet{max-width:100%;max-height:100%;object-fit:contain}
+
+.dpet-emotion-palette__item-visual {
+  width: 100%;
+  aspect-ratio: 0.86;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+}
+
+.dpet-emotion-palette__item-img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  object-position: center;
+  image-rendering: pixelated;
+}
+
+.dpet-emotion-palette__item-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--text-3);
+}
+
+.dpet-emotion-palette__item-name {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-2);
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.dpet-emotion-palette__fav {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .12s, color .12s;
+  line-height: 1;
+  z-index: 1;
+  appearance: none;
+}
+.dpet-emotion-palette__item:hover .dpet-emotion-palette__fav { opacity: 1; }
+.dpet-emotion-palette__fav.is-fav { opacity: 1; color: #e8a55a; }
+.dpet-emotion-palette__fav:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.dpet-emotion-palette__check {
+  position: absolute;
+  bottom: 20px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 90%, transparent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.dpet-emotion-palette__empty {
+  grid-column: 1 / -1;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+/* ── Speed picker (themed, no native select) ── */
+.desktop-pet-speed-picker {
+  display: flex;
+  gap: 4px;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+
+.desktop-pet-speed-picker button {
+  flex: 1;
+  min-height: 32px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--f-ui);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.desktop-pet-speed-picker button:hover { color: var(--text); transform: translateY(-1px); }
+.desktop-pet-speed-picker button:active { transform: translateY(1px) scale(.97); }
+.desktop-pet-speed-picker button.is-active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  font-weight: 600;
+}
+
+.desktop-pet-section button:not(.desktop-pet-speed-picker button):not(:disabled) {
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+.desktop-pet-section button:not(:disabled):hover { transform: translateY(-1px); }
+.desktop-pet-section button:not(:disabled):active {
+  transform: translateY(1px) scale(.97);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.06);
+}

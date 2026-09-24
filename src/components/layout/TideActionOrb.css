@@ -1,0 +1,205 @@
+/* ══════════════════════════════════════
+   TideActionOrb — Liquid Glass Action Orb
+   Centered inside bottom dock.
+   ══════════════════════════════════════ */
+
+/* ── Wrapper: holds orb + menu positioned relative to orb ── */
+.tide-orb-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+/* ── Orb Button ── */
+.tide-orb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Glass base */
+  background:
+    linear-gradient(160deg,
+      color-mix(in srgb, var(--accent) 6%, var(--surface)),
+      color-mix(in srgb, var(--accent) 2%, var(--surface-2)));
+
+  /* Glass reflections */
+  box-shadow:
+    0 8px 24px rgba(102, 72, 54, 0.14),
+    0 2px 6px rgba(102, 72, 54, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 4px rgba(200, 180, 164, 0.12);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  color: var(--text-2);
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.9, 0.4, 1),
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    color 0.18s ease;
+}
+
+.tide-orb:hover {
+  transform: scale(1.06);
+  color: var(--accent);
+  box-shadow:
+    0 14px 32px rgba(102, 72, 54, 0.18),
+    0 4px 10px rgba(102, 72, 54, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    inset 0 -1px 4px rgba(200, 180, 164, 0.16);
+}
+
+.tide-orb:active {
+  transform: scale(0.96);
+  box-shadow:
+    0 4px 12px rgba(102, 72, 54, 0.12),
+    inset 0 1px 3px rgba(102, 72, 54, 0.08);
+}
+
+/* ── Active (menu open) state — soft blue-purple glow ── */
+.tide-orb--active {
+  color: var(--accent);
+  background:
+    linear-gradient(160deg,
+      color-mix(in srgb, var(--accent) 14%, var(--surface)),
+      color-mix(in srgb, var(--accent) 6%, var(--surface-2)));
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--accent) 28%, transparent),
+    0 8px 24px rgba(102, 72, 54, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* ── Plus icon ── */
+.tide-orb-icon {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.4, 1);
+  pointer-events: none;
+}
+
+.tide-orb--active .tide-orb-icon {
+  transform: rotate(45deg);
+}
+
+/* ── Menu (glass popover, positioned above orb) ── */
+.tide-orb-menu {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 14px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 160px;
+  max-width: 240px;
+  padding: 8px;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg,
+      color-mix(in srgb, var(--glass-bg-strong, var(--surface)) 88%, transparent),
+      color-mix(in srgb, var(--glass-bg-soft, var(--surface-2)) 72%, transparent));
+  backdrop-filter: blur(32px) saturate(2);
+  -webkit-backdrop-filter: blur(32px) saturate(2);
+  box-shadow:
+    0 20px 48px rgba(102, 72, 54, 0.26),
+    0 6px 14px rgba(102, 72, 54, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 0 0 1px color-mix(in srgb, var(--border) 28%, transparent);
+  z-index: 200;
+  animation: orbMenuIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: bottom center;
+}
+
+@keyframes orbMenuIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.tide-orb-menu::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: inherit;
+  rotate: 45deg;
+  border-right: 1px solid color-mix(in srgb, var(--border) 28%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 28%, transparent);
+  box-shadow: inherit;
+  z-index: -1;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+[data-theme="dark"] .tide-orb-menu,
+[data-theme="dark"] .tide-orb-menu::after {
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.38),
+    0 6px 14px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 0 1px color-mix(in srgb, var(--border) 24%, transparent);
+}
+
+/* ── Menu items ── */
+.tide-orb-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.tide-orb-menu-item:hover,
+.tide-orb-menu-item:focus-visible {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+  color: var(--accent);
+}
+
+.tide-orb-menu-item:active {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface-2));
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .tide-orb {
+    transition: none;
+  }
+  .tide-orb-icon {
+    transition: none;
+  }
+  .tide-orb-menu {
+    animation: none;
+  }
+}

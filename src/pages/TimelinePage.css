@@ -1,0 +1,211 @@
+/* ════════════════════════════════════════
+   TIMELINE PAGE — chronological event view
+   ════════════════════════════════════════ */
+
+.timeline-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+.timeline-container {
+  padding: 0 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Empty state ── */
+.timeline-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 64px 20px;
+  text-align: center;
+  color: var(--text-2);
+}
+.timeline-empty-icon {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.timeline-empty p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+.timeline-empty-sub {
+  font-size: 12px !important;
+  color: var(--text-3);
+  font-weight: 400 !important;
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+/* ── Day group ── */
+.tl-day-group {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 20px;
+}
+.tl-day-group:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Timeline connector line ── */
+.tl-day-group::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 16px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+  border-radius: 1px;
+}
+.tl-day-group:last-child::before {
+  display: none;
+}
+
+/* ── Day head ── */
+.tl-day-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.tl-day-dot {
+  position: absolute;
+  left: -17px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+  flex-shrink: 0;
+  z-index: 1;
+}
+.tl-day-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+.tl-day-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+  background: var(--surface-2);
+  padding: 0 6px;
+  border-radius: 999px;
+  line-height: 16px;
+}
+
+/* ── Day items ── */
+.tl-day-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Event row ── */
+.tl-event {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: background 0.12s;
+  position: relative;
+}
+.tl-event--clickable {
+  cursor: pointer;
+}
+.tl-event--clickable:hover {
+  background: var(--surface-2);
+}
+.tl-event--clickable:active {
+  background: var(--surface-3);
+}
+
+/* ── Event icon ── */
+.tl-event-icon {
+  font-size: 16px;
+  line-height: 1.3;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+/* ── Event body ── */
+.tl-event-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.tl-event-top {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.tl-event-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tl-event-time {
+  font-size: 10px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tl-event-detail {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.4;
+}
+.tl-event-sub {
+  font-size: 11px;
+  color: var(--text-3);
+  line-height: 1.3;
+}
+
+/* ── Event meta & type badges ── */
+.tl-event-meta {
+  display: flex;
+  gap: 4px;
+  margin-top: 1px;
+}
+.tl-badge {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.tl-badge--sleep { background: color-mix(in srgb, var(--sleep-blue, #5b9bd5) 12%, transparent); color: var(--sleep-blue, #5b9bd5); }
+.tl-badge--focus { background: color-mix(in srgb, var(--coral) 12%, transparent); color: var(--coral); }
+.tl-badge--todo  { background: color-mix(in srgb, var(--success) 12%, transparent); color: var(--success); }
+.tl-badge--memory { background: color-mix(in srgb, var(--journal, #c295d8) 12%, transparent); color: var(--journal, #c295d8); }
+
+/* ── Type-specific accent ── */
+.tl-event--sleep_receipt { border-left: 3px solid var(--sleep-blue, #5b9bd5); }
+.tl-event--focus         { border-left: 3px solid var(--coral); }
+.tl-event--todo          { border-left: 3px solid var(--success); }
+.tl-event--memory        { border-left: 3px solid var(--journal, #c295d8); }
+.tl-event--sleep         { border-left: 3px solid var(--sleep-blue, #5b9bd5); }
+
+/* ── Chevron ── */
+.tl-event-chevron {
+  flex-shrink: 0;
+  color: var(--text-3);
+  margin-top: 2px;
+}

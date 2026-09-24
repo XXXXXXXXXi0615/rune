@@ -1,8 +1,22 @@
 import { useState } from 'react';
 import { useAppStore } from '@/store/useAppStore';
-import { LowPriorityIcon, MediumPriorityIcon, HighPriorityIcon } from '@/components/icons/LunartideIcons';
+import { DatePickerSheet } from '@/components/ui/DatePickerSheet';
+import { TimePickerSheet } from '@/components/ui/TimePickerSheet';
+import { LowPriorityIcon, MediumPriorityIcon, HighPriorityIcon, ClockIcon } from '@/components/icons/LunartideIcons';
 import { t } from '@/i18n';
 import { toLocalDateString } from '@/utils/date';
+
+/* Simple calendar SVG inline — avoids extra icon export */
+function CalIcon() {
+  return (
+    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  );
+}
 
 interface TodoFormProps {
   onDone: () => void;
@@ -16,6 +30,13 @@ const PRIORITIES = [
   { value: 'high' as const, icon: HighPriorityIcon, color: 'var(--danger)', aria: t('todo.priorityHigh') },
 ];
 
+function formatZhDate(dateStr: string): string {
+  if (!dateStr) return '選擇日期';
+  const d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return dateStr;
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+}
+
 export function TodoForm({ onDone }: TodoFormProps) {
   const addTodo = useAppStore((s) => s.addTodo);
   const [title, setTitle] = useState('');
@@ -24,6 +45,8 @@ export function TodoForm({ onDone }: TodoFormProps) {
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [category, setCategory] = useState('');
   const [note, setNote] = useState('');
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [timePickerOpen, setTimePickerOpen] = useState(false);
 
   const canSave = title.trim().length > 0;
 
@@ -50,11 +73,37 @@ export function TodoForm({ onDone }: TodoFormProps) {
       <div style={{ display: 'flex', gap: 8 }}>
         <div style={{ flex: 1 }}>
           <label>{t('todo.formDate')}</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <button
+            type="button"
+            className="drawer-trigger-btn"
+            onClick={() => setDatePickerOpen(true)}
+          >
+            <CalIcon />
+            <span className={date ? '' : 'drawer-trigger-placeholder'}>{formatZhDate(date)}</span>
+          </button>
+          <DatePickerSheet
+            isOpen={datePickerOpen}
+            value={date}
+            onConfirm={(d) => setDate(d)}
+            onCancel={() => setDatePickerOpen(false)}
+          />
         </div>
         <div style={{ flex: 1 }}>
           <label>{t('todo.formTime')}</label>
-          <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+          <button
+            type="button"
+            className="drawer-trigger-btn"
+            onClick={() => setTimePickerOpen(true)}
+          >
+            <ClockIcon size={16} />
+            <span className={time ? '' : 'drawer-trigger-placeholder'}>{time || '選擇時間'}</span>
+          </button>
+          <TimePickerSheet
+            isOpen={timePickerOpen}
+            value={time}
+            onConfirm={(t) => setTime(t)}
+            onCancel={() => setTimePickerOpen(false)}
+          />
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>

@@ -1,0 +1,68 @@
+.interactive-blur-reveal {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  touch-action: pan-y;
+}
+
+.interactive-blur-reveal__art,
+.interactive-blur-reveal__canvas,
+.interactive-blur-reveal__static-frost {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.interactive-blur-reveal__art {
+  object-fit: cover;
+}
+
+.interactive-blur-reveal__static-frost {
+  z-index: 1;
+  background:
+    linear-gradient(145deg, rgba(255, 252, 242, .68), rgba(219, 237, 239, .24)),
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, .34), transparent 42%);
+  backdrop-filter: blur(13px) saturate(.88);
+  -webkit-backdrop-filter: blur(13px) saturate(.88);
+  pointer-events: none;
+}
+
+.interactive-blur-reveal--original .interactive-blur-reveal__static-frost {
+  background: rgba(168, 184, 188, .24);
+  backdrop-filter: blur(17px) saturate(.8);
+  -webkit-backdrop-filter: blur(17px) saturate(.8);
+}
+
+.interactive-blur-reveal[data-runtime-state="webgl"] .interactive-blur-reveal__static-frost {
+  opacity: 0;
+}
+
+.interactive-blur-reveal__canvas {
+  z-index: 2;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.interactive-blur-reveal__status {
+  position: absolute;
+  z-index: 3;
+  right: 12px;
+  bottom: 12px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, .56);
+  border-radius: 999px;
+  color: rgba(49, 73, 81, .76);
+  background: rgba(255, 253, 247, .68);
+  font-size: 10px;
+  letter-spacing: .04em;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .interactive-blur-reveal__canvas { display: none; }
+  .interactive-blur-reveal__static-frost { opacity: 1 !important; }
+}

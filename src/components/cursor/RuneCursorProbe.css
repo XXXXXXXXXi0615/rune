@@ -1,0 +1,55 @@
+.rune-cursor-probe {
+  position: fixed;
+  z-index: 2147483000;
+  top: 72px;
+  right: 16px;
+  display: grid;
+  width: min(280px, calc(100vw - 32px));
+  gap: 10px;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid rgba(120, 210, 220, .55);
+  border-radius: 14px;
+  background: rgba(18, 24, 32, .94);
+  color: #f4fbff;
+  font: 13px/1.4 system-ui, sans-serif;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .28);
+}
+
+.rune-cursor-probe__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rune-cursor-probe [data-cursor-probe] {
+  display: grid;
+  min-height: 52px;
+  place-items: center;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .07);
+  color: inherit;
+  font: inherit;
+}
+
+.rune-cursor-probe [data-cursor-probe='default'] {
+  background: #263847;
+  cursor: var(--rune-cursor-default);
+}
+
+.rune-cursor-probe [data-cursor-probe='pointer'] {
+  background: #304638;
+  cursor: var(--rune-cursor-pointer);
+}
+
+.rune-cursor-probe [data-cursor-probe='wait'] {
+  background: #493d2d;
+  cursor: var(--rune-cursor-wait);
+}
+
+.rune-cursor-probe small {
+  color: rgba(244, 251, 255, .62);
+  font-size: 10px;
+}

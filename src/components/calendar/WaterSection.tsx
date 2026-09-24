@@ -1,20 +1,18 @@
-import type { WaterData } from '@/types';
-import { useAppStore } from '@/store/useAppStore';
 import { t } from '@/i18n';
+import { getDailyTotal, useHydrationStore } from '@/store/useHydrationStore';
 
 interface WaterSectionProps {
-  water: WaterData;
   selectedDate: string;
   todayStr: string;
 }
 
-export function WaterSection({ water, selectedDate, todayStr }: WaterSectionProps) {
-  const addWater = useAppStore((s) => s.addWater);
+export function WaterSection({ selectedDate }: WaterSectionProps) {
+  const entries = useHydrationStore((s) => s.entries);
+  const goal = useHydrationStore((s) => s.settings.dailyGoalMl);
+  const addEntryForDate = useHydrationStore((s) => s.addEntryForDate);
 
-  const isToday = selectedDate === todayStr;
-  // Read from dailyLogs for per-date, fallback to todayMl for today
-  const currentMl = water.dailyLogs?.[selectedDate] ?? (isToday ? water.todayMl : 0);
-  const pct = water.goalMl > 0 ? Math.min(100, Math.round((currentMl / water.goalMl) * 100)) : 0;
+  const currentMl = getDailyTotal(entries, selectedDate);
+  const pct = goal > 0 ? Math.min(100, Math.round((currentMl / goal) * 100)) : 0;
 
   return (
     <div>
@@ -28,20 +26,20 @@ export function WaterSection({ water, selectedDate, todayStr }: WaterSectionProp
         </div>
         <div className="water-stats">
           <span>
-            <strong>{currentMl}</strong> / {water.goalMl} ml
+            <strong>{currentMl}</strong> / {goal} ml
           </span>
           <span>{pct}%</span>
         </div>
       </div>
 
       <div className="water-buttons">
-        <button className="water-btn" onClick={() => addWater(150, selectedDate)}>
+        <button className="water-btn" onClick={() => addEntryForDate(150, selectedDate)}>
           +150
         </button>
-        <button className="water-btn" onClick={() => addWater(250, selectedDate)}>
+        <button className="water-btn" onClick={() => addEntryForDate(250, selectedDate)}>
           +250
         </button>
-        <button className="water-btn" onClick={() => addWater(500, selectedDate)}>
+        <button className="water-btn" onClick={() => addEntryForDate(500, selectedDate)}>
           +500
         </button>
       </div>

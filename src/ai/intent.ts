@@ -1,30 +1,23 @@
 /**
- * Intent Layer
- * ———————
- * Detects user intent and drives both thinking + reply generation.
- * Guarantees thinking and reply use the same intent.
+ * Intent Classifier
+ * —————————————————
+ * Detects user intent from message text.
+ * Used by memory summary layer for category detection.
  */
 
-import { getPersonaReply, DEFAULT_TRAITS, type PersonaTraits } from './persona';
-
-// ── Types ──
-
 export type Intent =
-  | 'identity'   // 你是谁 / 你是 / 名字
-  | 'location'   // 这是哪 / 這裡是 / 在哪
-  | 'greeting'   // 你好 / 早安 / hi / hello
-  | 'emotion'    // 累 / 難過 / 開心 / 生氣 / emoji
-  | 'question'   // 為什麼 / 怎麼 / 什麼
-  | 'complaint'  // 抱怨 / 煩 / 討厭
-  | 'memory'     // 記得 / 以前 / 回憶
-  | 'other';     // fallback
-
-// ── Intent detection ──
+  | 'identity'
+  | 'location'
+  | 'greeting'
+  | 'emotion'
+  | 'question'
+  | 'complaint'
+  | 'memory'
+  | 'other';
 
 interface IntentRule {
   intent: Intent;
   patterns: RegExp[];
-  /** Priority weight — higher wins when multiple match */
   weight: number;
 }
 
@@ -113,8 +106,6 @@ export function detectIntent(message: string): Intent {
   return best.intent;
 }
 
-// ── Intent labels (for display) ──
-
 export const INTENT_LABELS: Record<Intent, string> = {
   identity: '身份詢問',
   location: '地點確認',
@@ -125,68 +116,3 @@ export const INTENT_LABELS: Record<Intent, string> = {
   memory: '回憶',
   other: '一般對話',
 };
-
-// ── Intent-driven thinking ──
-
-export interface IntentThinking {
-  characterThought: string;
-  runtimeSteps: string[];
-}
-
-export function generateIntentThinking(intent: Intent, message: string): IntentThinking {
-  const trimmed = message.trim();
-  switch (intent) {
-    case 'identity':
-      return {
-        characterThought: '她在問我是誰。不是在質疑，是在確認。應該說我的名字和身份，不用太正式。',
-        runtimeSteps: ['讀取使用者訊息', '識別意圖：身份詢問', '讀取角色設定', '生成身份回覆'],
-      };
-    case 'location':
-      return {
-        characterThought: '她在確認自己所在的位置。不是在問地理，是在問這個空間是什麼。應該回答月潮。',
-        runtimeSteps: ['讀取使用者訊息', '識別意圖：地點確認', '讀取世界書：月潮', '生成地點回覆'],
-      };
-    case 'greeting':
-      return {
-        characterThought: '打招呼而已。看看現在幾點，決定用什麼語氣回。',
-        runtimeSteps: ['讀取使用者訊息', '識別意圖：打招呼', '檢查時間', '生成問候回覆'],
-      };
-    case 'emotion':
-      return {
-        characterThought: `她現在${trimmed.length < 10 ? '情緒比較強烈' : '在表達一些感受'}。先接住情緒，不要急著給解法。`,
-        runtimeSteps: ['讀取使用者訊息', '識別意圖：情緒表達', '分析情緒類型', '生成共感回覆'],
-      };
-    case 'complaint':
-      return {
-        characterThought: '她在抱怨。先讓她說完，不用立刻解決問題。簡短回應比較好。',
-        runtimeSteps: ['讀取使用者訊息', '識別意圖：抱怨', '選擇簡短回應'],
-      };
-    case 'question':
-      return {
-        characterThought: '她在問問題。先確認問題的類型，再決定要認真回答還是輕鬆帶過。',
-        runtimeSteps: ['讀取使用者訊息', '識別意圖：提問', '分析問題類型', '生成回答'],
-      };
-    case 'memory':
-      return {
-        characterThought: '在回想過去的事。這種時候不用太多話，讓她把記憶說完就好。',
-        runtimeSteps: ['讀取使用者訊息', '識別意圖：回憶', '生成陪伴型回覆'],
-      };
-    default:
-      return {
-        characterThought: '嗯，她在跟我說話。語氣還算平穩，先聽她說完。',
-        runtimeSteps: ['讀取使用者訊息', '生成一般回覆'],
-      };
-  }
-}
-
-// ── Intent-driven reply (persona-flavored, guaranteed consistent) ──
-
-export function generateIntentReply(intent: Intent, message: string, traits?: PersonaTraits): string[] {
-  const t = traits || DEFAULT_TRAITS;
-  const { primary, followUp } = getPersonaReply(intent, message, t);
-  if (followUp) {
-    // 40% chance to use multi-message for follow-up
-    return Math.random() < 0.4 ? [primary, followUp] : [primary];
-  }
-  return [primary];
-}

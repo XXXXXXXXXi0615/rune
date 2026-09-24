@@ -1,0 +1,66 @@
+.rune-control {
+  -webkit-tap-highlight-color: transparent;
+  align-items: center;
+  border: 1px solid var(--rune-border-subtle);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  justify-content: center;
+  min-height: var(--rune-hit-target);
+  min-width: var(--rune-hit-target);
+  touch-action: manipulation;
+  transition: transform var(--rune-motion-instant) var(--rune-spring-control), background-color var(--rune-motion-quick) ease, border-color var(--rune-motion-quick) ease, box-shadow var(--rune-motion-quick) ease, opacity var(--rune-motion-quick) ease;
+}
+.rune-control:hover:not(:disabled) { transform: translateY(var(--rune-hover-lift)); }
+.rune-control:active:not(:disabled), .rune-control[data-pressed='true'] { transform: translateY(var(--rune-press-offset)) scale(var(--rune-press-scale)); }
+.rune-control:focus-visible { outline: var(--rune-focus-ring-width) solid var(--rune-focus-ring-color); outline-offset: var(--rune-focus-ring-offset); }
+.rune-control:disabled, .rune-control[aria-disabled='true'] { cursor: not-allowed; opacity: var(--rune-disabled-opacity); }
+.rune-button { gap: 8px; padding: 0 16px; border-radius: var(--r-btn); background: var(--rune-surface-control); box-shadow: var(--rune-shadow-control); }
+.rune-button--primary { border-color: color-mix(in srgb, var(--accent) 34%, transparent); background: color-mix(in srgb, var(--accent) 18%, var(--rune-surface-content)); color: var(--accent); }
+.rune-button--danger { border-color: color-mix(in srgb, var(--danger) 32%, transparent); color: var(--danger); }
+.rune-button--ghost { border-color: transparent; background: transparent; box-shadow: none; }
+.rune-icon-button, .rune-orb-button { padding: 0; border-radius: 50%; background: var(--rune-surface-control); box-shadow: var(--rune-shadow-control); }
+.rune-orb-button { position: relative; overflow: hidden; }
+.rune-orb-button::after { position: absolute; inset: 1px; border-radius: inherit; background: radial-gradient(circle at 32% 24%, rgba(255,255,255,.44), transparent 42%); content: ''; pointer-events: none; }
+.rune-button__spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: rune-spin var(--rune-motion-surface) linear infinite; }
+@keyframes rune-spin { to { transform: rotate(360deg); } }
+.rune-segmented { display: inline-grid; grid-auto-columns: minmax(var(--rune-hit-target), 1fr); grid-auto-flow: column; gap: 3px; padding: 3px; border: 1px solid var(--rune-border-subtle); border-radius: calc(var(--r-btn) + 3px); background: var(--rune-surface-control); }
+.rune-segmented__item { min-height: var(--rune-hit-target); padding: 0 14px; border: 0; border-radius: var(--r-btn); background: transparent; color: var(--text-2); font: inherit; cursor: pointer; }
+.rune-segmented__item[aria-selected='true'] { background: var(--rune-surface-content); box-shadow: var(--rune-shadow-control); color: var(--text); }
+.rune-switch { width: 52px; padding: 3px; border-radius: 999px; background: var(--surface-2); justify-content: flex-start; }
+.rune-switch[aria-checked='true'] { background: color-mix(in srgb, var(--accent) 74%, var(--surface-2)); }
+.rune-switch__thumb { width: 36px; height: 36px; border-radius: 50%; background: var(--rune-surface-content); box-shadow: var(--rune-shadow-control); transform: translateX(0); transition: transform var(--rune-motion-standard) var(--rune-spring-control); }
+.rune-switch[aria-checked='true'] .rune-switch__thumb { transform: translateX(8px); }
+.rune-slider { min-height: var(--rune-hit-target); accent-color: var(--accent); cursor: pointer; }
+.rune-floating-surface { border: 1px solid var(--rune-border-subtle); background: var(--rune-surface-elevated); box-shadow: var(--rune-shadow-floating); backdrop-filter: blur(var(--rune-glass-blur-floating)) saturate(135%); -webkit-backdrop-filter: blur(var(--rune-glass-blur-floating)) saturate(135%); }
+.rune-popover { position: absolute; z-index: 1000; min-width: 200px; padding: 8px; border-radius: var(--r-lg); }
+.rune-sheet-backdrop { position: fixed; inset: 0; z-index: 10000; display: grid; align-items: end; background: var(--overlay-backdrop); }
+.rune-sheet { width: min(100%, 560px); max-height: min(86dvh, 760px); margin-inline: auto; overflow: auto; padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); border-radius: 24px 24px 0 0; }
+.rune-sheet__handle { display: block; width: 38px; height: 4px; margin: 0 auto 14px; border-radius: 99px; background: var(--border-hi); }
+.rune-context-menu { display: grid; gap: 2px; padding: 6px; }
+.rune-context-menu [role='menuitem'] { justify-content: flex-start; width: 100%; }
+.rune-animated-number { display: inline-flex; font-variant-numeric: tabular-nums; }
+.rune-animated-number__visual { display: inline-flex; align-items: baseline; }
+.rune-animated-number__digits { display: inline-block; min-width: 1ch; }
+.rune-inline-delete { display: grid; width: 100%; min-width: 0; }
+.rune-inline-delete__trigger { width: 100%; justify-content: flex-start; gap: 8px; padding: 0 12px; border-color: transparent; background: transparent; box-shadow: none; color: var(--danger); }
+.rune-inline-delete__trigger svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.rune-inline-delete__confirm { display: grid; grid-template-columns: 1fr auto; gap: 5px; min-width: 0; animation: rune-inline-delete-in var(--rune-motion-standard) var(--rune-spring-control); }
+.rune-inline-delete__confirm .rune-control { min-width: 0; padding: 0 12px; border-radius: var(--r-btn); box-shadow: var(--rune-shadow-control); }
+.rune-inline-delete__accept { border-color: color-mix(in srgb, var(--danger) 34%, transparent); background: color-mix(in srgb, var(--danger) 13%, var(--rune-surface-content)); color: var(--danger); }
+.rune-inline-delete__cancel { background: var(--rune-surface-control); color: var(--text-2); }
+@keyframes rune-inline-delete-in { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+.rune-section-rail { display: grid; align-content: center; gap: 7px; width: 38px; padding: 8px 4px; }
+.rune-section-rail button { display: flex; width: 100%; min-height: 24px; align-items: center; justify-content: flex-end; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.rune-section-rail button > span:first-child { width: calc(9px + var(--rune-rail-proximity, 0) * 17px); height: 2px; border-radius: 999px; background: color-mix(in srgb, var(--text-3) 62%, transparent); transform-origin: right center; transition: width var(--rune-motion-quick) var(--rune-spring-control), background-color var(--rune-motion-quick) ease, box-shadow var(--rune-motion-quick) ease; }
+.rune-section-rail button[aria-current='location'] > span:first-child { width: 28px; background: color-mix(in srgb, var(--accent) 72%, #d9b46f); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent); }
+.rune-section-rail button:focus-visible { outline: var(--rune-focus-ring-width) solid var(--rune-focus-ring-color); outline-offset: 1px; border-radius: 8px; }
+@media (hover: none) { .rune-control:hover:not(:disabled) { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .rune-control, .rune-switch__thumb, .rune-section-rail button > span:first-child { transition-duration: 1ms; }
+  .rune-inline-delete__confirm { animation: none; }
+  .rune-section-rail button > span:first-child { width: 9px; }
+  .rune-section-rail button[aria-current='location'] > span:first-child { width: 28px; }
+  .rune-button__spinner { animation-duration: 900ms; }
+}
