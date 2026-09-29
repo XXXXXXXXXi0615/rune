@@ -19,12 +19,11 @@ const formatTime = (seconds: number) => `${String(Math.floor(Math.max(0, seconds
  * paths: `#app main :is(button, a[href], [role="button"])` (wrong subtree) or
  * `[role="dialog"][aria-modal="true"]` (this sheet did not declare itself modal).
  * Declaring the surface and each interactive control as a pet-safe region is what
- * keeps the Rune orb (and the companion pet) from covering a control the user
+ * keeps the companion pet from covering a control the user
  * must click.
  *
  * The surface declaration documents ownership; the per-control declarations are
- * the actionable constraints, because a frame-wide region is intentionally
- * ignored by the rail resolver (`rect.width < frame.width * 0.96`).
+ * the actionable constraints for companion placement.
  */
 const PET_SAFE_INTERACTIVE = { 'data-pet-safe-region': 'interactive' } as const;
 
@@ -33,9 +32,7 @@ const PET_SAFE_INTERACTIVE = { 'data-pet-safe-region': 'interactive' } as const;
  * workspace `inert` + `aria-hidden` while it is open, and every sibling shell
  * sheet declares the same (`rune-utility-sheet`, `calendar-canvas-workspace`,
  * the stash boards). Declaring it is what lets the resolver treat the sheet as
- * the interaction owner — background controls stop being collision constraints
- * ("An aria-modal surface owns interaction while open") and the shell's floating
- * Rune orb stands down instead of hovering over the panel.
+ * the interaction owner — background controls stop being collision constraints.
  */
 const MODAL_SHEET_SEMANTICS = { role: 'dialog', 'aria-modal': 'true' } as const;
 
@@ -69,7 +66,7 @@ export function FocusIsland() {
 
   const closePanel = () => {
     showCompact();
-    requestAnimationFrame(() => document.querySelector<HTMLElement>('[data-testid="route-status-island"]')?.focus());
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('[data-testid="route-focus-status"]')?.focus());
   };
 
   const openQuickPanel = (task?: string) => {

@@ -75,16 +75,20 @@ body.cc-call-active .mobile-dock-reveal {
 }
 
 .mobile-tab-bar__chat-orb {
+  /* The middle grid track owns the entire interactive Orb. Keep its box inset
+     from adjacent tracks while the artwork stays larger than the other icons. */
+  --mtb-orb-track-inset: 8px;
   position: relative;
   z-index: 5;
   align-self: center;
   justify-self: center;
   display: grid;
-  width: clamp(110px, 27.4vw, 118px);
-  height: clamp(110px, 27.4vw, 118px);
+  width: min(calc(100% - var(--mtb-orb-track-inset)), calc(72px * var(--dock-scale-factor)));
+  height: auto;
+  aspect-ratio: 1;
   min-width: 44px;
   min-height: 44px;
-  margin-top: -48px;
+  margin-top: -20px;
   padding: 0;
   border: 0;
   border-radius: 50%;

@@ -1,4 +1,4 @@
-.usage-ctrl-panel {
+.usage-ctrl-panel, .usage-ctrl-content {
   --usage-surface: color-mix(in srgb, var(--surface, #fff9ed) 94%, transparent);
   --usage-surface-elevated: color-mix(in srgb, var(--surface-2, #efe6d3) 86%, var(--surface, #fff9ed));
   --usage-text-primary: var(--text, #594737);
@@ -12,11 +12,10 @@
   --usage-button-border: color-mix(in srgb, var(--text, #594737) 22%, transparent);
   --usage-backdrop: color-mix(in srgb, #493d32 14%, transparent);
 
-  position: relative;
-  z-index: 160;
 }
+.usage-ctrl-panel { position:relative; z-index:160; }
 
-:root[data-theme='dark'] .usage-ctrl-panel {
+:root[data-theme='dark'] .usage-ctrl-panel, :root[data-theme='dark'] .usage-ctrl-content {
   --usage-surface: color-mix(in srgb, var(--surface, #202a2e) 94%, transparent);
   --usage-surface-elevated: color-mix(in srgb, var(--surface-2, #293438) 82%, var(--surface, #202a2e));
   --usage-text-primary: var(--text, #f3eadc);
@@ -149,13 +148,39 @@
 }
 .usage-ctrl-close:hover { color: var(--usage-text-primary); background: var(--usage-button-surface); }
 
-.usage-ctrl-today {
-  padding: 4px 16px 10px;
-  text-align: center;
+/* Radial usage clock (Phase 1) — summary ring: used vs daily limit when a Time
+   Lock limit exists; idle dashed-idle track without one. Never a timer. */
+.usage-ring-block {
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px 12px;
   border-bottom: 1px solid var(--usage-divider);
 }
-.usage-ctrl-today-label { font-size: 12px; color: var(--usage-text-secondary); letter-spacing: .08em; }
-.usage-ctrl-today-value { margin-top: 2px; font-size: 30px; line-height: 1.15; font-weight: 650; font-variant-numeric: tabular-nums; }
+.usage-ring { position: relative; width: 176px; height: 176px; max-width: 100%; }
+.usage-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; overflow: visible; }
+.usage-ring-ticks { stroke: var(--usage-divider); stroke-width: 1; stroke-dasharray: .35 .65; stroke-linecap: round; }
+.usage-ring-track { stroke: var(--usage-chart-muted); stroke-width: 6; opacity: .55; }
+.usage-ring-progress {
+  stroke: var(--usage-chart-primary);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dasharray .6s ease, stroke .3s ease;
+}
+.usage-ring.is-over .usage-ring-progress { stroke: var(--usage-chart-peak); }
+.usage-ring-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  padding: 0 24px;
+  text-align: center;
+}
+.usage-ring-label { font-size: 11px; letter-spacing: .14em; color: var(--usage-text-secondary); }
+.usage-ring-value { font: 650 30px/1.1 var(--font-body, system-ui); font-variant-numeric: tabular-nums; color: var(--usage-text-primary); }
+.usage-ring.is-over .usage-ring-value { color: var(--usage-chart-peak); }
+.usage-ring-caption { display: grid; gap: 0; font-size: 10.5px; line-height: 1.45; color: var(--usage-text-secondary); white-space: nowrap; }
 
 .usage-ctrl-checkin { margin: 4px 16px 10px; min-height: 54px; display:grid; grid-template-columns:36px minmax(0,1fr) auto; gap:10px; align-items:center; }
 .usage-ctrl-checkin-mark { width:36px; height:36px; display:grid; place-items:center; border-radius:12px; background:var(--usage-button-surface); color:var(--usage-chart-primary); font-weight:750; }
@@ -164,7 +189,6 @@
 .usage-ctrl-checkin small { color:var(--usage-text-secondary); font-size:11px; }
 .usage-ctrl-checkin button { min-width:52px; min-height:44px; border:1px solid var(--usage-button-border); border-radius:12px; background:var(--usage-button-surface); color:var(--usage-text-primary); font-weight:650; cursor:pointer; }
 .usage-ctrl-checkin button:focus-visible { outline:2px solid var(--usage-chart-primary); outline-offset:2px; }
-.usage-ctrl-today-value.is-over { color: var(--usage-chart-peak); }
 
 .usage-ctrl-chart-section { padding: 12px 22px 10px; border-bottom: 1px solid var(--usage-divider); }
 .usage-ctrl-section-label,
@@ -212,3 +236,5 @@
 @media (prefers-reduced-motion: reduce) {
   .usage-ctrl-palette { animation: none; }
 }
+.usage-ctrl-water-entry { flex:0 0 36px;width:36px;height:44px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--usage-chart-primary) 28%,transparent);border-right:0;background:color-mix(in srgb,var(--usage-surface) 76%,transparent);color:var(--usage-chart-primary);cursor:pointer; }
+.usage-ctrl-water-entry:focus-visible { outline:2px solid var(--usage-chart-primary);outline-offset:2px;z-index:1; }

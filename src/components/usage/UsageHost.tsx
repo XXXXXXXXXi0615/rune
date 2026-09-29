@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useUsageTracker } from '@/hooks/useUsageTracker';
 import { UsageControlPanel } from '@/components/usage/UsageControlPanel';
 import { UsageLockGate } from '@/components/usage/UsageLockGate';
@@ -11,22 +11,29 @@ export function UsageHost({ showControl = true }: { showControl?: boolean }) {
   // Activate usage tracking
   useUsageTracker();
 
-  const handleOpenLockSettings = useCallback(() => {
+  const handleOpenLockSettings = useCallback((event: Event) => {
+    const trigger = (event as CustomEvent<HTMLButtonElement>).detail;
+    lockSettingsTriggerRef.current = trigger instanceof HTMLButtonElement ? trigger : null;
     setShowLockSettings(true);
   }, []);
+  useEffect(() => {
+    window.addEventListener('today-status-lock-settings', handleOpenLockSettings);
+    return () => window.removeEventListener('today-status-lock-settings', handleOpenLockSettings);
+  }, [handleOpenLockSettings]);
 
   const handleCloseLockSettings = useCallback(() => {
     setShowLockSettings(false);
-    requestAnimationFrame(() => lockSettingsTriggerRef.current?.focus());
+    requestAnimationFrame(() => {
+      const trigger = lockSettingsTriggerRef.current;
+      if (trigger?.isConnected && !trigger.disabled && trigger.getClientRects().length && !trigger.closest('[hidden], [inert], [aria-hidden="true"]')) trigger.focus();
+    });
   }, []);
 
   return (
     <>
       <UsageControlPanel
         showTrigger={showControl}
-        onOpenLockSettings={handleOpenLockSettings}
         lockSettingsOpen={showLockSettings}
-        lockSettingsTriggerRef={lockSettingsTriggerRef}
       />
       <UsageLockGate />
       {showLockSettings && (

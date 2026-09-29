@@ -58,15 +58,11 @@ export function UsageLockSettingsSheet({ onClose }: Props) {
 
   useEffect(() => {
     requestAnimationFrame(() => closeRef.current?.focus());
-    const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === 'Escape') { e.preventDefault(); onClose(); }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, []);
 
   const remaining = Math.max(0, limit * 60 * 1000 - todayTotalMs);
   const trapFocus = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); onClose(); return; }
     if (event.key !== 'Tab' || !dialogRef.current) return;
     const controls = [...dialogRef.current.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')];
     if (!controls.length) return;
@@ -77,7 +73,7 @@ export function UsageLockSettingsSheet({ onClose }: Props) {
   };
 
   return createPortal(
-    <div className="usage-lock-settings-backdrop" role="presentation" onClick={onClose}>
+    <div className="usage-lock-settings-backdrop" role="presentation" style={{ zIndex: 2201 }} onClick={onClose}>
       <div
         ref={dialogRef}
         className="usage-lock-settings-sheet"

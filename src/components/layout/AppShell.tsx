@@ -57,7 +57,7 @@ import '@/styles/drawer.css';
 import { resolveDockVisibility } from '@/utils/dockNavigation';
 import { GlobalWallpaper } from '@/features/wallpaper/GlobalWallpaper';
 import { FocusSettlementSheet } from '@/components/focus/FocusSettlementSheet';
-import { DailyTideFloatingWindow } from '@/components/home/DailyTideFloatingWindow';
+import { TodayStatusFloat } from '@/components/home/DailyTideFloatingWindow';
 import { UsageHost } from '@/components/usage/UsageHost';
 import { useTideRailSync } from '@/hooks/useTideRailSync';
 import { CompanionPetHost } from '@/components/pet/CompanionPetHost';
@@ -265,7 +265,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <ReadyGate>
         <ErrorBoundary fallback="" inline><GlobalChatCallHost /></ErrorBoundary>
         {!suppressGlobalPet && <ErrorBoundary fallback="" inline><CompanionPetHost /></ErrorBoundary>}
-        <ErrorBoundary fallback="" inline><DailyTideFloatingWindow /></ErrorBoundary>
+        <ErrorBoundary fallback="" inline><TodayStatusFloat /></ErrorBoundary>
         <ErrorBoundary fallback="" inline><TopIslandHost /></ErrorBoundary>
         <ErrorBoundary fallback="" inline><RuneUtilityHost /></ErrorBoundary>
       </ReadyGate>

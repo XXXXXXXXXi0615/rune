@@ -3534,8 +3534,8 @@ export const useAppStore = create<AppData & AppActions & { aiTyping: boolean; rh
          Canonical check-in, streak and status owner:
            src/features/tideclock/useCheckInStore.ts  (persist `lunartide-check-in` v1)
          The `tideCheckIn` slice below is a retired mirror with no active production
-         caller. Moon Dew presentation reads the canonical streak through
-         `src/features/moon-dew/canonicalCheckInStreak.ts` — never `currentStreak` here.
+         caller. Daily Status reads the canonical streak from `useCheckInStore` —
+         never `currentStreak` here.
          Do NOT re-wire these writers: the live daily path is `useCheckInStore.clockIn`
          → `addMoonDewEntry` (idempotency key `checkin:<date>:clock_in`), which awards
          月露 exactly once per day. The legacy grant below used key `checkin:<date>`

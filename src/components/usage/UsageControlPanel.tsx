@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, type RefObject } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUsageStore } from '@/store/useUsageStore';
 import { toLocalDateString } from '@/utils/date';
 import { MODULE_LABELS_SHORT, type UsageModuleId } from '@/types/usage';
@@ -15,6 +15,13 @@ function formatDuration(ms: number): string {
   return m > 0 ? `${h} 時 ${m} 分` : `${h} 小時`;
 }
 
+function formatClockMinutes(ms: number): string {
+  const totalMin = Math.floor(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return `${h}:${String(m).padStart(2, '0')}`;
+}
+
 function formatTimer(ms: number): string {
   if (ms <= 0) return '0:00';
   const totalSec = Math.floor(ms / 1000);
@@ -27,15 +34,11 @@ function formatTimer(ms: number): string {
 
 interface Props {
   showTrigger?: boolean;
-  onOpenLockSettings?: () => void;
+  onOpenLockSettings?: (trigger: HTMLButtonElement) => void;
   lockSettingsOpen?: boolean;
-  lockSettingsTriggerRef?: RefObject<HTMLButtonElement | null>;
 }
 
-export function UsageControlPanel({ showTrigger = true, onOpenLockSettings, lockSettingsOpen = false, lockSettingsTriggerRef }: Props) {
-  const [open, setOpen] = useState(false);
-  const hostRef = useRef<HTMLDivElement>(null);
-  const orbRef = useRef<HTMLButtonElement>(null);
+export function UsageControlPanel({ showTrigger = true }: Props) {
   const [now, setNow] = useState(() => Date.now());
   const records = useCheckInStore((s) => s.records);
   const streak = useCheckInStore((s) => s.getCurrentPerfectStreak());
@@ -48,26 +51,11 @@ export function UsageControlPanel({ showTrigger = true, onOpenLockSettings, lock
 
   const today = toLocalDateString(new Date(now));
   const checkedIn = records.some((record) => record.kind === 'clock_in' && record.date === today);
-  const todayCheckIn = records.find((record) => record.kind === 'clock_in' && record.date === today);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
-
-  const todayRecord = useMemo(() => {
-    const record = dailyRecords.find((r) => r.dateKey === today);
-    if (!currentSession) return record;
-    const mod = currentSession.moduleId;
-    const elapsed = Math.max(0, now - currentSession.startedAt);
-    if (elapsed <= 0) return record;
-    const copy = record
-      ? { ...record, moduleDurationsMs: { ...record.moduleDurationsMs } }
-      : { dateKey: today, moduleDurationsMs: {} as Record<UsageModuleId, number>, totalDurationMs: 0 };
-    copy.moduleDurationsMs[mod] = (copy.moduleDurationsMs[mod] ?? 0) + elapsed;
-    copy.totalDurationMs += elapsed;
-    return copy;
-  }, [dailyRecords, currentSession, now, today]);
 
   const todayTotalMs = useMemo(() => {
     const record = dailyRecords.find((r) => r.dateKey === today);
@@ -79,81 +67,34 @@ export function UsageControlPanel({ showTrigger = true, onOpenLockSettings, lock
     return total;
   }, [dailyRecords, currentSession, now, today]);
 
-  const last7Days = useMemo(() => Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(now);
-    date.setDate(date.getDate() - (6 - index));
-    const dateKey = toLocalDateString(date);
-    const stored = dailyRecords.find((record) => record.dateKey === dateKey)?.totalDurationMs ?? 0;
-    return { dateKey, totalMs: dateKey === today ? todayTotalMs : stored };
-  }), [dailyRecords, now, today, todayTotalMs]);
-  const trendMax = Math.max(1, ...last7Days.map((day) => day.totalMs));
-
   const lockSettings = useUsageStore((s) => s.lockSettings);
-  const extensionExpiresAt = useUsageStore((s) => s.extensionExpiresAt);
-  const extensionGrantedDateKey = useUsageStore((s) => s.extensionGrantedDateKey);
 
-  // Top modules today (sorted by duration)
-  const topModules = useMemo(() => {
-    if (!todayRecord) return [];
-    return Object.entries(todayRecord.moduleDurationsMs)
-      .filter(([, ms]) => ms > 0)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5);
-  }, [todayRecord]);
-
-  const limitMinutes = lockSettings.dailyLimitMinutes;
-  const limitMs = limitMinutes * 60 * 1000;
-  const remainingMs = Math.max(0, limitMs - todayTotalMs);
-  const isOverLimit = lockSettings.enabled && todayTotalMs >= limitMs;
-  const extensionActive = extensionGrantedDateKey === today && extensionExpiresAt > now;
-  const extensionRemainingMinutes = Math.max(1, Math.ceil((extensionExpiresAt - now) / 60000));
-
-  const closePanel = (returnFocus = true) => {
-    setOpen(false);
-    if (returnFocus) requestAnimationFrame(() => orbRef.current?.focus());
+  const openFloat = (tab: 'checkin' | 'hydration' | 'usage', trigger: HTMLButtonElement) => {
+    window.dispatchEvent(new CustomEvent('today-status-open', { detail: { tab, trigger } }));
+    openDailyTide(tab === 'hydration' ? 'hydration' : 'checkin');
   };
-
-  useEffect(() => {
-    if (!open || lockSettingsOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open, lockSettingsOpen]);
-
-  useEffect(() => {
-    if (!open || lockSettingsOpen) return;
-    const onOutside = (e: PointerEvent) => {
-      if (!hostRef.current?.contains(e.target as Node)) closePanel();
-    };
-    document.addEventListener('pointerdown', onOutside);
-    return () => document.removeEventListener('pointerdown', onOutside);
-  }, [open, lockSettingsOpen]);
-
-  const togglePanel = () => open ? closePanel() : setOpen(true);
   const compactDuration = formatTimer(todayTotalMs).replace(/^0:/, '');
 
   return (
-    <div className="usage-ctrl-panel" ref={hostRef} data-open={open || undefined} data-pet-safe-region data-testid="top-utility-island">
+    <div className="usage-ctrl-panel" data-pet-safe-region data-testid="top-utility-island">
       {showTrigger && <div className="usage-ctrl-island-family">
       <button
-        ref={orbRef}
         type="button"
         className="usage-ctrl-capsule"
-        aria-label={open ? '關閉今日狀態' : '開啟今日狀態'}
+        aria-label="開啟每日報備"
         aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={togglePanel}
+        onClick={(event) => openFloat('checkin', event.currentTarget)}
         data-testid="top-utility-main"
       ><span aria-hidden="true">{checkedIn ? '✓' : '○'}</span><span className="usage-ctrl-summary-wide">{checkedIn ? `連續 ${streak} 天` : '今日未報備'} · </span><span className="usage-ctrl-summary-narrow">{checkedIn ? `${streak}天 · ` : '· '}</span><time>{compactDuration}</time></button>
+      <button type="button" className="usage-ctrl-water-entry" aria-label="開啟今日飲水" aria-haspopup="dialog" onClick={(event) => openFloat('hydration', event.currentTarget)}>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M12 2.7c3.2 3.9 6 7.2 6 10.3a6 6 0 1 1-12 0c0-3.1 2.8-6.4 6-10.3z" /></svg>
+      </button>
       <button
         type="button"
         className="usage-ctrl-orb"
-        aria-label={open ? '關閉今日狀態' : '開啟今日狀態'}
+        aria-label="開啟今日使用"
         aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={togglePanel}
+        onClick={(event) => openFloat('usage', event.currentTarget)}
         data-testid="usage-ctrl-orb"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -161,40 +102,82 @@ export function UsageControlPanel({ showTrigger = true, onOpenLockSettings, lock
         </svg>
       </button></div>}
 
-      {open && (
-        <>
-          <div className="usage-ctrl-backdrop" aria-hidden="true" onClick={() => closePanel()} />
-          <section
-            className="usage-ctrl-palette"
-            role="dialog"
-            aria-label="今日狀態"
-            aria-hidden={lockSettingsOpen || undefined}
-            data-subdued={lockSettingsOpen || undefined}
-            data-testid="usage-ctrl-palette"
-          >
-          <div className="usage-ctrl-grab" aria-hidden="true" />
-          <header className="usage-ctrl-header">
-            <div>
-              <small>TODAY</small>
-              <h2>今日狀態</h2>
-            </div>
-            <button type="button" className="usage-ctrl-close" onClick={() => closePanel()} aria-label="關閉今日狀態">×</button>
-          </header>
+    </div>
+  );
+}
 
-          <section className="usage-ctrl-checkin" aria-label="每日報備">
-            <span className={`usage-ctrl-checkin-mark${checkedIn ? ' is-done' : ''}`} aria-hidden="true">{checkedIn ? '✓' : '☾'}</span>
-            <div><strong>{checkedIn ? '今日已報備' : '今日未報備'}</strong><small>{todayCheckIn?.clockInAt ? `${new Intl.DateTimeFormat('zh-TW',{hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(todayCheckIn.clockInAt))} · ` : ''}連續 {streak} 天</small></div>
-            {/* Phase D: the consolidated 報備 window is the single entry — both states open
-                it; the canonical `clockIn` action lives inside the window. */}
-            {checkedIn
-              ? <button type="button" onClick={() => { openDailyTide('checkin'); closePanel(false); }}>查看</button>
-              : <button type="button" onClick={() => { openDailyTide('checkin'); closePanel(false); }} data-testid="top-utility-checkin">報備</button>}
-          </section>
+export function UsageStatusContent({ onOpenLockSettings, lockSettingsOpen }: Pick<Props, 'onOpenLockSettings' | 'lockSettingsOpen'>) {
+  const [now, setNow] = useState(() => Date.now());
+  const dailyRecords = useUsageStore((s) => s.dailyRecords);
+  const currentSession = useUsageStore((s) => s.currentSession);
+  const today = toLocalDateString(new Date(now));
+  useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, []);
+  const todayRecord = useMemo(() => {
+    const record = dailyRecords.find((r) => r.dateKey === today);
+    if (!currentSession) return record;
+    const elapsed = Math.max(0, now - currentSession.startedAt);
+    if (!elapsed) return record;
+    const copy = record ? { ...record, moduleDurationsMs: { ...record.moduleDurationsMs } } : { dateKey: today, moduleDurationsMs: {} as Record<UsageModuleId, number>, totalDurationMs: 0 };
+    copy.moduleDurationsMs[currentSession.moduleId] = (copy.moduleDurationsMs[currentSession.moduleId] ?? 0) + elapsed;
+    copy.totalDurationMs += elapsed;
+    return copy;
+  }, [dailyRecords, currentSession, now, today]);
+  const todayTotalMs = todayRecord?.totalDurationMs ?? 0;
+  const last7Days = useMemo(() => Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(now); date.setDate(date.getDate() - (6 - index));
+    const dateKey = toLocalDateString(date);
+    return { dateKey, totalMs: dateKey === today ? todayTotalMs : dailyRecords.find((record) => record.dateKey === dateKey)?.totalDurationMs ?? 0 };
+  }), [dailyRecords, now, today, todayTotalMs]);
+  const trendMax = Math.max(1, ...last7Days.map((day) => day.totalMs));
+  const lockSettings = useUsageStore((s) => s.lockSettings);
+  const extensionExpiresAt = useUsageStore((s) => s.extensionExpiresAt);
+  const extensionGrantedDateKey = useUsageStore((s) => s.extensionGrantedDateKey);
+  const topModules = useMemo(() => todayRecord ? Object.entries(todayRecord.moduleDurationsMs).filter(([, ms]) => ms > 0).sort(([, a], [, b]) => b - a).slice(0, 5) : [], [todayRecord]);
+  const limitMs = lockSettings.dailyLimitMinutes * 60000;
+  const remainingMs = Math.max(0, limitMs - todayTotalMs);
+  const isOverLimit = lockSettings.enabled && todayTotalMs >= limitMs;
+  const extensionActive = extensionGrantedDateKey === today && extensionExpiresAt > now;
+  const extensionRemainingMinutes = Math.max(1, Math.ceil((extensionExpiresAt - now) / 60000));
 
-          <div className="usage-ctrl-today">
-            <div className="usage-ctrl-today-label">今日使用</div>
-            <div className={`usage-ctrl-today-value${isOverLimit ? ' is-over' : ''}`}>
-              {formatTimer(todayTotalMs)}
+  /* Radial usage clock (Phase 1) — summary semantics only. The ring visualises
+     used vs daily limit when a Time Lock limit exists; without one it stays an
+     idle track and says so. It never starts/pauses anything. */
+  const ringPercent = lockSettings.enabled ? Math.min(100, Math.max(0, (todayTotalMs / limitMs) * 100)) : 0;
+  const ringCaptionLines = isOverLimit
+    ? ['已超過每日上限']
+    : lockSettings.enabled
+      ? [`已用 ${Math.round(ringPercent)}%`, `上限 ${formatDuration(limitMs)}`]
+      : ['尚未設定', '時間鎖上限'];
+  const ringAriaLabel = lockSettings.enabled
+    ? `今日使用 ${formatDuration(todayTotalMs)}，每日上限 ${formatDuration(limitMs)}，已用 ${Math.round(ringPercent)}%`
+    : `今日使用 ${formatDuration(todayTotalMs)}，未設定每日上限`;
+
+  return <div className="usage-ctrl-content" aria-label="今日使用" aria-hidden={lockSettingsOpen || undefined}>
+
+          <div className="usage-ring-block">
+            <div
+              className={`usage-ring${isOverLimit ? ' is-over' : ''}${lockSettings.enabled ? '' : ' is-unbounded'}`}
+              role="img"
+              aria-label={ringAriaLabel}
+            >
+              <svg viewBox="0 0 128 128" aria-hidden="true" focusable="false">
+                <circle className="usage-ring-ticks" cx="64" cy="64" r="60" pathLength={60} />
+                <circle className="usage-ring-track" cx="64" cy="64" r="52" />
+                <circle
+                  className="usage-ring-progress"
+                  cx="64" cy="64" r="52"
+                  pathLength={100}
+                  strokeDasharray={lockSettings.enabled ? `${ringPercent} ${100 - ringPercent}` : '0 100'}
+                  transform="rotate(-90 64 64)"
+                />
+              </svg>
+              <div className="usage-ring-center" aria-hidden="true">
+                <span className="usage-ring-label">今日使用</span>
+                <span className="usage-ring-value">{formatClockMinutes(todayTotalMs)}</span>
+                <span className="usage-ring-caption">
+                  {ringCaptionLines.map((line) => <span key={line}>{line}</span>)}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -245,16 +228,11 @@ export function UsageControlPanel({ showTrigger = true, onOpenLockSettings, lock
             <button
               type="button"
               className="usage-ctrl-btn"
-              ref={lockSettingsTriggerRef}
-              onClick={() => onOpenLockSettings?.()}
+              onClick={(event) => onOpenLockSettings?.(event.currentTarget)}
               data-testid="usage-ctrl-lock-settings"
             >
               設定時間鎖
             </button>
           </div>
-          </section>
-        </>
-      )}
-    </div>
-  );
+    </div>;
 }
