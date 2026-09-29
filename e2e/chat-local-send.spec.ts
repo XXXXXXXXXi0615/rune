@@ -36,11 +36,12 @@ test('local text sending, trailing action, keyboard and IME work without a provi
   page.on('pageerror', e => errors.push(String(e)));
   await open(page);
   const input = page.getByRole('textbox', { name: '輸入訊息' });
-  await expect(page.getByTestId('composer-microphone')).toBeVisible();
+  await expect(page.getByTestId('composer-utility-trigger')).toBeVisible();
+  await expect(page.getByTestId('composer-send')).toBeDisabled();
   await input.fill('本機保存測試');
   await expect(page.getByTestId('composer-send')).toBeEnabled();
   await input.fill('');
-  await expect(page.getByTestId('composer-microphone')).toBeVisible();
+  await expect(page.getByTestId('composer-send')).toBeDisabled();
   await input.fill('第一行');
   await input.press('Shift+Enter');
   await expect(input).toHaveValue('第一行\n');
