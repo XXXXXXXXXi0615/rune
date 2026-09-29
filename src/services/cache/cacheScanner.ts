@@ -15,6 +15,7 @@ const LUNARTIDE_CACHE_PREFIX = 'lunartide-';
 
 /** Cache names that are currently active and must NOT be deleted. */
 const ACTIVE_CACHE_NAMES = new Set<string>([
+  'lunartide-v3',
   'lunartide-app-shell-v1',
   'lunartide-assets-v1',
   'lunartide-fonts-v1',

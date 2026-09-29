@@ -38,8 +38,8 @@ export const CACHE_LOCAL_STORAGE_KEYS: Record<Exclude<CacheCategoryId, 'thumbnai
   diagnostics: ['lunartide-diagnostics-cache', 'lunartide-request-diagnostics-cache'],
 };
 
-export const CURRENT_APP_SHELL_CACHE = 'lunartide-v2';
-export const REGISTERED_OLD_APP_SHELL_CACHES = ['lunartide-v1', 'lunartide-app-shell-v1'] as const;
+export const CURRENT_APP_SHELL_CACHE = 'lunartide-v3';
+export const REGISTERED_OLD_APP_SHELL_CACHES = ['lunartide-v1', 'lunartide-v2', 'lunartide-app-shell-v1'] as const;
 export const REGISTERED_NETWORK_CACHES = ['lunartide-network-v1'] as const;
 export const REGISTERED_THEME_PREVIEW_CACHES = ['lunartide-theme-preview-v1'] as const;
 
