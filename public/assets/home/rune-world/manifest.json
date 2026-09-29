@@ -1,0 +1,11 @@
+{
+  "owner": "RunePixelWorld",
+  "source": "User supplied rune地图 production artwork",
+  "width": 941,
+  "height": 1672,
+  "day": "day.png",
+  "night": "night.png",
+  "geometry": "Shared image dimensions and normalized DOM hotspot coordinates; no per-daypart layout changes",
+  "daySha256": "4f25e6d4fb7752df11abbc6398f18c3837cb50a418618720a2ffde6c0627bf2f",
+  "nightSha256": "536ede1f1a7399c792728504719f9f245071a03b42812ea3dea39fe9c13012c4"
+}

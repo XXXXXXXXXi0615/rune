@@ -80,6 +80,30 @@
 
 .rune-pixel-world__hotspots { z-index: 2; }
 
+.rune-pixel-world__actor {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--actor-x) * 100%);
+  top: calc(var(--actor-y) * 100%);
+  width: var(--actor-width);
+  aspect-ratio: 672 / 768;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translate(calc(-1 * var(--actor-anchor-x)), calc(-1 * var(--actor-anchor-y)));
+}
+
+.rune-pixel-world__actor img {
+  position: absolute;
+  top: 0;
+  left: var(--actor-frame-offset);
+  display: block;
+  width: var(--actor-sheet-width, 400%);
+  height: 100%;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+
 .rune-world-hotspot {
   --hotspot-size: 52px;
   position: absolute;
