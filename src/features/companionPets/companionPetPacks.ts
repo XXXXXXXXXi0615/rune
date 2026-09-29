@@ -1,3 +1,7 @@
+import { measuredCompanionHitBounds, type CompanionHitBounds } from './companionVisualHitBounds';
+
+export type { CompanionHitBounds };
+
 export interface ClawdVisualNormalization { scaleX: number; scaleY: number; translateX: number; footAnchor: number; visibleBounds: { left: number; top: number; right: number; bottom: number } }
 
 export type CompanionPetPackId = 'clawd' | 'logos';
@@ -25,6 +29,13 @@ export interface CompanionVisual {
   src: string;
   renderer: 'image' | 'sprite';
   normalization: ClawdVisualNormalization;
+  /**
+   * Pointer-interaction region inside the square pet box (0..1). Measured as the
+   * union of visible (>alpha 16) pixels across the animation; the transparent
+   * remainder of the box stays click-through so pages behind it keep their
+   * controls. See `companionVisualHitBounds.ts`.
+   */
+  hitBounds: CompanionHitBounds;
   mode: 'full' | 'mini';
   quickAccess: boolean;
   manualPreview: boolean;
@@ -72,9 +83,21 @@ export type LogosAnimationId = `logos-${'idle' | 'running-right' | 'running-left
 
 type LogosPlayback = Pick<CompanionSpriteMetadata, 'fps' | 'loop' | 'holdLastFrame' | 'previewDurationMs' | 'restoreAfterPreview'>;
 
+/**
+ * Measured hit bounds when available; otherwise the pack's conservative
+ * `visibleBounds` rectangle so an unmeasured visual stays fully draggable
+ * instead of losing interaction.
+ */
+function resolveHitBounds(visualId: string, normalization: ClawdVisualNormalization): CompanionHitBounds {
+  const measured = measuredCompanionHitBounds(visualId);
+  if (measured) return measured;
+  const { left, top, right, bottom } = normalization.visibleBounds;
+  return { left, top, right, bottom };
+}
+
 function logosVisual(id: LogosAnimationId, label: string, row: number, frameCount: 4 | 5 | 6 | 8, playback: LogosPlayback, quickAccess = false): CompanionVisual {
   return {
-    id, label, src: LOGOS_ATLAS, renderer: 'sprite', normalization: LOGOS_NORMALIZATION, mode: 'full',
+    id, label, src: LOGOS_ATLAS, renderer: 'sprite', normalization: LOGOS_NORMALIZATION, hitBounds: resolveHitBounds(id, LOGOS_NORMALIZATION), mode: 'full',
     quickAccess, manualPreview: true,
     sprite: { columns: 8, rows: 11, row, frameCount, frameWidth: 192, frameHeight: 208, startFrame: 0, ...playback },
   };
@@ -102,7 +125,7 @@ const CLAWD_NORMALIZATION: ClawdVisualNormalization = { scaleX: 1, scaleY: 1, tr
 const labelFor = (file: string) => file.replace(/\.(gif|svg)$/,'').replace(/^clawd-/,'').replace(/^working-/,'工作 · ').replaceAll('-',' ');
 const CLAWD_VISUALS: readonly CompanionVisual[] = CLAWD_GIF_FILES.map((file, index) => ({
   id: file.replace(/\.(gif|svg)$/,''), label: labelFor(file), src: `${import.meta.env.BASE_URL}assets/companion-pets/clawd/${file}`,
-  renderer: 'image', normalization: CLAWD_NORMALIZATION, mode: file.includes('mini') ? 'mini' : 'full', quickAccess: index < 8, manualPreview: true,
+  renderer: 'image', normalization: CLAWD_NORMALIZATION, hitBounds: resolveHitBounds(file.replace(/\.(gif|svg)$/,''), CLAWD_NORMALIZATION), mode: file.includes('mini') ? 'mini' : 'full', quickAccess: index < 8, manualPreview: true,
 }));
 const CLAWD_SETTINGS_GROUPS = [
   { id: 'calm', label: '日常', visualIds: CLAWD_VISUALS.slice(0, 8).map((item) => item.id) },

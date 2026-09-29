@@ -1,15 +1,15 @@
 import { create } from 'zustand';
 
 interface RuneUtilityState {
-  mobileOpen: boolean;
-  openMobile: () => void;
-  closeMobile: () => void;
-  toggleMobile: () => void;
+  open: boolean;
+  openLauncher: () => void;
+  closeLauncher: () => void;
+  toggleLauncher: () => void;
 }
 
 export const useRuneUtilityStore = create<RuneUtilityState>((set) => ({
-  mobileOpen: false,
-  openMobile: () => set({ mobileOpen: true }),
-  closeMobile: () => set({ mobileOpen: false }),
-  toggleMobile: () => set((state) => ({ mobileOpen: !state.mobileOpen })),
+  open: false,
+  openLauncher: () => set({ open: true }),
+  closeLauncher: () => set({ open: false }),
+  toggleLauncher: () => set((state) => ({ open: !state.open })),
 }));

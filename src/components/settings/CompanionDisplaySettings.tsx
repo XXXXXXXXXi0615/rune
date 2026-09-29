@@ -34,16 +34,11 @@ export function CompanionDisplaySettings() {
 
   return (
     <div className="settings-module-stack companion-display-settings" data-testid="companion-display-settings">
-      <div className="settings-info-block">
-        <strong>桌寵</strong>
-        <p>管理 Companion 的顯示、大小與位置。設定頁與互動視窗開啟時會暫時隱藏桌寵。</p>
-      </div>
-
       <div className="settings-module-list">
         <div className="settings-standard-row">
           <span className="settings-standard-copy">
             <span>顯示桌寵</span>
-            <small>在一般頁面顯示 Companion</small>
+            <small>在支援的頁面顯示桌寵</small>
           </span>
           <AppSwitch label="顯示桌寵" checked={preferences.enabled} onChange={setEnabled} />
         </div>
@@ -51,7 +46,7 @@ export function CompanionDisplaySettings() {
         <div className="settings-standard-row">
           <span className="settings-standard-copy">
             <span>鎖定位置</span>
-            <small>鎖定後桌寵為純展示，不接收頁面上的指標操作</small>
+            <small>鎖定後不接受拖曳操作</small>
           </span>
           <AppSwitch label="鎖定位置" checked={preferences.pinned} onChange={setPinned} />
         </div>
@@ -59,7 +54,8 @@ export function CompanionDisplaySettings() {
         <label className="settings-standard-row settings-standard-row--stacked companion-display-settings__scale">
           <span className="settings-standard-copy">
             <span>大小</span>
-            <small>套用到未設定個別大小的頁面</small>
+            <small>預設桌寵大小</small>
+            <small>個別頁面可保留自己的大小</small>
           </span>
           <span className="companion-display-settings__range">
             <input
@@ -75,18 +71,16 @@ export function CompanionDisplaySettings() {
           </span>
         </label>
 
-        <div className="settings-standard-row">
+        <div className="settings-standard-row companion-display-settings__position">
           <span className="settings-standard-copy">
-            <span>目前頁面位置</span>
-            <small>重設這個裝置尺寸與目前 Settings route 的位置</small>
+            <span>位置</span>
+            <small>重設目前裝置尺寸的預設位置，並清除這個設定頁的位置覆寫</small>
           </span>
           <button type="button" className="companion-display-settings__reset" onClick={resetCurrentPosition}>
             重設位置
           </button>
         </div>
-        <span className="companion-display-settings__status" role="status" aria-live="polite">
-          {resetDone ? '位置已重設' : ''}
-        </span>
+        {resetDone && <span className="companion-display-settings__status" role="status" aria-live="polite">位置已重設</span>}
       </div>
     </div>
   );

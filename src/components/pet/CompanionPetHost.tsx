@@ -5,11 +5,13 @@ import { useCompanionPetStore, type CompanionBreakpoint, type NormalizedPosition
 import { COMPANION_PET_PACKS, getCompanionVisual } from '@/features/companionPets/companionPetPacks';
 import { AVAILABLE_COMPANION_PET_PACK_IDS } from '@/features/companionPets/companionPetAvailability';
 import { CompanionPetVisual } from './CompanionPetVisual';
-import { intersectsReservedRegion, resolveNearestSafeDelta, resolvePetReservedRegions } from '@/features/desktopPet/PetSafeRegionResolver';
+import { resolveAcceptedPetPosition, resolvePetReservedRegions, type PetRect, type PetResolutionContext } from '@/features/desktopPet/PetSafeRegionResolver';
 import './CompanionPetHost.css';
 
 const APP_PREVIEW_WIDTH = 430;
 const LONG_PRESS_MS = 550;
+/** Vertical space the dock reserves; mirrors the rendering `calc()` below. */
+const handleInsetFor = (breakpoint: CompanionBreakpoint) => (breakpoint === 'mobile' ? 88 : 12);
 const currentBreakpoint = (): CompanionBreakpoint => window.innerWidth < 768
   ? 'mobile'
   : window.innerWidth < 1100
@@ -38,6 +40,31 @@ const pointToNormalizedPosition = (
   };
 };
 
+/** Reserved page regions the companion must not sit on. */
+const resolveReservedRegions = (): PetRect[] => {
+  const menuRect = document.querySelector('.companion-menu')?.getBoundingClientRect();
+  return resolvePetReservedRegions().filter((region) => {
+    // The companion's own compact menu is not an obstacle.
+    if (menuRect && region.left < menuRect.right && menuRect.left < region.right && region.top < menuRect.bottom && menuRect.top < region.bottom) return false;
+    return region.width < window.innerWidth * 0.96 || region.height < window.innerHeight * 0.96;
+  });
+};
+
+/** Geometry + obstacles for one accepted-position decision. */
+const buildResolutionContext = (breakpoint: CompanionBreakpoint, petSize: number): PetResolutionContext => {
+  const bounds = companionViewport();
+  return {
+    canvasLeft: bounds.left,
+    canvasWidth: bounds.width,
+    canvasHeight: bounds.height,
+    bottomReserve: handleInsetFor(breakpoint),
+    petSize,
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight,
+    reserved: resolveReservedRegions(),
+  };
+};
+
 interface DragState { pointerId: number; offsetX: number; offsetY: number; startX: number; startY: number; moved: boolean }
 interface PalettePosition { left: number; top: number; sheet: boolean }
 
@@ -46,7 +73,7 @@ const resolvePalettePosition = (anchorX: number, anchorY: number): PalettePositi
   const sheet = window.innerWidth < 768;
   // Reserve the picker's full compact height up-front so switching layers
   // cannot push the anchored surface below the viewport.
-  const estimatedHeight = sheet ? 300 : 420;
+  const estimatedHeight = Math.min(sheet ? 300 : 420, window.innerHeight * .72);
   return {
     left: Math.max(12, Math.min(anchorX, window.innerWidth - width - 12)),
     top: sheet ? Math.max(12, window.innerHeight - estimatedHeight - 16) : Math.max(12, Math.min(anchorY, window.innerHeight - estimatedHeight - 12)),
@@ -82,9 +109,11 @@ export function CompanionPetHost() {
   const [menu, setMenu] = useState<PalettePosition | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const petRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const dragSessionRef = useRef<number | null>(null);
   const longPressRef = useRef<number | null>(null);
+  const positionRef = useRef(position);
   const pack = COMPANION_PET_PACKS[preferences.selectedPetPackId];
   const routePresentation = preferences.routePresentation[routeKey];
   const hiddenOnRoute = routePresentation?.hidden === true;
@@ -99,10 +128,20 @@ export function CompanionPetHost() {
     && !transientHidden
     && suppressionReasons.length === 0
     && !hiddenOnRoute;
-  const dragRuntimeRef = useRef({ routeKey, breakpoint, petSize, shouldRender, setRoutePresentation });
+  useLayoutEffect(() => { positionRef.current = position; }, [position]);
+
+  /**
+   * Single decision point for the accepted position: the requested drop is
+   * resolved once, here, and the outcome is what gets rendered and persisted.
+   * `resolveAcceptedPetPosition` is a fixed point, so the idle maintenance pass
+   * below can never move an already accepted position again.
+   */
+  const acceptPosition = (requested: NormalizedPosition) => resolveAcceptedPetPosition(requested, buildResolutionContext(breakpoint, petSize));
+
+  const dragRuntimeRef = useRef({ routeKey, breakpoint, petSize, shouldRender, setRoutePresentation, acceptPosition });
   useLayoutEffect(() => {
-    dragRuntimeRef.current = { routeKey, breakpoint, petSize, shouldRender, setRoutePresentation };
-  }, [routeKey, breakpoint, petSize, shouldRender, setRoutePresentation]);
+    dragRuntimeRef.current = { routeKey, breakpoint, petSize, shouldRender, setRoutePresentation, acceptPosition };
+  });
 
   const routeX = routePresentation?.x;
   const routeY = routePresentation?.y;
@@ -128,48 +167,16 @@ export function CompanionPetHost() {
   useEffect(() => {
     if (!shouldRender || dragging) return;
     let frame = 0;
+    // Idle maintenance runs the exact same resolution the drop path ran, so it
+    // is a no-op for a position that was already accepted on release. It only
+    // ever moves the companion when the page geometry changed underneath it.
     const relocateIfNeeded = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const pet = petRef.current;
-        if (!pet) return;
-        const rect = pet.getBoundingClientRect();
-        const menuRect = document.querySelector('.companion-menu')?.getBoundingClientRect();
-        const reserved = resolvePetReservedRegions().filter((region) => {
-          // The companion's own compact menu is not an obstacle.
-          if (menuRect && region.left < menuRect.right && menuRect.left < region.right && region.top < menuRect.bottom && menuRect.top < region.bottom) return false;
-          return region.width < window.innerWidth * 0.96 || region.height < window.innerHeight * 0.96;
-        });
-        const petRect = { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height };
-        if (!intersectsReservedRegion(petRect, reserved)) return;
-        const browserWidth = window.visualViewport?.width ?? innerWidth;
-        const canvasWidth = Math.min(browserWidth, APP_PREVIEW_WIDTH);
-        const canvasLeft = Math.max(0, (browserWidth - canvasWidth) / 2);
-        const canvasHeight = window.visualViewport?.height ?? innerHeight;
-        const maxX = Math.max(1, canvasWidth - petSize);
-        const maxY = Math.max(1, canvasHeight - petSize - (breakpoint === 'mobile' ? 88 : 12));
-        const delta = resolveNearestSafeDelta(petRect, window.innerWidth, window.innerHeight, reserved);
-        let nextLeft = Math.min(canvasLeft + maxX, Math.max(canvasLeft, rect.left + delta.dx));
-        let nextTop = Math.min(maxY, Math.max(0, rect.top + delta.dy));
-        const nextRect = () => ({ left: nextLeft, top: nextTop, right: nextLeft + petSize, bottom: nextTop + petSize, width: petSize, height: petSize });
-        if (intersectsReservedRegion(nextRect(), reserved)) {
-          const candidates: Array<{ left: number; top: number }> = [];
-          for (let top = 12; top <= maxY; top += 18) {
-            candidates.push({ left: canvasLeft + 12, top }, { left: canvasLeft + maxX - 12, top });
-          }
-          for (let left = canvasLeft + 12; left <= canvasLeft + maxX; left += 18) {
-            candidates.push({ left, top: 12 }, { left, top: Math.max(12, maxY - 12) });
-          }
-          const ranked = candidates
-            .map((candidate) => ({ ...candidate, distance: Math.hypot(candidate.left - rect.left, candidate.top - rect.top) }))
-            .sort((a, b) => a.distance - b.distance);
-          const isLegal = (candidate: { left: number; top: number }, gap?: number) => !intersectsReservedRegion({ left: candidate.left, top: candidate.top, right: candidate.left + petSize, bottom: candidate.top + petSize, width: petSize, height: petSize }, reserved, gap);
-          const legal = ranked.find((candidate) => isLegal(candidate)) ?? ranked.find((candidate) => isLegal(candidate, 0));
-          if (!legal) return;
-          nextLeft = legal.left;
-          nextTop = legal.top;
-        }
-        const next = { x: clamp((nextLeft - canvasLeft) / maxX), y: clamp(nextTop / maxY) };
+        const current = positionRef.current;
+        const accepted = resolveAcceptedPetPosition(current, buildResolutionContext(breakpoint, petSize));
+        if (Math.abs(accepted.x - current.x) < .0001 && Math.abs(accepted.y - current.y) < .0001) return;
+        const next = { x: accepted.x, y: accepted.y };
         setLocalPosition(next);
         setRoutePresentation(routeKey, next);
       });
@@ -253,7 +260,10 @@ export function CompanionPetHost() {
       if (!drag) return;
       const runtime = dragRuntimeRef.current;
       if (!runtime.shouldRender) return;
-      const next = pointToNormalizedPosition(event.clientX, event.clientY, drag, runtime.breakpoint, runtime.petSize);
+      // Requested drop → deterministic safe-region resolution → one accepted
+      // position, rendered and persisted. Nothing rewrites it afterwards.
+      const accepted = runtime.acceptPosition(pointToNormalizedPosition(event.clientX, event.clientY, drag, runtime.breakpoint, runtime.petSize));
+      const next = { x: accepted.x, y: accepted.y };
       setLocalPosition(next);
       runtime.setRoutePresentation(runtime.routeKey, next);
       if (!drag.moved && runtime.breakpoint !== 'mobile') setMenu(resolvePalettePosition(event.clientX + 8, event.clientY + 8));
@@ -288,6 +298,27 @@ export function CompanionPetHost() {
     setPickerOpen(false);
   }, [shouldRender]);
 
+  useEffect(() => {
+    if (!menu) return;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setPickerOpen(false);
+      setMenu(null);
+      requestAnimationFrame(() => petRef.current?.focus());
+    };
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
+  }, [menu]);
+
+  useLayoutEffect(() => {
+    if (!menu || menu.sheet || !menuRef.current) return;
+    const rect = menuRef.current.getBoundingClientRect();
+    const left = Math.max(12, Math.min(menu.left, window.innerWidth - rect.width - 12));
+    const top = Math.max(12, Math.min(menu.top, window.innerHeight - rect.height - 12));
+    if (left !== menu.left || top !== menu.top) setMenu({ ...menu, left, top });
+  }, [menu, pickerOpen]);
+
   if (!shouldRender) return null;
 
   const canvas = companionViewport();
@@ -299,9 +330,10 @@ export function CompanionPetHost() {
     '--companion-user-scale': scale,
   } as React.CSSProperties;
 
-  const closeMenu = () => { setPickerOpen(false); setMenu(null); petRef.current?.focus(); };
+  const closeMenu = () => { setPickerOpen(false); setMenu(null); window.setTimeout(() => petRef.current?.focus(), 0); };
+  const hit = visual.hitBounds;
   const compactMenu = menu ? <div className="companion-menu-backdrop" onPointerDown={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
-    <section className={`companion-menu${menu.sheet ? ' companion-menu--sheet' : ''}`} role="dialog" aria-label={pickerOpen ? '選擇展示角色' : 'Companion 顯示控制'} data-testid="companion-menu" data-picker-open={pickerOpen} data-pet-safe-region="interactive" style={menu.sheet ? undefined : { left: menu.left, top: menu.top }}>
+    <section ref={menuRef} className={`companion-menu${menu.sheet ? ' companion-menu--sheet' : ''}`} role="dialog" aria-label={pickerOpen ? '選擇展示角色' : 'Companion 顯示控制'} data-testid="companion-menu" data-picker-open={pickerOpen} data-pet-safe-region="interactive" style={menu.sheet ? undefined : { left: menu.left, top: menu.top }}>
       <header className="companion-menu__header">
         {pickerOpen ? <button type="button" className="companion-menu__back" onClick={() => setPickerOpen(false)} aria-label="返回顯示控制">‹</button> : <span className="companion-menu__thumbnail"><CompanionPetVisual visual={visual} reducedMotion={false} loading="eager" /></span>}
         <span className="companion-menu__heading"><strong>{pickerOpen ? '選擇展示角色' : visual.label}</strong><small>{pickerOpen ? pack.displayName : 'Companion'}</small></span>
@@ -318,14 +350,14 @@ export function CompanionPetHost() {
         </div>
       </div> : <div className="companion-menu__controls">
         <button type="button" className="companion-menu__change" onClick={() => setPickerOpen(true)}>更換形象</button>
-        <div className="companion-menu__scale" role="group" aria-label="大小">
-          <span>大小</span><button type="button" aria-label="縮小" onClick={() => updateScale(scale - .05)}>−</button>
-          <input type="range" min="0.75" max="1.35" step="0.05" value={scale} aria-label="Companion 大小" onChange={(event) => updateScale(Number(event.target.value))} />
-          <button type="button" aria-label="放大" onClick={() => updateScale(scale + .05)}>＋</button><output>{Math.round(scale * 100)}%</output>
+        <div className="companion-menu__scale" role="group" aria-label="此頁大小">
+          <span>此頁大小</span><button type="button" aria-label="縮小此頁桌寵" onClick={() => updateScale(scale - .05)}>−</button>
+          <input type="range" min="0.75" max="1.35" step="0.05" value={scale} aria-label="此頁桌寵大小" onChange={(event) => updateScale(Number(event.target.value))} />
+          <button type="button" aria-label="放大此頁桌寵" onClick={() => updateScale(scale + .05)}>＋</button><output>{Math.round(scale * 100)}%</output>
         </div>
         <div className="companion-menu__actions">
           <button type="button" data-testid="companion-lock-toggle" onClick={() => setPinned(!locked)}>{locked ? '解除鎖定' : '鎖定位置'}</button>
-          <button type="button" onClick={() => { resetRoutePresentation(routeKey); closeMenu(); }}>重設位置</button>
+          <button type="button" onClick={() => { resetRoutePresentation(routeKey); closeMenu(); }}>重設此頁位置</button>
           <button type="button" className="is-quiet-danger" data-testid="companion-hide-route" onClick={() => { setRoutePresentation(routeKey, { hidden: true }); closeMenu(); }}>隱藏此頁</button>
         </div>
       </div>}
@@ -341,9 +373,28 @@ export function CompanionPetHost() {
       style={style}
       aria-label={locked ? 'Companion 已鎖定為純展示' : 'Companion；拖曳移動，點擊或長按開啟顯示設定'}
       onPointerDown={onPointerDown}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        cancelLongPress();
+        dragRef.current = null;
+        dragSessionRef.current = null;
+        setDragging(false);
+        setPickerOpen(false);
+        setMenu(resolvePalettePosition(event.clientX, event.clientY));
+      }}
       onKeyDown={(event) => { if (event.key === 'Enter' || event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) { event.preventDefault(); const rect = event.currentTarget.getBoundingClientRect(); setMenu(resolvePalettePosition(rect.left, rect.bottom + 8)); } }}
     >
       <CompanionPetVisual visual={visual} reducedMotion={false} loading="eager" />
+      {/* Only the painted character owns pointer input; the transparent rest of
+          the box stays click-through for the page behind it. */}
+      {!locked && <span
+        aria-hidden="true"
+        className="companion-pet__hit"
+        data-testid="companion-hit"
+        data-companion-hit-bounds={`${hit.left},${hit.top},${hit.right},${hit.bottom}`}
+        style={{ left: `${hit.left * 100}%`, top: `${hit.top * 100}%`, width: `${(hit.right - hit.left) * 100}%`, height: `${(hit.bottom - hit.top) * 100}%` }}
+      />}
       {!locked && <span className="companion-pet__resize-handle" data-testid="companion-resize-handle" aria-hidden="true" onPointerDown={onResizePointerDown} onClick={(event) => event.stopPropagation()} />}
     </button>
     {compactMenu}

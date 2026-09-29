@@ -74,3 +74,116 @@ export function resolveNearestSafeDelta(rect: PetRect, viewportWidth: number, vi
   }
   return { dx, dy };
 }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Deterministic accepted-position resolution (Companion-C1)
+   ────────────────────────────────────────────────────────────────────────────
+   One policy for "where may the companion legally be", used by both the drop
+   pipeline and the idle maintenance pass, so a released drop can never be
+   silently rewritten by a later pass.
+
+   Guarantees relied on by the caller:
+     • Pure: the result depends only on the inputs.
+     • Fixed point: `resolveAcceptedPetRect(result, ctx)` returns `result`
+       unchanged for every branch, so re-running the same resolution on an
+       already-accepted position performs no move and therefore no write.
+     • Tiered: the strict `PET_SAFE_GAP_PX` clearance is preferred; the caller
+       can see which tier was satisfied via `gap` (`null` = no legal spot).
+   ──────────────────────────────────────────────────────────────────────────── */
+
+export interface PetResolutionContext {
+  /** Left edge of the companion canvas (the centred app preview frame). */
+  canvasLeft: number;
+  /** Width of that canvas, i.e. the horizontal travel is `canvasWidth - petSize`. */
+  canvasWidth: number;
+  /** Height the companion may use (visual viewport height). */
+  canvasHeight: number;
+  /** Space reserved at the bottom for the dock, exactly as the host renders it. */
+  bottomReserve: number;
+  petSize: number;
+  viewportWidth: number;
+  viewportHeight: number;
+  reserved: PetRect[];
+}
+
+export interface PetResolutionResult { left: number; top: number; gap: number | null }
+
+export const petMaxLeft = (context: PetResolutionContext) => Math.max(1, context.canvasWidth - context.petSize);
+export const petMaxTop = (context: PetResolutionContext) => Math.max(1, context.canvasHeight - context.petSize - context.bottomReserve);
+
+const clampLeft = (value: number, context: PetResolutionContext) =>
+  Math.min(context.canvasLeft + petMaxLeft(context), Math.max(context.canvasLeft, value));
+const clampTop = (value: number, context: PetResolutionContext) => Math.min(petMaxTop(context), Math.max(0, value));
+
+const petRectAt = (left: number, top: number, context: PetResolutionContext): PetRect => ({
+  left, top, right: left + context.petSize, bottom: top + context.petSize, width: context.petSize, height: context.petSize,
+});
+
+const isPetRectClear = (left: number, top: number, context: PetResolutionContext, gap: number) =>
+  !intersectsReservedRegion(petRectAt(left, top, context), context.reserved, gap);
+
+/**
+ * Candidate landing spots used only when a minimal nudge cannot clear the
+ * reserved regions. `requested` is always the first candidate, which is what
+ * makes the resolver a fixed point when nothing else is legal.
+ */
+function petResolutionCandidates(requested: { left: number; top: number }, context: PetResolutionContext) {
+  const maxLeft = context.canvasLeft + petMaxLeft(context);
+  const maxTop = petMaxTop(context);
+  const candidates: Array<{ left: number; top: number }> = [{ left: requested.left, top: requested.top }];
+  for (let top = 12; top <= maxTop; top += 18) {
+    candidates.push({ left: context.canvasLeft + 12, top }, { left: maxLeft - 12, top });
+  }
+  for (let left = context.canvasLeft + 12; left <= maxLeft; left += 18) {
+    candidates.push({ left, top: 12 }, { left, top: Math.max(12, maxTop - 12) });
+  }
+  return candidates
+    .map((candidate) => {
+      const left = clampLeft(candidate.left, context);
+      const top = clampTop(candidate.top, context);
+      return { left, top, distance: Math.hypot(left - requested.left, top - requested.top) };
+    })
+    .sort((a, b) => a.distance - b.distance);
+}
+
+/**
+ * Final accepted position for a requested drop (or for the current position on
+ * the idle maintenance pass). Resolution happens once, here, before anything is
+ * rendered or persisted.
+ */
+export function resolveAcceptedPetRect(requested: { left: number; top: number }, context: PetResolutionContext): PetResolutionResult {
+  const start = { left: clampLeft(requested.left, context), top: clampTop(requested.top, context) };
+  const gaps = [PET_SAFE_GAP_PX, 0];
+  for (const gap of gaps) if (isPetRectClear(start.left, start.top, context, gap)) return { ...start, gap };
+
+  const delta = resolveNearestSafeDelta(petRectAt(start.left, start.top, context), context.viewportWidth, context.viewportHeight, context.reserved, PET_SAFE_GAP_PX);
+  const nudged = { left: clampLeft(start.left + delta.dx, context), top: clampTop(start.top + delta.dy, context) };
+  for (const gap of gaps) if (isPetRectClear(nudged.left, nudged.top, context, gap)) return { ...nudged, gap };
+
+  const candidates = petResolutionCandidates(start, context);
+  for (const gap of gaps) {
+    const legal = candidates.find((candidate) => isPetRectClear(candidate.left, candidate.top, context, gap));
+    if (legal) return { left: legal.left, top: legal.top, gap };
+  }
+  return { ...start, gap: null };
+}
+
+/**
+ * Normalized projection of {@link resolveAcceptedPetRect}. Callers keep owning
+ * persistence; this only decides the accepted point.
+ */
+export function resolveAcceptedPetPosition(
+  position: { x: number; y: number },
+  context: PetResolutionContext,
+): { x: number; y: number; gap: number | null; relocated: boolean } {
+  const maxLeft = petMaxLeft(context);
+  const maxTop = petMaxTop(context);
+  const requested = { left: context.canvasLeft + position.x * maxLeft, top: position.y * maxTop };
+  const accepted = resolveAcceptedPetRect(requested, context);
+  return {
+    x: Math.min(1, Math.max(0, (accepted.left - context.canvasLeft) / maxLeft)),
+    y: Math.min(1, Math.max(0, accepted.top / maxTop)),
+    gap: accepted.gap,
+    relocated: Math.abs(accepted.left - requested.left) > .0001 || Math.abs(accepted.top - requested.top) > .0001,
+  };
+}
