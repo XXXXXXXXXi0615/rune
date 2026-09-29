@@ -5,6 +5,7 @@ Date: 2026-09-30. Scope: Git source checkpoint only. No Cloudflare deployment, `
 ## A. Checkpoint Branch
 
 - Branch: `checkpoint/current-rune-2026-09-29`, created from local `main` at `c3c1cfff4311d8b0d59b75ce4297d3031b5790ab` without replacing or cleaning the working tree.
+- `origin/checkpoint/current-rune-2026-09-29` was created after checkpoint validation. `origin/main` and `origin/staging` were not updated.
 - Pre-existing recovery snapshot: `/Users/shidaoxiang/Desktop/lunartide-recovery/2026-09-29-cloudflare-predeploy-source-closure/`.
 - The user-owned Vite server on `127.0.0.1:5173`, PID 33114, was not stopped or restarted.
 - The Phase 1A.1 [source audit](rune-cloudflare-phase1a1-deployment-source-closure.md) supplied the 87-path source candidate set, the dirty-tree classification, and the dependency triage. This phase did not repeat that audit.
@@ -28,6 +29,8 @@ All 31 tracked production/config deletions from Phase 1A.1 were checked against 
 ## E. Dependency Security Gate
 
 The Phase 1A.1 scan found 13 affected packages (one critical, eight high, four moderate); five remain when omitting dev dependencies. This phase changed no dependency or lockfile. Classification for the source checkpoint:
+
+At push time, GitHub reported **43 advisory alerts on the default branch**. This is an alert count on a different ref, not the same unit as npm's affected-package count; it does not replace the triage below.
 
 | Finding | Checkpoint decision | Reason / follow-up |
 |---|---|---|
