@@ -167,9 +167,9 @@ describe('staleCacheProvider', () => {
   });
 
   it('active cache is NOT included', async () => {
-    const cache = makeCache('lunartide-app-shell-v1', [{ url: 'http://localhost/', contentLength: 500 }]);
+    const cache = makeCache('lunartide-v3', [{ url: 'http://localhost/', contentLength: 500 }]);
     (globalThis as any).caches = {
-      keys: vi.fn(async () => ['lunartide-app-shell-v1']),
+      keys: vi.fn(async () => ['lunartide-v3']),
       open: vi.fn(async () => cache),
       delete: vi.fn(),
     };

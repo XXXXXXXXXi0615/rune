@@ -10,7 +10,7 @@ describe('buildMissedConsequenceCopy', () => {
     const copy = buildMissedConsequenceCopy('2026-09-19', NOW);
     expect(copy.label).toBe('昨日漏簽');
     expect(copy.voice).toBe(CANONICAL_VOICE);
-    expect(copy.hint).toBe('今天完成報備前，潮階不會前進。');
+    expect(copy.hint).toBe('昨日漏簽已保留在報備紀錄中。');
   });
 
   it('substitutes only the leading date token for an older missed day', () => {

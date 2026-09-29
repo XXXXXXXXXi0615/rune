@@ -3,8 +3,7 @@
  *
  * Canonical owner: `useCheckInStore` (persist `lunartide-check-in` v1).
  * The legacy `useAppStore.tideCheckIn` writers are fenced and must stay unreachable
- * from active source; Moon Dew presentation reads the streak through the one-way
- * `canonicalCheckInStreak` adapter. See
+ * from active source; Daily Status reads the canonical streak. See
  * docs/reports/life-utility-phase-a-ownership-closure.md.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -14,8 +13,6 @@ import { useCheckInStore } from './useCheckInStore';
 import { buildCheckInIdempotencyKey, calculatePerfectStreak } from './tideclockEngine';
 import { toLocalDateString } from '@/utils/date';
 import { useAppStore } from '@/store/useAppStore';
-import { getMoonDewProgression } from '@/features/moon-dew/getMoonDewProgression';
-import { selectCanonicalCheckInStreak } from '@/features/moon-dew/canonicalCheckInStreak';
 
 const FENCED_LEGACY_WRITERS = ['checkInToday', 'addTidePoints', 'spendTidePoints', 'grantPlayroomMoonDew'];
 const LEGACY_MIRROR_WRITERS_FILE = 'src/store/useAppStore.ts';
@@ -84,9 +81,9 @@ describe('Life Utility Phase A — check-in canonical ownership', () => {
     expect(entries[0].idempotencyKey).toBe(buildCheckInIdempotencyKey(record!.date, 'clock_in'));
     expect(record!.moonDewAwarded).toBe(entries[0].amount);
 
-    // Canonical streak (live store) agrees with the derived adapter.
+    // Canonical streak (live store) agrees with the reporting selector.
     expect(useCheckInStore.getState().getCurrentPerfectStreak()).toBe(1);
-    expect(selectCanonicalCheckInStreak(useCheckInStore.getState().records)).toBe(1);
+    expect(calculatePerfectStreak(useCheckInStore.getState().records, new Date())).toBe(1);
   });
 
   it('a repeated check-in on the same day does not double grant', () => {
@@ -99,15 +96,11 @@ describe('Life Utility Phase A — check-in canonical ownership', () => {
     expect(useCheckInStore.getState().records).toHaveLength(1);
   });
 
-  it('Moon Dew progression consumes the canonical streak parameter (no legacy mirror read)', () => {
+  it('reporting streak reads canonical records (no legacy mirror read)', () => {
     const records = useCheckInStore.getState().records;
-    expect(selectCanonicalCheckInStreak(records, new Date())).toBe(calculatePerfectStreak(records, new Date()));
-
-    const progression = getMoonDewProgression([], [], 4);
-    expect(progression.checkInStreak).toBe(4);
-    expect(getMoonDewProgression([], []).checkInStreak).toBe(0);
-
-    const source = readFileSync('src/features/moon-dew/getMoonDewProgression.ts', 'utf8');
+    expect(useCheckInStore.getState().getCurrentPerfectStreak()).toBe(calculatePerfectStreak(records, new Date()));
+    const source = readFileSync('src/components/home/DailyTideFloatingWindow.tsx', 'utf8');
+    expect(source).toContain('getCurrentPerfectStreak');
     expect(source).not.toMatch(/tideCheckIn|currentStreak/);
   });
 
