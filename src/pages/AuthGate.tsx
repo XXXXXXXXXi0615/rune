@@ -112,7 +112,12 @@ function RuneWelcomeCopy({ isFirstRun, isReady }: { isFirstRun: boolean; isReady
   }
 
   if (isFirstRun) {
-    return <h1 id="rune-login-title">Welcome to Rune.</h1>;
+    return (
+      <div className="rlg-returning-copy">
+        <p className="rlg-returning-kicker">Welcome back,</p>
+        <h1 id="rune-login-title">Master.</h1>
+      </div>
+    );
   }
 
   return (
@@ -189,6 +194,7 @@ export function AuthGate() {
   const [stage, setStage] = useState<GateStage>(isFirstRun ? 'invitation' : 'returning');
   const [invitation, setInvitation] = useState('');
   const [invitationError, setInvitationError] = useState('');
+  const [invitationFocused, setInvitationFocused] = useState(false);
   const [draftAccessString, setDraftAccessString] = useState<string | null>(null);
   const [returningAccess, setReturningAccess] = useState('');
   const [returningAccessVisible, setReturningAccessVisible] = useState(false);
@@ -196,6 +202,7 @@ export function AuthGate() {
   const [copied, setCopied] = useState(false);
 
   const submittingRef = useRef(false);
+  const invitationSubmittingRef = useRef(false);
   const invitationInputRef = useRef<HTMLInputElement>(null);
   const returningInputRef = useRef<HTMLInputElement>(null);
   const copyTimerRef = useRef<number | undefined>(undefined);
@@ -213,11 +220,13 @@ export function AuthGate() {
 
   const handleInvitationSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (submittingRef.current) return;
+    if (submittingRef.current || invitationSubmittingRef.current) return;
+    invitationSubmittingRef.current = true;
     setInvitationError('');
     if (!isValidInvitationCode(invitation)) {
+      invitationSubmittingRef.current = false;
       setStage('invitation_invalid');
-      setInvitationError('That invitation code doesn’t match. Check it and try again.');
+      setInvitationError('邀請碼不正確，請重新確認。');
       requestAnimationFrame(() => invitationInputRef.current?.focus());
       return;
     }
@@ -299,6 +308,10 @@ export function AuthGate() {
         : 'returning';
 
   const isVerifying = stage === 'verifying';
+  const invitationPresentationState = stage === 'invitation_invalid' ? 'invalid'
+    : stage === 'generated' ? 'accepted'
+      : stage === 'verifying' && isFirstRun ? 'submitting'
+        : invitationFocused ? 'focused' : 'idle';
   const banner = invitationError || returningError;
   const isFirstRunSuccess = isFirstRun
     && Boolean(draftAccessString)
@@ -314,6 +327,7 @@ export function AuthGate() {
         data-testid="rune-login-gate"
         data-rune-gate-state={stateLabel}
         data-rune-mode={isFirstRun ? 'first_run' : 'returning'}
+        data-invitation-state={isFirstRun ? invitationPresentationState : undefined}
         aria-busy={isVerifying || undefined}
       >
         <RuneLoginAtmosphere />
@@ -392,7 +406,7 @@ export function AuthGate() {
             {isFirstRun && stage !== 'generated' && stage !== 'verifying' && (
               <form className="rlg-form" onSubmit={handleInvitationSubmit} noValidate>
                 <label className="rlg-field" htmlFor="rune-invitation-input">
-                  <span>Invitation Code</span>
+                  <span>邀請碼</span>
                   <input
                     ref={invitationInputRef}
                     id="rune-invitation-input"
@@ -402,12 +416,14 @@ export function AuthGate() {
                     spellCheck={false}
                     autoCapitalize="characters"
                     value={invitation}
+                    onFocus={() => setInvitationFocused(true)}
+                    onBlur={() => setInvitationFocused(false)}
                     onChange={(event) => {
                       setInvitation(event.target.value);
                       setInvitationError('');
                       if (stage === 'invitation_invalid') setStage('invitation');
                     }}
-                    placeholder="Enter your invitation code"
+                    placeholder="輸入邀請碼"
                     aria-invalid={stage === 'invitation_invalid' || undefined}
                     aria-describedby="rune-gate-feedback"
                     data-testid="rune-invitation-input"
@@ -455,18 +471,18 @@ export function AuthGate() {
                 </button>
               </div>
             )}
+            <GuestLounge
+              provider={guestProvider}
+              onReturnToLogin={() => {
+                const target = returningInputRef.current
+                  || invitationInputRef.current
+                  || document.querySelector<HTMLElement>('.rlg-panel .rlg-cta:not(:disabled)');
+                target?.focus();
+              }}
+            />
             </div>
           </section>
         </div>
-        <GuestLounge
-          provider={guestProvider}
-          onReturnToLogin={() => {
-            const target = returningInputRef.current
-              || invitationInputRef.current
-              || document.querySelector<HTMLElement>('.rlg-panel .rlg-cta:not(:disabled)');
-            target?.focus();
-          }}
-        />
       </main>
     </RuneGateErrorBoundary>
   );

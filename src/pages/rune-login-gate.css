@@ -299,6 +299,10 @@
   flex-direction: column;
 }
 
+.rlg-flow > .guest-lounge-trigger {
+  margin-top: 30px;
+}
+
 .rlg-field {
   display: flex;
   flex-direction: column;

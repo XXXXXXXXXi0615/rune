@@ -10,24 +10,19 @@
 }
 
 .guest-lounge-trigger {
-  position: fixed;
-  z-index: 7;
-  right: max(12px, calc(env(safe-area-inset-right) + 10px));
-  bottom: max(12px, calc(env(safe-area-inset-bottom) + 10px));
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  min-width: 96px;
+  width: 100%;
   min-height: 44px;
   padding: 0 15px;
   border: 1px solid rgba(225, 205, 165, 0.38);
   border-radius: 999px;
   color: var(--rlg-ink-soft);
   background: color-mix(in srgb, var(--rlg-surface) 72%, transparent);
-  box-shadow: 0 12px 30px rgba(0, 8, 26, 0.2);
-  backdrop-filter: blur(18px) saturate(1.08);
-  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+  box-shadow: none;
   font: 600 13px/1 var(--font-ui, sans-serif);
   letter-spacing: 0.04em;
   cursor: pointer;
@@ -38,9 +33,17 @@
     transform var(--rune-motion-instant, 80ms) ease;
 }
 
-.guest-lounge-trigger > span {
-  color: #cfb675;
-  font-size: 17px;
+.guest-lounge-trigger::before {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 14px);
+  left: 0;
+  color: var(--rlg-ink-faint);
+  content: '或';
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  pointer-events: none;
 }
 
 .guest-lounge-trigger:active {
@@ -103,6 +106,7 @@
 }
 
 .guest-lounge-panel:is([data-guest-status="error"], [data-guest-status="unavailable"]) {
+  grid-template-rows: auto minmax(0, 1fr);
   min-height: 0;
   max-height: min(480px, calc(100dvh - 48px));
 }
@@ -273,16 +277,9 @@
   line-height: 1.5;
 }
 
-.guest-lounge-error-speaker {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--rlg-ink-faint);
-  font-size: 11px;
-}
-
 .guest-lounge-unavailable button {
-  min-height: 38px;
-  margin-top: 8px;
+  min-height: 44px;
+  margin-top: 14px;
   padding: 0 12px;
   border: 1px solid var(--rlg-line-strong);
   border-radius: 10px;
@@ -290,16 +287,6 @@
   background: var(--rlg-action);
   font: 600 12.5px/1 var(--font-ui, sans-serif);
   cursor: pointer;
-}
-
-.guest-lounge-terminal-footer {
-  min-height: 40px;
-  padding: 0 16px calc(env(safe-area-inset-bottom) / 2);
-  border-top: 1px solid var(--rlg-line-strong);
-  color: var(--rlg-ink-faint);
-  background: color-mix(in srgb, var(--rlg-surface) 88%, transparent);
-  font: 500 11.5px/40px var(--font-ui, sans-serif);
-  letter-spacing: 0.02em;
 }
 
 .guest-lounge-composer {
@@ -377,12 +364,6 @@
 }
 
 @media (max-height: 620px) and (max-width: 760px) {
-  .rune-login-gate:has(.rlg-field input:focus) .guest-lounge-trigger {
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
-  }
-
   .guest-lounge-panel {
     height: calc(100dvh - 20px - env(safe-area-inset-bottom));
     min-height: 0;

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import type { ProviderConfig } from '@/types';
 import {
   requestGuestReply,
@@ -138,11 +139,10 @@ export function GuestLounge({ provider, onReturnToLogin }: GuestLoungeProps) {
         data-testid="guest-lounge-trigger"
         onClick={() => setOpen(true)}
       >
-        <span aria-hidden="true">☾</span>
-        待客廳
+        進入待客廳
       </button>
 
-      {open ? (
+      {open ? createPortal((
         <div className="guest-lounge-layer" data-testid="guest-lounge-layer">
           <button className="guest-lounge-scrim" type="button" aria-label="關閉待客廳" onClick={close} />
           <section
@@ -157,7 +157,7 @@ export function GuestLounge({ provider, onReturnToLogin }: GuestLoungeProps) {
           >
             <header className="guest-lounge-header">
               <div>
-                <p className="guest-lounge-eyebrow">Moon Gate reception</p>
+                <p className="guest-lounge-eyebrow">MOON GATE RECEPTION</p>
                 <h2 id="guest-lounge-title">Rune · 待客廳</h2>
               </div>
               <button type="button" className="guest-lounge-close" aria-label="關閉待客廳" onClick={close}>
@@ -174,11 +174,11 @@ export function GuestLounge({ provider, onReturnToLogin }: GuestLoungeProps) {
             >
               <article className="guest-lounge-intro guest-lounge-message guest-lounge-message--rune">
                 <span className="guest-lounge-speaker"><img src={resolveRuneOrbAvatarAsset()} alt="" />Rune</span>
-                <p>門還沒有打開。<br />如果只是想坐一會，可以在這裡說幾句。</p>
+                <p>門還沒有打開。{!unavailable && status !== 'error' ? <><br />但你可以先在這裡坐一會。</> : null}</p>
               </article>
-              <p className="guest-lounge-disclosure">本次對話不會保存。</p>
+              {!unavailable && status !== 'error' ? <p className="guest-lounge-disclosure">本次對話不會保存。</p> : null}
 
-              {messages.map((message) => (
+              {!unavailable && status !== 'error' ? messages.map((message) => (
                 <article
                   key={message.id}
                   className={`guest-lounge-message guest-lounge-message--${message.role}`}
@@ -188,7 +188,7 @@ export function GuestLounge({ provider, onReturnToLogin }: GuestLoungeProps) {
                   <span>{message.role === 'guest' ? 'Guest' : 'Rune'}</span>
                   <p>{message.content}</p>
                 </article>
-              ))}
+              )) : null}
 
               {status === 'replying' ? (
                 <div className="guest-lounge-replying" data-testid="guest-lounge-replying">
@@ -199,17 +199,13 @@ export function GuestLounge({ provider, onReturnToLogin }: GuestLoungeProps) {
 
               {unavailable || status === 'error' ? (
                 <div className="guest-lounge-unavailable" role="status" data-testid="guest-lounge-unavailable">
-                  <p><span className="guest-lounge-error-speaker">Rune </span>現在暫時不能在門外應答。</p>
-                  <button type="button" onClick={returnToLogin}>← 返回登入</button>
+                  <p>訪客對話目前暫停。<br />你仍可以返回 Moon Gate，<br />使用邀請碼進入。</p>
+                  <button type="button" onClick={returnToLogin}>返回登入</button>
                 </div>
               ) : null}
             </div>
 
-            {unavailable || status === 'error' ? (
-              <div className="guest-lounge-terminal-footer" aria-disabled="true" data-testid="guest-lounge-terminal-footer">
-                此刻無法傳送訊息
-              </div>
-            ) : (
+            {unavailable || status === 'error' ? null : (
               <form className="guest-lounge-composer" onSubmit={handleSubmit}>
                 <label className="guest-lounge-sr-only" htmlFor="guest-lounge-input">傳訊息給 Rune</label>
                 <textarea
@@ -237,7 +233,7 @@ export function GuestLounge({ provider, onReturnToLogin }: GuestLoungeProps) {
             )}
           </section>
         </div>
-      ) : null}
+      ), document.querySelector('.rune-login-gate') ?? document.body) : null}
     </>
   );
 }
