@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { toLocalDateString } from '@/utils/date';
+import { emitDailyCheckInCompleted } from './dailyCheckInEvents';
 import { useAppStore } from '@/store/useAppStore';
 import type {
   CheckInRecord,
@@ -163,6 +164,7 @@ export const useCheckInStore = create<CheckInState & CheckInActions>()(
       dismissedTodayDate: null,
         }));
 
+        emitDailyCheckInCompleted({ date: today });
         return record;
       },
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useCheckInStore } from '@/features/tideclock/useCheckInStore';
 import { useQuestStore } from '@/store/useQuestStore';
@@ -423,21 +423,9 @@ export function DailyTidePanel({ isOpen, onClose, anchorRef }: DailyTidePanelPro
   const ensureNotices = useReleaseNoticeStore((s) => s.ensureNotices);
   const hasUnreadNotice = useReleaseNoticeStore((s) => s.hasUnread);
 
-  const dismissTodayCheckIn = useCheckInStore((s) => s.dismissToday);
-
   useEffect(() => {
     ensureNotices();
   }, [ensureNotices]);
-
-  const handleDismissToday = useCallback(() => {
-    dismissTodayCheckIn();
-    const state = useReleaseNoticeStore.getState();
-    const unreadNotices = state.notices.filter((n) => !n.readAt);
-    unreadNotices.forEach((n) => {
-      state.dismissToday(n.version);
-    });
-    onClose();
-  }, [dismissTodayCheckIn, onClose]);
 
   // Reposition on resize/open
   useEffect(() => {
@@ -519,12 +507,6 @@ export function DailyTidePanel({ isOpen, onClose, anchorRef }: DailyTidePanelPro
 
       <div className="dt-panel-body">
         {tab === 'checkin' ? <CheckInTab /> : <UpdateTab />}
-      </div>
-
-      <div className="dt-panel-footer">
-        <button type="button" className="dt-panel-footer-btn dt-panel-footer-btn--ghost" onClick={handleDismissToday}>
-          今天不再顯示
-        </button>
       </div>
     </div>
   );

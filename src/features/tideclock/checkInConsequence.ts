@@ -22,7 +22,7 @@ export function buildMissedConsequenceCopy(missedDate: string, now: Date = new D
   return {
     label: isYesterday ? '昨日漏簽' : `${month}月${day}日漏簽`,
     voice: `「${isYesterday ? '昨天沒來。' : `${month}月${day}日沒來。`}\n『忘了』不是我接受的理由。\n現在，把今天該做的補上。」`,
-    hint: '今天完成報備前，潮階不會前進。',
+    hint: '昨日漏簽已保留在報備紀錄中。',
   };
 }
 

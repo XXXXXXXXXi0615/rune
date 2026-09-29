@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useHydrationStore, getDailyTotal } from '@/store/useHydrationStore';
+import { deriveWaterProgress } from '@/features/home/dailyRitualPresentation';
 import { useHealthStore } from '@/store/useHealthStore';
 import { buildTodayHealthSummary } from '@/features/health/todayHealthSummary';
 import { loadPeriodRecords } from '@/utils/periodStorage';
@@ -37,7 +38,7 @@ export function HealthOverviewPanel() {
     copiedTimer.current = window.setTimeout(() => setCopied(false), 1800);
     return true;
   };
-  const hydrationPercent = hydrationGoal > 0 ? Math.min(100, Math.round((hydrationToday / hydrationGoal) * 100)) : 0;
+  const hydrationPercent = deriveWaterProgress(hydrationToday, hydrationGoal);
 
   return <section className="health-overview-panel" data-testid="health-overview-panel" aria-label="今日健康">
     <header className="health-overview-heading">

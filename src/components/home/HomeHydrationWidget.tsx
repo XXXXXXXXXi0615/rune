@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { HomeWidgetSize } from '@/features/home/types';
 import { getDailyEntries, getDailyTotal, useHydrationStore } from '@/store/useHydrationStore';
+import { deriveWaterProgress } from '@/features/home/dailyRitualPresentation';
 import { useTideRailStore } from '@/store/useTideRailStore';
 import { toLocalDateString } from '@/utils/date';
 import { HomeWidgetIcon } from './HomeWidgetIcon';
@@ -25,7 +26,7 @@ export function HomeHydrationWidget({ size }: { size: HomeWidgetSize }) {
   const todayEntries = useMemo(() => getDailyEntries(entries, dateKey), [entries, dateKey]);
   const goal = settings.dailyGoalMl;
   const remaining = Math.max(0, goal - total);
-  const pct = Math.min(100, Math.round((total / Math.max(1, goal)) * 100));
+  const pct = deriveWaterProgress(total, goal);
   const lastEntry = todayEntries[todayEntries.length - 1];
   const iconSize = size === 'small' ? 'sm' : 'md';
   const quickAmounts = settings.quickAmounts.length ? settings.quickAmounts : [100, 250, 500];

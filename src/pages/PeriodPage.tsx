@@ -16,6 +16,7 @@ import { PeriodTicketEntry } from '@/components/period/PeriodTicketEntry'
 import { PeriodTicketArchiveEntry } from '@/components/period/PeriodTicketArchiveEntry'
 import { PeriodRecordSheet } from '@/components/period/PeriodRecordSheet'
 import { getDailyTotal, useHydrationStore } from '@/store/useHydrationStore'
+import { deriveWaterProgress } from '@/features/home/dailyRitualPresentation'
 import '@/styles/period.css'
 import '@/styles/period-bento.css'
 import '@/styles/period-ticket-archive.css'
@@ -432,7 +433,7 @@ export function PeriodPage() {
 
   const hydrationToday = useMemo(() => getDailyTotal(hydrationEntries, TODAY), [hydrationEntries, TODAY])
   const hydrationGoal = hydrationSettings?.dailyGoalMl ?? 2000
-  const pct = Math.min(100, hydrationGoal > 0 ? Math.round((hydrationToday / hydrationGoal) * 100) : 0)
+  const pct = deriveWaterProgress(hydrationToday, hydrationGoal)
   const phaseColor = CYCLE_PHASE_COLOR[snapshot.status] ?? CYCLE_PHASE_COLOR.unknown
   const phaseTint = PHASE_TINT[snapshot.status] ?? PHASE_TINT.unknown
   const phaseTip = PHASE_TIP[snapshot.status] ?? PHASE_TIP['no-data']

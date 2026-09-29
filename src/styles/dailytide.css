@@ -509,8 +509,6 @@
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
-.dt-panel-streak-card--dew .dt-panel-streak-label { display:flex;align-items:center;gap:3px; }
-.dt-panel-streak-card--dew .dt-panel-streak-label i { width:6px;height:8px;border-radius:60% 60% 65% 65%;background:var(--teal);transform:rotate(20deg); }
 
 /* ── Section ── */
 .dt-panel-section {
@@ -591,7 +589,7 @@
 /* ── Calendar grid ── */
 .dt-calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 2px;
 }
 
@@ -603,13 +601,15 @@
   padding: 2px 0;
 }
 
+/* 七欄等寬 date cell：填滿欄寬、高度一律 44px（觸控下限），
+   數字置中，狀態標記一律在數字之後。 */
 .dt-calendar-cell {
   position: relative;
-  aspect-ratio: 1;
+  height: 44px;
   display: grid;
   place-items: center;
   border-radius: 7px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-2);
   background: transparent;
@@ -625,10 +625,15 @@
   background: transparent;
 }
 
-/* 紅圈、紅叉標記：絕對定位於格中央，疊加於數字上 */
+/* 紅圈、紅叉標記：絕對定位於格中央，z-index 低於數字，永不遮住日期。 */
 .dt-calendar-cell-mark {
   position: absolute;
-  inset: 50% auto auto 50%;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 100%;
+  max-width: 40px;
+  max-height: 40px;
   transform: translate(calc(-50% + var(--mark-offset, 0px)), -50%) rotate(var(--mark-rotate, 0deg));
   pointer-events: none;
   z-index: 0;
@@ -640,19 +645,28 @@
   /* 略小於外圈圓環 */
 }
 
-/* 已打卡：紅色手繪描邊圓圈（只描邊，不整格填色） */
+/* 已打卡：紅色手繪描邊圓圈（只描邊、細線，不整格填色） */
 .dt-calendar-cell--checked {
   color: var(--text);
   font-weight: 550;
 }
+.dt-calendar-cell--checked .dt-calendar-cell-mark circle {
+  stroke-width: 1.35;
+}
 
-/* 漏簽：紅色手繪描邊叉叉 */
+/* 漏簽：柔化的細紅叉，標記在數字之後 */
 .dt-calendar-cell--missed {
   color: var(--text);
   font-weight: 550;
 }
+.dt-calendar-cell--missed .dt-calendar-cell-mark {
+  opacity: 0.55;
+}
+.dt-calendar-cell--missed .dt-calendar-cell-mark line {
+  stroke-width: 1.25;
+}
 
-/* 今天：薄荷綠外圈圓環 */
+/* 今天：薄荷綠細外圈（圓形，不隨格寬變形） */
 .dt-calendar-cell--today {
   background: transparent;
   color: var(--teal, #6bb5a0);
@@ -661,7 +675,11 @@
 .dt-calendar-cell--today::after {
   content: '';
   position: absolute;
-  inset: 2px;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
   border: 1.5px solid var(--teal, #6bb5a0);
   pointer-events: none;
@@ -739,11 +757,6 @@
   color: var(--text-3);
 }
 
-.dt-tide-mark { display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--red-mark,#d36b62) 8%,transparent);border:1px solid color-mix(in srgb,var(--red-mark,#d36b62) 25%,transparent);color:var(--red-mark,#d36b62); }
-.dt-tide-mark svg { width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transform:rotate(-3deg); }
-.dt-tide-mark span { display:flex;flex-direction:column;gap:1px; }
-.dt-tide-mark strong { font-size:13px;letter-spacing:.05em; }
-.dt-tide-mark small { color:var(--text-2);font-size:11px; }
 
 /* ── Main task ── */
 .dt-panel-main-task {
@@ -973,8 +986,9 @@
 }
 
 .dt-sheet-overlay {
-  --ritual-mobile-surface: rgba(250, 247, 241, 0.96);
-  --ritual-mobile-backdrop: rgba(45, 38, 31, 0.42);
+  /* Rune Terminal surface — the sheet keeps the terminal near-black identity in both themes (alpha ≥ .9 over the blurred backdrop). */
+  --ritual-mobile-surface: rgba(6, 15, 12, 0.95);
+  --ritual-mobile-backdrop: rgba(3, 9, 7, 0.55);
   position: fixed;
   inset: 0;
   z-index: 2100;
@@ -998,13 +1012,14 @@
   z-index: 1;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--ritual-mobile-surface);
+  border-top: 1px solid var(--dt-term-line-strong);
   backdrop-filter: blur(28px) saturate(1.08);
   -webkit-backdrop-filter: blur(28px) saturate(1.08);
 }
 
 [data-theme='dark'] .dt-sheet-overlay {
-  --ritual-mobile-surface: rgba(22, 23, 29, 0.95);
-  --ritual-mobile-backdrop: rgba(3, 8, 12, 0.68);
+  --ritual-mobile-surface: rgba(4, 11, 9, 0.96);
+  --ritual-mobile-backdrop: rgba(2, 6, 5, 0.72);
 }
 
 .dt-sheet-handle {
@@ -1082,47 +1097,463 @@
   user-select: none;
   border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
 }
-.dt-window,.dt-sheet { --ritual-surface:color-mix(in srgb,var(--surface,#fbf7f0) 94%,transparent);--ritual-mark:var(--red-mark,#c9655d);background:var(--ritual-surface);color:var(--text); }
-[data-theme='dark'] .dt-window,[data-theme='dark'] .dt-sheet { --ritual-surface:color-mix(in srgb,var(--surface,#172126) 92%,rgba(8,18,23,.96));--ritual-mark:color-mix(in srgb,var(--red-mark,#c97870) 78%,#9f7773);border-color:rgba(202,220,218,.13)!important;box-shadow:0 16px 46px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.035)!important; }
-[data-theme='dark'] .dt-window .dt-dock-tabs,[data-theme='dark'] .dt-sheet .dt-dock-tabs { background:rgba(255,255,255,.045); }
-[data-theme='dark'] .dt-window .dt-dock-tab.is-active,[data-theme='dark'] .dt-sheet .dt-dock-tab.is-active { background:rgba(128,177,174,.13);color:color-mix(in srgb,var(--teal) 82%,white);box-shadow:inset 0 0 0 1px rgba(146,195,191,.12); }
-[data-theme='dark'] .dt-window .dt-calendar-cell-mark,[data-theme='dark'] .dt-window .dt-tide-mark { --red-mark:var(--ritual-mark); }
 .dt-dock-header:active { cursor: grabbing; }
+
+/* ════════════════════════════════════════
+   RUNE TERMINAL — shared surface language
+   Presentation only. Every canonical owner (stores, persistence, date
+   engine, check-in / hydration / usage semantics, focus + tab state) is
+   untouched; the terminal palette re-maps the existing theme tokens
+   inside the float so all current markup adopts it without rewrites.
+   ════════════════════════════════════════ */
+
+.dt-window,
+.dt-sheet {
+  /* Palette */
+  --dt-term-void: rgba(5, 13, 10, 0.88);
+  --dt-term-depth: linear-gradient(180deg, rgba(14, 33, 25, 0.55), rgba(3, 9, 7, 0.6));
+  --dt-term-panel: rgba(8, 20, 15, 0.55);
+  --dt-term-panel-2: rgba(12, 28, 21, 0.62);
+  --dt-term-line: rgba(122, 214, 160, 0.2);
+  --dt-term-line-strong: rgba(140, 226, 178, 0.4);
+  --dt-term-green: #8fe3b0;
+  --dt-term-green-bright: #a9f3c7;
+  --dt-term-green-dim: #6cbb92;
+  --dt-term-green-faint: #46705c;
+  --dt-term-ink: #d7efe1;
+  --dt-term-ink-2: #a6c6b5;
+  --dt-term-ink-3: #7d9c8c;
+  --dt-term-ok: #8fe3b0;
+  --dt-term-miss: #e08a80;
+  --dt-term-warn: #d9b26a;
+  --dt-term-mono: var(--f-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+
+  /* Theme-token re-map: existing children inherit the terminal surface. */
+  --text: var(--dt-term-ink);
+  --text-2: var(--dt-term-ink-2);
+  --text-3: var(--dt-term-ink-3);
+  --text-4: #5f7d6d;
+  --border: var(--dt-term-line);
+  --surface: rgba(10, 23, 18, 0.86);
+  --surface-2: rgba(13, 29, 22, 0.7);
+  --surface-3: rgba(16, 34, 26, 0.66);
+  --glass-bg: rgba(10, 23, 18, 0.6);
+  --glass-bg-strong: rgba(10, 23, 18, 0.88);
+  --shadow: 0 8px 22px rgba(0, 0, 0, 0.38);
+  --glass-shadow-soft: 0 8px 22px rgba(0, 0, 0, 0.38);
+  --accent: var(--dt-term-green-bright);
+  --on-accent: #04120c;
+  --teal: var(--dt-term-green);
+  --amber: var(--dt-term-warn);
+  --red-mark: var(--dt-term-miss);
+  --danger: var(--dt-term-miss);
+  --coral: #d99a8b;
+  --success: var(--dt-term-green-dim);
+  --ritual-surface: var(--dt-term-void);
+  --ritual-mark: var(--dt-term-miss);
+
+  background-color: var(--dt-term-void);
+  background-image: var(--dt-term-depth);
+  color: var(--dt-term-ink);
+}
+
+/* Static scanlines: very low alpha, never interactive, never above the focus ring layer. */
+.dt-term-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(173, 255, 214, 0.032) 0,
+    rgba(173, 255, 214, 0.032) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.9;
+}
+
+/* Console chrome line (identity label only — never a command input). */
+.dt-term-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--dt-term-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dt-term-green-dim);
+  line-height: 1.2;
+}
+
+.dt-term-chrome__led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dt-term-green);
+  box-shadow: 0 0 8px rgba(143, 227, 176, 0.5);
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.dt-term-chrome__name { white-space: nowrap; }
+
+.dt-term-chrome__log {
+  margin-left: auto;
+  color: var(--dt-term-ink-3);
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+
+/* Header: chrome line + tabs row (tabs + window controls). */
+.dt-dock-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 14px 8px;
+  background: rgba(8, 20, 15, 0.5);
+  border-bottom: 1px solid var(--dt-term-line);
+}
+
+/* Body surface */
+.dt-dock-body { scrollbar-color: rgba(143, 227, 176, 0.22) transparent; }
+.dt-dock-body::-webkit-scrollbar-thumb { background: rgba(143, 227, 176, 0.22); border-radius: 12px; }
+.dt-dock-body::-webkit-scrollbar-thumb:hover { background: rgba(143, 227, 176, 0.36); }
+
+/* Missed-day consequence — restrained warm red on the terminal surface. */
+.dt-consequence {
+  border-radius: 8px;
+  border-color: rgba(224, 138, 128, 0.32);
+  border-left: 3px solid rgba(224, 138, 128, 0.72);
+  background: rgba(224, 138, 128, 0.08);
+}
+
+.dt-consequence__head { font-family: var(--dt-term-mono); letter-spacing: 0.06em; }
+.dt-consequence__hint { color: var(--dt-term-ink-3); }
+
+/* Month header (metric line lives in the TodayStatusFloat block below) */
+.dt-panel-month-title {
+  font-family: var(--dt-term-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--dt-term-green);
+}
+
+/* Calendar: unchanged 7-column geometry; terminal cursor/status grammar. */
+.dt-calendar-weekday {
+  font-family: var(--dt-term-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--dt-term-ink-3);
+}
+
+.dt-calendar-cell { border-radius: 4px; }
+
+.dt-calendar-cell--future { color: color-mix(in srgb, var(--dt-term-ink-3) 62%, transparent); }
+
+.dt-calendar-cell--checked,
+.dt-calendar-cell--missed { color: var(--dt-term-ink); }
+
+.dt-calendar-cell--checked .dt-calendar-cell-mark circle { stroke: var(--dt-term-ok); }
+
+.dt-calendar-cell--missed .dt-calendar-cell-mark { opacity: 0.6; }
+.dt-calendar-cell--missed .dt-calendar-cell-mark line { stroke: var(--dt-term-miss); }
+
+.dt-calendar-cell--today { color: var(--dt-term-green-bright); }
+
+.dt-calendar-cell--today::after {
+  border: 1.5px solid var(--dt-term-green-bright);
+  box-shadow: 0 0 10px rgba(143, 227, 176, 0.18);
+}
+
+/* Terminal focus ring (thin phosphor green) — never hidden, never reduced. */
+.dt-dock-close:focus-visible,
+.dt-dock-reset:focus-visible,
+.dt-dock-tab:focus-visible,
+.dt-calendar-cell:focus-visible,
+.dt-report-btn:focus-visible {
+  outline: 2px solid var(--dt-term-green-bright);
+  outline-offset: 2px;
+}
+
+/* ════════════════════════════════════════
+   RUNE TERMINAL — hydration + usage tabs
+   ════════════════════════════════════════ */
+
+.dt-window .hyd-tab,
+.dt-sheet .hyd-tab {
+  --hyd-accent: var(--dt-term-green);
+  --hyd-tint: rgba(143, 227, 176, 0.1);
+  --hyd-border: rgba(143, 227, 176, 0.26);
+  --hyd-level: linear-gradient(180deg, rgba(143, 227, 176, 0.5), rgba(108, 187, 146, 0.24));
+}
+
+.dt-window .hyd-summary,
+.dt-sheet .hyd-summary {
+  border-radius: 8px;
+  background: var(--dt-term-panel);
+  border: 1px solid var(--dt-term-line);
+}
+
+.dt-window .hyd-summary__total span,
+.dt-sheet .hyd-summary__total span { font-family: var(--dt-term-mono); color: var(--dt-term-green-bright); font-weight: 700; }
+.dt-window .hyd-summary__total small,
+.dt-sheet .hyd-summary__total small { font-family: var(--dt-term-mono); color: var(--dt-term-ink-3); }
+.dt-window .hyd-summary__remaining,
+.dt-sheet .hyd-summary__remaining { font-family: var(--dt-term-mono); color: var(--dt-term-green); }
+
+.dt-window .hyd-progress,
+.dt-sheet .hyd-progress {
+  background: linear-gradient(100deg, rgba(9, 22, 17, 0.86), rgba(14, 32, 24, 0.62));
+  border: 2px solid var(--dt-term-line-strong);
+  box-shadow: inset 7px 0 17px rgba(143, 227, 176, 0.06), inset -8px 0 18px rgba(0, 12, 8, 0.32), 0 10px 26px rgba(0, 0, 0, 0.28);
+}
+
+.dt-window .hyd-vessel::before,
+.dt-sheet .hyd-vessel::before {
+  border: 2px solid var(--dt-term-line-strong);
+  background: rgba(9, 22, 17, 0.6);
+}
+
+.dt-window .hyd-vessel__shine,
+.dt-sheet .hyd-vessel__shine { opacity: 0.28; }
+
+.dt-window .hyd-progress b,
+.dt-sheet .hyd-progress b { font-family: var(--dt-term-mono); color: var(--dt-term-ink); }
+
+.dt-window .hyd-vessel__complete,
+.dt-sheet .hyd-vessel__complete {
+  font-family: var(--dt-term-mono);
+  color: var(--dt-term-green-bright);
+  background: rgba(6, 15, 12, 0.82);
+}
+
+.dt-window .hyd-section__title,
+.dt-sheet .hyd-section__title { font-family: var(--dt-term-mono); letter-spacing: 0.1em; color: var(--dt-term-green-dim); }
+
+.dt-window .hyd-section__link,
+.dt-sheet .hyd-section__link { font-family: var(--dt-term-mono); color: var(--dt-term-green); }
+.dt-window .hyd-section__link--danger,
+.dt-sheet .hyd-section__link--danger { color: var(--dt-term-miss); }
+
+.dt-window .hyd-quick-btn,
+.dt-sheet .hyd-quick-btn {
+  border-radius: 8px;
+  border: 1px solid var(--dt-term-line-strong);
+  background: rgba(143, 227, 176, 0.09);
+  color: var(--dt-term-green-bright);
+  font-family: var(--dt-term-mono);
+  font-weight: 600;
+}
+
+.dt-window .hyd-quick-btn:hover,
+.dt-sheet .hyd-quick-btn:hover { background: rgba(143, 227, 176, 0.18); }
+
+.dt-window .hyd-quick-btn--custom,
+.dt-sheet .hyd-quick-btn--custom {
+  border-style: dashed;
+  border-color: var(--dt-term-line);
+  background: transparent;
+  color: var(--dt-term-ink-2);
+}
+
+.dt-window .hyd-custom-row input,
+.dt-sheet .hyd-custom-row input {
+  border-radius: 8px;
+  border: 1px solid var(--dt-term-line);
+  background: rgba(4, 12, 9, 0.7);
+  color: var(--dt-term-ink);
+  font-family: var(--dt-term-mono);
+}
+
+.dt-window .hyd-custom-row input:focus,
+.dt-sheet .hyd-custom-row input:focus { outline: 2px solid var(--dt-term-green-bright); border-color: transparent; }
+
+.dt-window .hyd-quick-chip,
+.dt-sheet .hyd-quick-chip {
+  border-radius: 8px;
+  border-color: var(--dt-term-line);
+  background: var(--dt-term-panel);
+  color: var(--dt-term-ink-2);
+  font-family: var(--dt-term-mono);
+}
+
+.dt-window .hyd-quick-chip:hover,
+.dt-sheet .hyd-quick-chip:hover { background: rgba(143, 227, 176, 0.12); }
+
+.dt-window .hyd-goal-option,
+.dt-sheet .hyd-goal-option {
+  border-radius: 8px;
+  border-color: var(--dt-term-line);
+  background: var(--dt-term-panel);
+  color: var(--dt-term-ink-2);
+  font-family: var(--dt-term-mono);
+}
+
+.dt-window .hyd-goal-option.is-active,
+.dt-sheet .hyd-goal-option.is-active {
+  border-color: var(--dt-term-line-strong);
+  background: rgba(143, 227, 176, 0.12);
+  color: var(--dt-term-green-bright);
+}
+
+.dt-window .hyd-mini-btn,
+.dt-sheet .hyd-mini-btn { border-radius: 8px; border-color: var(--dt-term-line); font-family: var(--dt-term-mono); }
+.dt-window .hyd-mini-btn--primary,
+.dt-sheet .hyd-mini-btn--primary { background: var(--dt-term-green); border-color: var(--dt-term-green); color: var(--on-accent); }
+
+.dt-window .hyd-entry-row,
+.dt-sheet .hyd-entry-row {
+  border-radius: 8px;
+  border-color: var(--dt-term-line);
+  background: var(--dt-term-panel);
+}
+
+.dt-window .hyd-entry-row strong,
+.dt-sheet .hyd-entry-row strong { font-family: var(--dt-term-mono); }
+.dt-window .hyd-entry-row small,
+.dt-sheet .hyd-entry-row small { font-family: var(--dt-term-mono); color: var(--dt-term-ink-3); }
+
+.dt-window [data-testid='hyd-date'],
+.dt-sheet [data-testid='hyd-date'] { font-family: var(--dt-term-mono); letter-spacing: 0.06em; color: var(--dt-term-ink-3); }
+
+.dt-window .hyd-settings__current,
+.dt-sheet .hyd-settings__current { font-family: var(--dt-term-mono); color: var(--dt-term-ink-3); }
+
+.dt-window .hyd-settings,
+.dt-sheet .hyd-settings { border-top-color: var(--dt-term-line); }
+
+.dt-window .hyd-settings__toggle,
+.dt-sheet .hyd-settings__toggle { font-family: var(--dt-term-mono); letter-spacing: 0.1em; color: var(--dt-term-green-dim); }
+
+.dt-window .hyd-settings-back,
+.dt-sheet .hyd-settings-back { font-family: var(--dt-term-mono); color: var(--dt-term-ink-2); }
+
+.dt-window .hyd-error,
+.dt-sheet .hyd-error { color: var(--dt-term-miss); }
+
+/* Usage tab — same terminal surface language; data and controls untouched. */
+.dt-window .usage-ctrl-content,
+.dt-sheet .usage-ctrl-content {
+  --usage-surface: var(--dt-term-panel-2);
+  --usage-surface-elevated: rgba(143, 227, 176, 0.12);
+  --usage-text-primary: var(--dt-term-ink);
+  --usage-text-secondary: var(--dt-term-ink-3);
+  --usage-border: var(--dt-term-line);
+  --usage-divider: rgba(122, 214, 160, 0.14);
+  --usage-chart-muted: rgba(122, 214, 160, 0.22);
+  --usage-chart-primary: var(--dt-term-green);
+  --usage-chart-peak: var(--dt-term-warn);
+  --usage-button-surface: rgba(143, 227, 176, 0.08);
+  --usage-button-border: var(--dt-term-line);
+}
+
+/* Usage radial clock — terminal green glow, mono type, summary semantics only. */
+.dt-window .usage-ring-block,
+.dt-sheet .usage-ring-block { border-bottom: 1px solid var(--dt-term-line); }
+.dt-window .usage-ring-label,
+.dt-sheet .usage-ring-label { font-family: var(--dt-term-mono); text-transform: uppercase; letter-spacing: 0.18em; color: var(--dt-term-green-dim); }
+.dt-window .usage-ring-value,
+.dt-sheet .usage-ring-value { font-family: var(--dt-term-mono); color: var(--dt-term-green-bright); text-shadow: 0 0 14px rgba(143, 227, 176, 0.35); }
+.dt-window .usage-ring.is-over .usage-ring-value,
+.dt-sheet .usage-ring.is-over .usage-ring-value { color: var(--dt-term-miss); text-shadow: 0 0 14px rgba(224, 138, 128, 0.35); }
+.dt-window .usage-ring-ticks,
+.dt-sheet .usage-ring-ticks { stroke: rgba(122, 214, 160, 0.24); }
+.dt-window .usage-ring-track,
+.dt-sheet .usage-ring-track { stroke: rgba(122, 214, 160, 0.18); }
+.dt-window .usage-ring-progress,
+.dt-sheet .usage-ring-progress { stroke: var(--dt-term-green); filter: drop-shadow(0 0 5px rgba(143, 227, 176, 0.55)); }
+.dt-window .usage-ring.is-over .usage-ring-progress,
+.dt-sheet .usage-ring.is-over .usage-ring-progress { stroke: var(--dt-term-miss); filter: drop-shadow(0 0 5px rgba(224, 138, 128, 0.5)); }
+.dt-window .usage-ring-caption,
+.dt-sheet .usage-ring-caption { font-family: var(--dt-term-mono); color: var(--dt-term-ink-3); }
+
+.dt-window .usage-ctrl-chart-section,
+.dt-sheet .usage-ctrl-chart-section { border-bottom: 1px solid var(--dt-term-line); }
+.dt-window .usage-ctrl-section-label,
+.dt-window .usage-ctrl-modules-title,
+.dt-sheet .usage-ctrl-section-label,
+.dt-sheet .usage-ctrl-modules-title { font-family: var(--dt-term-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dt-term-green-dim); }
+
+.dt-window .usage-ctrl-chart span,
+.dt-sheet .usage-ctrl-chart span { border-radius: 3px 3px 1px 1px; }
+
+.dt-window .usage-ctrl-module-row,
+.dt-sheet .usage-ctrl-module-row { font-family: var(--dt-term-mono); font-size: 13px; }
+.dt-window .usage-ctrl-module-row span:last-child,
+.dt-sheet .usage-ctrl-module-row span:last-child { color: var(--dt-term-ink-3); }
+
+.dt-window .usage-ctrl-lock,
+.dt-sheet .usage-ctrl-lock { border-top: 1px solid var(--dt-term-line); }
+.dt-window .usage-ctrl-lock-row,
+.dt-sheet .usage-ctrl-lock-row { font-family: var(--dt-term-mono); color: var(--dt-term-ink-3); }
+.dt-window .usage-ctrl-lock-status,
+.dt-sheet .usage-ctrl-lock-status { color: var(--dt-term-ink); }
+.dt-window .usage-ctrl-lock-dot,
+.dt-sheet .usage-ctrl-lock-dot { background: var(--dt-term-ink-3); }
+.dt-window .usage-ctrl-lock-dot.is-on,
+.dt-sheet .usage-ctrl-lock-dot.is-on { background: var(--dt-term-green); box-shadow: 0 0 8px rgba(143, 227, 176, 0.5); }
+
+.dt-window .usage-ctrl-btn,
+.dt-sheet .usage-ctrl-btn {
+  border-radius: 8px;
+  border: 1px solid var(--dt-term-line-strong);
+  background: rgba(143, 227, 176, 0.09);
+  color: var(--dt-term-green-bright);
+  font-family: var(--dt-term-mono);
+  letter-spacing: 0.08em;
+}
+.dt-window .usage-ctrl-btn:hover,
+.dt-sheet .usage-ctrl-btn:hover { background: rgba(143, 227, 176, 0.18); }
+
+.dt-window .usage-ctrl-empty,
+.dt-sheet .usage-ctrl-empty { color: var(--dt-term-ink-3); font-family: var(--dt-term-mono); }
+
+.dt-window .usage-ctrl-content :is(button, input):focus-visible,
+.dt-sheet .usage-ctrl-content :is(button, input):focus-visible { outline: 2px solid var(--dt-term-green-bright); outline-offset: 2px; }
 
 .dt-dock-tabs {
   display: flex;
   gap: 4px;
   padding: 3px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  border-radius: 8px;
+  background: rgba(3, 10, 7, 0.55);
+  border: 1px solid var(--dt-term-line);
+  min-width: 0;
 }
 .dt-dock-tab {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 38px;
+  min-width: 44px;
+  min-height: 44px;
   width: auto;
-  height: 34px;
+  height: 44px;
   gap: 6px;
-  padding: 0 10px;
-  border: 0;
-  border-radius: 10px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
   background: transparent;
-  color: var(--text-3);
+  color: var(--dt-term-ink-3);
   cursor: pointer;
   position: relative;
-  transition: background .15s, color .15s;
+  font-family: var(--dt-term-mono);
+  transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
 }
-.dt-dock-tab-label { font-size: 11px; font-weight: 700; white-space: nowrap; }
-.dt-dock-tab:hover { background: color-mix(in srgb, var(--surface) 70%, transparent); color: var(--text); }
+.dt-dock-tab-label { font-family: var(--dt-term-mono); font-size: 11px; font-weight: 600; letter-spacing: .14em; white-space: nowrap; }
+.dt-dock-tab:hover { background: rgba(143, 227, 176, .07); color: var(--dt-term-ink); }
 .dt-dock-tab.is-active {
-  background: var(--surface);
-  color: var(--accent);
-  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  background: rgba(143, 227, 176, .10);
+  color: var(--dt-term-green-bright);
+  border-color: var(--dt-term-line-strong);
+  box-shadow: inset 0 0 12px rgba(143, 227, 176, .10), 0 0 10px rgba(143, 227, 176, .05);
 }
 .dt-dock-tab:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
+  outline: 2px solid var(--dt-term-green-bright);
+  outline-offset: 2px;
 }
 .dt-dock-tab-badge {
   position: absolute;
@@ -1131,30 +1562,48 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--danger);
+  background: var(--dt-term-warn);
+}
+
+.dt-dock-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dt-dock-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .dt-dock-close,
 .dt-dock-reset {
-  width: 32px;
-  height: 32px;
-  border: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
-  color: var(--text-3);
+  color: var(--dt-term-ink-3);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background .15s, color .15s, border-color .15s;
 }
 .dt-dock-close:hover,
-.dt-dock-reset:hover { background: color-mix(in srgb, var(--surface) 70%, transparent); color: var(--text); }
+.dt-dock-reset:hover { background: rgba(143, 227, 176, .08); border-color: var(--dt-term-line); color: var(--dt-term-green-bright); }
 
 .dt-dock-body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 0 14px;
+  /* Bottom inset keeps the final content row clear of the footer below it
+     (spacing + home-indicator safe area). */
+  padding: 0 14px calc(10px + env(safe-area-inset-bottom, 0px));
 }
 /* Custom scrollbar for dock body — thin, transparent track, theme-aware thumb */
 .dt-dock-body::-webkit-scrollbar { width: 6px; }
@@ -1272,29 +1721,24 @@
 
 /* Ensure sheet handles are visible on mobile */
 @media (max-width: 767px) {
-  .dt-sheet { display:flex;flex-direction:column;height:85dvh;max-height:88dvh;overflow:hidden;padding-bottom:0;background:var(--ritual-mobile-surface);border-radius:24px 24px 0 0; }
+  .dt-sheet { display:flex;flex-direction:column;height:auto;max-height:88dvh;overflow:hidden;padding-bottom:0;background:var(--ritual-mobile-surface);border-radius:16px 16px 0 0; }
   .dt-sheet .dt-dock-body { min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:16px; }
   .dt-sheet .dt-dock-header,.dt-sheet .dt-dock-footer { flex-shrink:0; }
   .dt-sheet .dt-dock-footer { position:relative;z-index:2;padding-bottom:max(14px,calc(env(safe-area-inset-bottom,0px) + 10px));background:var(--ritual-mobile-surface);box-shadow:0 -10px 24px color-mix(in srgb,var(--ritual-mobile-surface) 82%,transparent); }
-  .dt-dock-tab { width:42px;padding:0; }
-  .dt-dock-tab-label { position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
-  [data-theme='dark'] .dt-sheet .dt-calendar-weekday,[data-theme='dark'] .dt-sheet .dt-calendar-legend { color:color-mix(in srgb,var(--text-2) 78%,transparent); }
-  [data-theme='dark'] .dt-sheet .dt-calendar-cell--future { color:color-mix(in srgb,var(--text-2) 68%,transparent); }
-  [data-theme='dark'] .dt-sheet .dt-panel-copy { color:color-mix(in srgb,var(--text-2) 92%,var(--text));background:rgba(255,255,255,.045); }
+  /* Rune Terminal: all three tabs keep their visible labels at 360/390/430 — only the label tracking tightens. */
+  .dt-dock-tab { padding:0 9px; gap:5px; }
+  .dt-dock-tab-label { letter-spacing:.08em; }
+  .dt-sheet .dt-calendar-weekday,.dt-sheet .dt-calendar-legend { color:var(--dt-term-ink-3); }
+  .dt-sheet .dt-calendar-cell--future { color:color-mix(in srgb,var(--dt-term-ink-3) 62%,transparent); }
+  .dt-sheet .dt-panel-copy { color:var(--dt-term-ink-3);background:none; }
 }
 
-/* ── Hydration tab (今日飲水) ── */
+/* ── Hydration tab (今日飲水) — palette resolved by the Rune Terminal scope below ── */
 .hyd-tab {
-  --hyd-accent: var(--teal, #4e9b92);
-  --hyd-tint: rgba(96, 168, 190, 0.12);
-  --hyd-border: rgba(96, 168, 190, 0.30);
-  --hyd-level: linear-gradient(180deg, color-mix(in srgb, var(--hyd-accent) 60%, transparent), color-mix(in srgb, var(--hyd-accent) 26%, transparent));
-}
-
-[data-theme="light"] .hyd-tab {
-  --hyd-accent: rgba(38, 108, 116, 0.95);
-  --hyd-tint: rgba(96, 168, 190, 0.10);
-  --hyd-border: rgba(96, 168, 190, 0.32);
+  --hyd-accent: var(--dt-term-green, var(--teal, #4e9b92));
+  --hyd-tint: rgba(143, 227, 176, 0.10);
+  --hyd-border: rgba(143, 227, 176, 0.26);
+  --hyd-level: linear-gradient(180deg, rgba(143, 227, 176, 0.5), rgba(108, 187, 146, 0.24));
 }
 
 .hyd-summary {
@@ -1791,211 +2235,230 @@
 [data-theme='dark'] .hyd-vessel__shine { opacity:.3; }
 
 @media (prefers-reduced-motion: reduce) {
-  .dt-calendar-cell-mark,.dt-tide-mark svg { animation:none!important; }
+  .dt-calendar-cell-mark { animation:none!important; }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   Phase D — consolidated 報備 window additions
-   (today action, 潮階 progression strip, growth secondary surface)
-   ═══════════════════════════════════════════════════════════════ */
-
+/* 報備 action — terminal command button */
 .dt-report-btn {
   width: 100%;
+  min-height: 44px;
   padding: 11px 16px;
-  border: none;
-  border-radius: 12px;
-  background: var(--teal, #6bb5a0);
-  color: #fff;
-  font-size: 14px;
+  border: 1px solid var(--dt-term-line-strong);
+  border-radius: 8px;
+  background: rgba(143, 227, 176, 0.1);
+  color: var(--dt-term-green-bright);
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.16em;
   cursor: pointer;
-  transition: filter 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
-.dt-report-btn:hover { filter: brightness(1.05); }
+.dt-report-btn:hover { background: rgba(143, 227, 176, 0.18); }
 .dt-report-btn:active { transform: translateY(1px); }
 .dt-report-btn:disabled { opacity: 0.6; cursor: default; }
 
-.dt-panel-growth {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--glass-bg);
-  border: 1px solid var(--border);
-}
-
-.dt-panel-growth__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.dt-panel-growth__label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-1);
-}
-
-.dt-panel-growth__count {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-3);
-  font-variant-numeric: tabular-nums;
-}
-
-.dt-panel-growth__bar { margin-bottom: 0; }
-
-.dt-panel-growth__more {
-  align-self: flex-start;
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-2);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.dt-panel-growth__more:hover { background: color-mix(in srgb, var(--teal, #6bb5a0) 12%, transparent); color: var(--text-1); }
-
-/* ── Growth secondary surface ── */
-.dt-growth-overlay {
-  position: fixed;
-  inset: 0;
-  /* Above the mobile report sheet overlay (z 2100) and the desktop window (z 120). */
-  z-index: 2200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(12, 20, 22, 0.42);
-  padding: 20px;
-}
-
-.dt-growth-sheet {
-  display: flex;
-  flex-direction: column;
-  width: min(420px, 100%);
-  max-height: min(78dvh, 640px);
-  border-radius: 20px;
-  background: var(--bg, #fbf9f6);
-  border: 1px solid var(--border);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
-  overflow: hidden;
-}
-
-.dt-growth-header {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.dt-growth-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-1);
-}
-
-.dt-growth-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--text-2);
-  cursor: pointer;
-}
-
-.dt-growth-close:hover { background: color-mix(in srgb, var(--text-1) 8%, transparent); }
-
-.dt-growth-body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 14px 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.dt-growth-section { display: flex; flex-direction: column; gap: 10px; }
-
-.dt-growth-section-title {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--text-3);
-}
-
-.dt-growth-empty { margin: 0; font-size: 12px; color: var(--text-3); }
-
-.dt-growth-entries {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.dt-growth-entry {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--text-2);
-}
-
-.dt-growth-entry__title {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--text-1);
-}
-
-.dt-growth-entry__date { color: var(--text-3); font-size: 11px; white-space: nowrap; }
-
-.dt-growth-entry__amount { font-weight: 700; color: var(--teal, #6bb5a0); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.dt-growth-entry.is-negative .dt-growth-entry__amount { color: var(--amber, #d4a053); }
-
-.dt-growth-rules {
-  list-style: none;
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: var(--glass-bg);
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--text-2);
-}
-
-@media (max-width: 767px) {
-  .dt-growth-overlay { padding: 0; align-items: flex-end; }
-  .dt-growth-sheet {
-    width: 100%;
-    max-height: 82dvh;
-    border-radius: 20px 20px 0 0;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
-  .dt-report-btn, .dt-panel-growth__more, .moon-dew-progress-bar__fill { transition: none !important; }
+  .dt-report-btn { transition: none !important; }
 }
+
+/* ════════════════════════════════════════
+   RUNE TERMINAL — desktop resize (Window Resize Phase 1)
+   Bottom-right handle only. The reserved corner gutter keeps the handle off the
+   content (a 24px probe used to land on `hyd-settings__toggle` at <=420px); it is
+   padding, so the C.2 `trailingGap` formula (which subtracts paddingBottom) is
+   unaffected and no empty block is created.
+   ════════════════════════════════════════ */
+
+.dt-window .dt-dock-body {
+  padding-bottom: calc(10px + 26px + env(safe-area-inset-bottom, 0px));
+}
+
+.dt-term-resize {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  z-index: 5;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dt-term-green-dim);
+  cursor: nwse-resize;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.dt-term-resize:hover { color: var(--dt-term-green-bright); background: rgba(143, 227, 176, 0.08); }
+.dt-term-resize:active { background: rgba(143, 227, 176, 0.14); }
+.dt-term-resize:focus-visible { outline: 2px solid var(--dt-term-green-bright); outline-offset: 2px; }
+.dt-term-resize svg { display: block; opacity: 0.85; }
+.dt-term-resize:hover svg,
+.dt-term-resize:focus-visible svg { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dt-term-resize { transition: none; }
+}
+
+/* TodayStatusFloat: one compact shell; the month calendar is permanent 報備 content. */
+.dt-window { width:min(var(--dt-window-width,640px),calc(100vw - 32px));height:auto;max-height:min(var(--dt-window-max-height,72dvh),72dvh);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;backdrop-filter:blur(18px) saturate(1.12);-webkit-backdrop-filter:blur(18px) saturate(1.12);border:1px solid var(--dt-term-line-strong);box-shadow:0 24px 64px rgba(0,0,0,.42),0 2px 10px rgba(0,0,0,.3),0 0 26px rgba(70,160,120,.10); }
+.dt-window,.dt-sheet { max-width:calc(100vw - 24px); }
+.dt-checkin-content.dt-dock-content { gap:7px;padding:5px 0 8px; }
+/* 報備摘要：terminal 資訊列（STATUS / TIME / STREAK 為裝飾性鍵；值全部沿用既有資料） */
+.dt-status-summary { display:grid;gap:3px;padding:10px 12px;border:1px solid var(--dt-term-line);border-radius:8px;background:var(--dt-term-panel);color:var(--dt-term-ink);font-family:var(--dt-term-mono); }
+.dt-status-summary > :not(.dt-report-btn) { display:grid;grid-template-columns:58px minmax(0,1fr);align-items:baseline;gap:10px; }
+.dt-status-summary > :not(.dt-report-btn)::before { font-size:9.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--dt-term-green-dim); }
+.dt-status-summary strong::before { content:'STATUS'; }
+.dt-status-summary time::before { content:'TIME'; }
+.dt-status-summary span[data-testid='report-streak']::before { content:'STREAK'; }
+.dt-status-summary strong { font-size:14px;font-weight:600; }
+.dt-status-summary time { font-size:20px;font-weight:700;color:var(--dt-term-green-bright);font-variant-numeric:tabular-nums; }
+.dt-status-summary span { color:var(--dt-term-ink-2);font-size:12px; }
+.dt-status-summary .dt-report-btn { grid-column:1 / -1;margin-top:6px; }
+/* 月曆標頭：月份 + 本月報備次數／漏簽天數（這兩個數字的唯一呈現處） */
+.dt-calendar-head { display:flex;align-items:baseline;justify-content:space-between;gap:10px; }
+.dt-checkin-content .dt-panel-section { gap:3px; }
+.dt-checkin-content .dt-panel-month-title { margin-bottom:0; }
+.dt-checkin-content .dt-calendar-grid { row-gap:0; }
+.dt-calendar-metrics { display:flex;flex-wrap:wrap;gap:8px;font-size:10.5px;color:var(--dt-term-ink-3);white-space:nowrap;font-family:var(--dt-term-mono);letter-spacing:.06em; }
+.dt-calendar-metrics span { font-variant-numeric:tabular-nums; }
+.dt-calendar-metrics span + span::before { content:'·';margin-right:8px;color:var(--dt-term-green-faint); }
+/* 選取日明細（月曆下方的當日檢視，非第二個 modal） */
+.dt-calendar-selection { display:flex;gap:12px;align-items:center;min-height:28px;margin-top:4px;padding:4px 2px;border-top:1px solid var(--dt-term-line);font-size:12px;color:var(--dt-term-ink-2);font-variant-numeric:tabular-nums;font-family:var(--dt-term-mono); }
+.dt-calendar-selection strong { color:var(--dt-term-green);font-weight:600; }
+.dt-calendar-selection time { min-width:4ch; }
+.dt-checkin-content .dt-calendar-legend { gap:10px;margin-top:0;padding:2px 2px 0;font-size:10px;opacity:.78;color:var(--dt-term-ink-3);font-family:var(--dt-term-mono); }
+.dt-checkin-content .dt-legend-item { gap:3px; }
+.dt-checkin-content .dt-panel-copy { padding:0 2px;border:0;border-radius:0;background:none;color:var(--dt-term-ink-3);font-size:11px;font-weight:400; }
+[data-theme='dark'] .dt-checkin-content .dt-panel-copy { background:none; }
+.dt-calendar-cell { border:0;padding:0;font:inherit;cursor:pointer; }
+/* 日期數字永遠是主體：mono、tabular，標記只在數字之後。 */
+.dt-calendar-cell { font-family:var(--dt-term-mono);font-variant-numeric:tabular-nums; }
+.dt-calendar-cell[aria-pressed='true'] { background:rgba(143,227,176,.09);box-shadow:inset 0 0 0 1px var(--dt-term-line); }
+.dt-calendar-cell--today[aria-pressed='true'] { background:transparent;box-shadow:none; }
+.dt-dock-body { overflow-x:hidden; }
+.dt-window .usage-ctrl-content,.dt-sheet .usage-ctrl-content { min-width:0; }
+/* Focus stays clearly visible; C.1A focus restoration is unchanged. */
+.dt-dock-close:focus-visible,.dt-dock-reset:focus-visible,.dt-calendar-cell:focus-visible,.dt-report-btn:focus-visible { outline:2px solid var(--dt-term-green-bright, var(--accent));outline-offset:2px; }
+
+/* Check-in heatmap: seven weekday columns with alternating honeycomb rows. */
+.dt-honeycomb-heatmap { display:grid;gap:0;min-width:0;width:100%;padding:2px 6px 3px;overflow:hidden; }
+.dt-honeycomb-weekdays,.dt-honeycomb-week { display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;min-width:0;width:100%;max-width:350px;margin-inline:auto; }
+.dt-honeycomb-week:nth-child(odd) { transform:translateX(5px); }
+.dt-honeycomb-heatmap .dt-calendar-cell { min-width:0;height:44px;background:transparent;box-shadow:none;border-radius:0;color:var(--dt-term-ink-2); }
+.dt-honeycomb-frame { position:absolute;left:50%;top:50%;width:min(100%,48px);height:auto;aspect-ratio:48 / 44;transform:translate(-50%,-50%);pointer-events:none; }
+.dt-honeycomb-frame polygon { fill:rgba(143,227,176,.035);stroke:var(--dt-term-line);stroke-width:1;vector-effect:non-scaling-stroke; }
+.dt-honeycomb-heatmap .dt-calendar-cell--checked .dt-honeycomb-frame polygon { fill:rgba(104,203,151,.24);stroke:var(--dt-term-ok); }
+.dt-honeycomb-heatmap .dt-calendar-cell--checked { color:var(--dt-term-green-bright);font-weight:700; }
+.dt-honeycomb-heatmap .dt-calendar-cell--late .dt-honeycomb-frame polygon { fill:rgba(214,160,83,.15);stroke:rgba(228,178,103,.82); }
+.dt-honeycomb-heatmap .dt-calendar-cell--late { color:#f0c785; }
+.dt-honeycomb-heatmap .dt-calendar-cell--late::before { content:'';position:absolute;z-index:1;top:6px;left:50%;width:4px;height:4px;border-radius:50%;background:#e4b267;transform:translateX(-50%);pointer-events:none; }
+.dt-honeycomb-heatmap .dt-calendar-cell--missed .dt-honeycomb-frame polygon { fill:rgba(224,138,128,.045);stroke:rgba(224,138,128,.32); }
+.dt-honeycomb-heatmap .dt-calendar-cell--missed { color:var(--dt-term-ink); }
+.dt-honeycomb-heatmap .dt-calendar-cell--future { color:var(--dt-term-ink-3); }
+.dt-honeycomb-heatmap .dt-calendar-cell--future .dt-honeycomb-frame polygon { fill:transparent;stroke:rgba(143,227,176,.12); }
+.dt-honeycomb-heatmap .dt-calendar-cell--today .dt-honeycomb-frame polygon { stroke:var(--dt-term-green-bright);stroke-width:2;fill:rgba(143,227,176,.11); }
+.dt-honeycomb-heatmap .dt-calendar-cell--today.dt-calendar-cell--checked .dt-honeycomb-frame polygon { fill:rgba(104,203,151,.27); }
+.dt-honeycomb-heatmap .dt-calendar-cell--today.dt-calendar-cell--late .dt-honeycomb-frame polygon { fill:rgba(214,160,83,.15); }
+.dt-honeycomb-heatmap .dt-calendar-cell--today::after { display:none; }
+.dt-honeycomb-heatmap .dt-calendar-cell[aria-pressed='true'] { background:transparent;box-shadow:none; }
+.dt-honeycomb-heatmap .dt-calendar-cell[aria-pressed='true'] .dt-calendar-cell-num { text-decoration:underline;text-decoration-color:var(--dt-term-green-dim);text-underline-offset:3px; }
+.dt-honeycomb-heatmap .dt-calendar-cell-mark { max-width:29px;max-height:29px;opacity:.55; }
+.dt-honeycomb-heatmap .dt-calendar-cell--checked .dt-calendar-cell-mark { display:none; }
+.dt-honeycomb-heatmap .dt-calendar-cell--missed .dt-calendar-cell-mark { width:11px;height:11px;top:76%;max-width:none;max-height:none;opacity:.58; }
+.dt-honeycomb-heatmap .dt-calendar-cell--missed .dt-calendar-cell-mark line { stroke-width:1.2; }
+.dt-honeycomb-heatmap .dt-calendar-cell:focus-visible { outline:none; }
+.dt-honeycomb-heatmap .dt-calendar-cell:focus-visible .dt-honeycomb-frame polygon { stroke:var(--dt-term-green-bright);stroke-width:2.5;filter:drop-shadow(0 0 3px rgba(143,227,176,.55)); }
+.dt-honeycomb-heatmap .dt-calendar-cell--empty { pointer-events:none; }
+.dt-checkin-content .dt-calendar-head { flex-wrap:wrap;align-items:baseline;gap:2px 12px; }
+.dt-checkin-content .dt-calendar-metrics { justify-content:flex-start;margin-top:0;white-space:normal; }
+.dt-checkin-content .dt-calendar-selection { margin-top:1px; }
+.dt-daily-mood { container:dt-mood / inline-size;display:grid;gap:7px;min-width:0;padding:9px 2px 2px;border-top:1px solid var(--dt-term-line);font-family:var(--dt-term-mono);color:var(--dt-term-ink-2); }
+.dt-daily-mood__head { display:flex;align-items:baseline;gap:9px;font-size:11px; }
+.dt-daily-mood__head > span { color:var(--dt-term-green-dim);font-size:9px;letter-spacing:.16em; }
+.dt-daily-mood__head > strong { font-weight:500; }
+.dt-daily-mood__choices { display:grid;grid-template-columns:repeat(6,minmax(44px,1fr));gap:5px;min-width:0; }
+.dt-daily-mood__button { display:grid;place-items:center;min-width:44px;min-height:44px;padding:0;border:1px solid var(--dt-term-line);border-radius:8px;background:var(--dt-term-panel);font:20px/1 system-ui,sans-serif;cursor:pointer; }
+.dt-daily-mood__button[aria-pressed='true'] { border-color:var(--dt-term-green-bright);background:color-mix(in srgb,var(--dt-term-green-bright) 12%,transparent);box-shadow:inset 0 0 0 1px var(--dt-term-green-bright); }
+.dt-daily-mood__button:focus-visible { outline:2px solid var(--dt-term-green-bright);outline-offset:2px; }
+@media (hover:hover) and (pointer:fine) { .dt-daily-mood__button:hover { border-color:var(--dt-term-green-dim); } }
+.dt-daily-mood__readonly { display:flex;align-items:center;gap:7px;min-height:28px;font-size:12px;color:var(--dt-term-ink-3); }
+.dt-daily-mood__readonly > span:first-child { font:18px/1 system-ui,sans-serif; }
+@container dt-mood (max-width:430px) { .dt-daily-mood__choices { grid-template-columns:repeat(3,minmax(44px,1fr)); } }
+@media (max-width:430px) {
+  .dt-honeycomb-heatmap { padding-inline:4px; }
+  .dt-honeycomb-weekdays,.dt-honeycomb-week { gap:1px; }
+  .dt-honeycomb-week:nth-child(odd) { transform:translateX(3px); }
+  .dt-honeycomb-heatmap .dt-calendar-cell { font-size:11px; }
+}
+
+/* Appearance Sync: the existing html[data-theme] owner selects the Light terminal palette. */
+:root[data-theme='light'] .dt-window,
+:root[data-theme='light'] .dt-sheet {
+  --dt-term-void: rgba(250, 247, 234, .95);
+  --dt-term-depth: linear-gradient(180deg, rgba(255, 253, 244, .68), rgba(235, 240, 225, .46));
+  --dt-term-panel: rgba(247, 246, 232, .76);
+  --dt-term-panel-2: rgba(234, 240, 224, .78);
+  --dt-term-line: rgba(59, 104, 78, .25);
+  --dt-term-line-strong: rgba(49, 106, 75, .48);
+  --dt-term-green: #286f52;
+  --dt-term-green-bright: #225f48;
+  --dt-term-green-dim: #3b7359;
+  --dt-term-green-faint: #6e927b;
+  --dt-term-ink: #20342a;
+  --dt-term-ink-2: #40574a;
+  --dt-term-ink-3: #596f60;
+  --dt-term-ok: #2b7455;
+  --dt-term-miss: #a64e40;
+  --dt-term-warn: #92672d;
+  --text-4: #768b7c;
+  --surface: rgba(250, 248, 238, .9);
+  --surface-2: rgba(240, 243, 229, .83);
+  --surface-3: rgba(255, 253, 244, .94);
+  --glass-bg: rgba(248, 247, 235, .7);
+  --glass-bg-strong: rgba(250, 248, 238, .9);
+  --shadow: 0 8px 22px rgba(39, 66, 44, .13);
+  --glass-shadow-soft: 0 8px 22px rgba(39, 66, 44, .13);
+  --on-accent: #fffdf6;
+  --coral: #a65b48;
+  --success: #2b7455;
+  box-shadow: 0 20px 52px rgba(48, 75, 49, .18), 0 2px 10px rgba(48, 75, 49, .12);
+}
+
+:root[data-theme='light'] .dt-sheet-overlay {
+  --ritual-mobile-surface: rgba(250, 247, 234, .97);
+  --ritual-mobile-backdrop: rgba(57, 73, 58, .28);
+}
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-term-scanlines {
+  background-image: repeating-linear-gradient(180deg, rgba(45, 91, 64, .018) 0, rgba(45, 91, 64, .018) 1px, transparent 1px, transparent 4px);
+  opacity: .55;
+}
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-dock-header { background: rgba(240, 245, 230, .72); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-dock-tabs { background: rgba(230, 238, 222, .54); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-dock-tab:hover { background: rgba(42, 115, 78, .09); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-dock-tab.is-active { background: rgba(42, 115, 78, .12); box-shadow: inset 0 0 12px rgba(42, 115, 78, .08); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) :is(.dt-dock-close, .dt-dock-reset):hover { background: rgba(42, 115, 78, .08); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-consequence { background: rgba(166, 78, 64, .07); border-color: rgba(166, 78, 64, .3); border-left-color: rgba(166, 78, 64, .66); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-report-btn { background: rgba(42, 115, 78, .09); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-report-btn:hover { background: rgba(42, 115, 78, .16); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-honeycomb-frame polygon { fill: rgba(42, 115, 78, .035); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-calendar-cell--checked .dt-honeycomb-frame polygon { fill: rgba(43, 116, 85, .16); stroke: var(--dt-term-ok); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-calendar-cell--missed .dt-honeycomb-frame polygon { fill: rgba(166, 78, 64, .045); stroke: rgba(166, 78, 64, .45); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-calendar-cell--late { color: var(--dt-term-warn); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-calendar-cell--late .dt-honeycomb-frame polygon { fill: rgba(146, 103, 45, .13); stroke: rgba(146, 103, 45, .8); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-calendar-cell--late::before { background: var(--dt-term-warn); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-calendar-cell--future .dt-honeycomb-frame polygon { fill: transparent; stroke: rgba(59, 104, 78, .2); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-calendar-cell--today .dt-honeycomb-frame polygon { fill: rgba(42, 115, 78, .1); stroke: var(--dt-term-green-bright); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-calendar-cell--today.dt-calendar-cell--late .dt-honeycomb-frame polygon { fill: rgba(146, 103, 45, .13); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-calendar-cell:focus-visible .dt-honeycomb-frame polygon { stroke: var(--dt-term-green-bright); filter: drop-shadow(0 0 2px rgba(34, 95, 72, .3)); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .dt-honeycomb-heatmap .dt-calendar-cell--future { color: var(--dt-term-ink-3); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .hyd-tab { --hyd-accent: var(--dt-term-green); --hyd-tint: rgba(42, 115, 78, .08); --hyd-border: rgba(42, 115, 78, .28); --hyd-level: linear-gradient(180deg, rgba(82, 157, 114, .62), rgba(42, 115, 78, .35)); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .hyd-progress { background: linear-gradient(105deg, rgba(253, 252, 242, .88), rgba(233, 241, 225, .68)); box-shadow: inset 0 1px 12px rgba(42, 115, 78, .08), 0 8px 20px rgba(48, 75, 49, .13); }
+:root[data-theme='light'] :is(.dt-window, .dt-sheet) .usage-ctrl-content { --usage-surface: var(--dt-term-panel-2); --usage-surface-elevated: var(--dt-term-panel); --usage-text-primary: var(--dt-term-ink); --usage-text-secondary: var(--dt-term-ink-3); --usage-border: var(--dt-term-line); --usage-divider: var(--dt-term-line); --usage-chart-primary: var(--dt-term-green); --usage-chart-peak: var(--dt-term-warn); --usage-button-surface: rgba(42, 115, 78, .07); --usage-button-border: var(--dt-term-line); }

@@ -1,5 +1,6 @@
 import { t } from '@/i18n';
 import { getDailyTotal, useHydrationStore } from '@/store/useHydrationStore';
+import { deriveWaterProgress } from '@/features/home/dailyRitualPresentation';
 
 interface WaterSectionProps {
   selectedDate: string;
@@ -12,7 +13,7 @@ export function WaterSection({ selectedDate }: WaterSectionProps) {
   const addEntryForDate = useHydrationStore((s) => s.addEntryForDate);
 
   const currentMl = getDailyTotal(entries, selectedDate);
-  const pct = goal > 0 ? Math.min(100, Math.round((currentMl / goal) * 100)) : 0;
+  const pct = deriveWaterProgress(currentMl, goal);
 
   return (
     <div>

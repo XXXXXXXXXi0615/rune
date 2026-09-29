@@ -1,42 +1,66 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useCheckInStore } from '@/features/tideclock/useCheckInStore';
-import { useAppStore } from '@/store/useAppStore';
-import { useQuestStore } from '@/store/useQuestStore';
 import { useTideRailStore, type TideRailTab } from '@/store/useTideRailStore';
 import { HydrationTabContent } from '@/components/home/HydrationTabContent';
-import { MoonDewProgress } from '@/features/moon-dew/MoonDewProgress';
-import { MoonDewAchievements } from '@/features/moon-dew/MoonDewAchievements';
-import { getMoonDewProgression, MOON_DEW_LEVELS } from '@/features/moon-dew/getMoonDewProgression';
-import { MOON_DEW_RULES } from '@/utils/moonDewEngine';
-import '@/features/moon-dew/moondew.css';
+import { DailyMoodBar } from '@/components/home/DailyMoodBar';
+import { UsageStatusContent } from '@/components/usage/UsageControlPanel';
 import '@/styles/dailytide.css';
-import { toLocalDateString } from '@/utils/date';
 import { getMonthlyAttendance, selectLatestMissedDate } from '@/features/tideclock/tideclockEngine';
 import { buildCheckInCopy } from '@/features/tideclock/checkInCopy';
 import { buildMissedConsequenceCopy, shouldPresentMissedConsequence } from '@/features/tideclock/checkInConsequence';
 import { useCheckInReconcile } from '@/features/tideclock/useCheckInReconcile';
 import { ritualMarkVariant } from '@/features/home/dailyRitualPresentation';
+import {
+  DEFAULT_WINDOW_WIDTH,
+  KEYBOARD_RESIZE_STEP,
+  KEYBOARD_RESIZE_STEP_LARGE,
+  clampMaxHeight,
+  clampWidth,
+  defaultMaxHeightFor,
+  parseGeometry,
+  serializeGeometry,
+  type WindowGeometry,
+  type WindowSize,
+} from '@/features/home/windowGeometry';
 import { useAppDialogBehavior } from '@/components/ui/AppPrimitives';
+import { toLocalDateString } from '@/utils/date';
 
-/* ── Persistent position ── */
+/* ── Persistent geometry ──
+   One key, one writer. Payload: { x, y, width?, maxHeight? }; legacy { x, y }
+   payloads stay readable and a missing size falls back to the defaults. */
 const POS_KEY = 'lunartide-daily-tide-window-position';
 
-function loadPosition(): { x: number; y: number } | null {
+function currentViewport() {
+  return { width: window.innerWidth, height: window.innerHeight };
+}
+
+function loadGeometry(): WindowGeometry | null {
   try {
-    const raw = localStorage.getItem(POS_KEY);
-    if (!raw) return null;
-    const v = JSON.parse(raw);
-    if (typeof v.x === 'number' && typeof v.y === 'number') return v;
+    return parseGeometry(localStorage.getItem(POS_KEY), currentViewport());
   } catch { /* noop */ }
   return null;
 }
-function savePosition(x: number, y: number) {
-  try { localStorage.setItem(POS_KEY, JSON.stringify({ x, y })); } catch { /* noop */ }
+
+function persistGeometry(geometry: WindowGeometry) {
+  try { localStorage.setItem(POS_KEY, serializeGeometry(geometry)); } catch { /* noop */ }
 }
 
 /* ── Clamp to viewport ── */
 function clamp(v: number, min: number, max: number) { return Math.min(max, Math.max(min, v)); }
+
+/* ── Desktop window geometry ──
+   640px is the default desktop width (mirrored in .dt-window CSS); the height
+   is content-driven, so clamp/drag/resize math measures the live element instead
+   of assuming a fixed box. The user's maxHeight is a cap, never a fixed height. */
+function desktopWidth(vw: number) { return Math.min(DEFAULT_WINDOW_WIDTH, vw - 32); }
+
+/** Default desktop placement in the viewport's right gutter. */
+function defaultPanelPosition(size: { width: number; height: number }) {
+  const vw = window.innerWidth;
+  const flushRight = vw - size.width - 24;
+  return { x: clamp(flushRight, 12, Math.max(12, vw - size.width - 12)), y: 80 };
+}
 
 /* ── SVG Icons ── */
 function HeatmapIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -68,98 +92,23 @@ function WaterIcon(props: React.SVGProps<SVGSVGElement>) {
   return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 2.7c3.2 3.9 6 7.2 6 10.3a6 6 0 1 1-12 0c0-3.1 2.8-6.4 6-10.3z" /></svg>;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   報備 growth secondary surface (Phase D) — 潮階 / 成就 / 月印紀錄 / 規則.
-   Presentation only: 潮階 + 成就 reuse the rehomed Moon Dew components
-   (canonical data sources unchanged); the recent 月印 list reads the
-   canonical ledger read-only.
-   ═══════════════════════════════════════════════════════════════ */
-function GrowthSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const moonDewLedger = useAppStore((s) => s.moonDewLedger || []);
-
-  const recent = useMemo(
-    () => [...moonDewLedger]
-      .filter((e) => e.source !== 'migration')
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 10),
-    [moonDewLedger],
-  );
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
-  return createPortal(
-    <div className="dt-growth-overlay" onClick={onClose} role="presentation">
-      <div
-        ref={sheetRef}
-        className="dt-growth-sheet"
-        role="dialog"
-        aria-modal="true"
-        aria-label="成長詳情"
-        data-testid="report-growth-sheet"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <header className="dt-growth-header">
-          <span className="dt-growth-title">成長</span>
-          <button type="button" className="dt-growth-close" onClick={onClose} aria-label="關閉成長詳情">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-          </button>
-        </header>
-        <div className="dt-growth-body">
-          <section className="dt-growth-section" aria-label="潮階">
-            <h3 className="dt-growth-section-title">潮階</h3>
-            <MoonDewProgress />
-          </section>
-          <section className="dt-growth-section" aria-label="成就">
-            <h3 className="dt-growth-section-title">成就</h3>
-            <MoonDewAchievements />
-          </section>
-          <section className="dt-growth-section" aria-label="月印紀錄">
-            <h3 className="dt-growth-section-title">月印紀錄</h3>
-            {recent.length === 0 ? (
-              <p className="dt-growth-empty">還沒有月印紀錄。</p>
-            ) : (
-              <ul className="dt-growth-entries" data-testid="report-moon-history">
-                {recent.map((entry) => (
-                  <li key={entry.id} className={`dt-growth-entry${entry.amount < 0 ? ' is-negative' : ''}`}>
-                    <span className="dt-growth-entry__title">{entry.title}</span>
-                    <span className="dt-growth-entry__date">
-                      {new Date(entry.createdAt).toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' })}
-                    </span>
-                    <span className="dt-growth-entry__amount">
-                      {entry.amount > 0 ? `+${entry.amount}` : `${entry.amount}`} 月印
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-          <section className="dt-growth-section" aria-label="規則">
-            <h3 className="dt-growth-section-title">規則</h3>
-            <ul className="dt-growth-rules" data-testid="report-moon-rules">
-              <li>每日報備 +1–3 月印（依連續天數）</li>
-              <li>完成一輪專注 +{MOON_DEW_RULES.focusCompleted} 月印</li>
-              <li>專注時長獎勵：每 25 分鐘 +{MOON_DEW_RULES.focusDurationBonusPer25Min}（單輪上限 +{MOON_DEW_RULES.focusDurationBonusMax}）</li>
-              <li>提前離開 {MOON_DEW_RULES.focusEarlyExit} · 放棄專注 {MOON_DEW_RULES.focusAbandoned} · 虛假專注 {MOON_DEW_RULES.focusFaking} 月印</li>
-              <li>每日專注獲得上限 {MOON_DEW_RULES.dailyEarnCap} 月印 · 扣除上限 {MOON_DEW_RULES.dailyLossCap} 月印</li>
-            </ul>
-          </section>
-        </div>
-      </div>
-    </div>,
-    document.body,
+/* ── Rune Terminal chrome (presentation only: identity label + static scanlines) ── */
+function TerminalChrome() {
+  return (
+    <div className="dt-term-chrome" aria-hidden="true">
+      <span className="dt-term-chrome__led" />
+      <span className="dt-term-chrome__name">RUNE STATUS</span>
+      <span className="dt-term-chrome__log">DAILY LOG</span>
+    </div>
   );
 }
 
-/* ── Check-in Tab (calendar + streak + receipt) ── */
-function CheckInTabContent({ onOpenGrowth }: { onOpenGrowth: () => void }) {
+function TerminalScanlines() {
+  return <div className="dt-term-scanlines" aria-hidden="true" />;
+}
+
+/* ── Check-in Tab (month heatmap + streak + receipt) ── */
+function CheckInTabContent() {
   const getTodayStatus = useCheckInStore((s) => s.getTodayStatus);
   const getCurrentPerfectStreak = useCheckInStore((s) => s.getCurrentPerfectStreak);
   const records = useCheckInStore((s) => s.records);
@@ -167,20 +116,12 @@ function CheckInTabContent({ onOpenGrowth }: { onOpenGrowth: () => void }) {
   const todayRecord = getTodayStatus();
   const isDone = !!todayRecord;
   const streak = getCurrentPerfectStreak();
-  const today = toLocalDateString();
   const monthly = getMonthlyAttendance(records);
   const monthlyChecked = Object.values(monthly).filter((s) => s === 'completed' || s === 'late').length;
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
 
-  const moonDewLedger = useAppStore((s) => s.moonDewLedger || []);
-  const focusSessions = useAppStore((s) => s.focusSessionLog || []);
-  // Canonical streak flows straight from useCheckInStore (same value as above).
-  const progression = useMemo(
-    () => getMoonDewProgression(moonDewLedger, focusSessions, streak),
-    [moonDewLedger, focusSessions, streak],
-  );
-
   const [reporting, setReporting] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const acknowledgeMissedConsequence = useCheckInStore((s) => s.acknowledgeMissedConsequence);
   const acknowledgedMissedDate = useCheckInStore((s) => s.acknowledgedMissedDate);
   // One presentation decision per panel entry — shown once per unacknowledged missed day.
@@ -205,12 +146,6 @@ function CheckInTabContent({ onOpenGrowth }: { onOpenGrowth: () => void }) {
     }
   }, [isDone, reporting, clockIn]);
 
-  const currentLevel = MOON_DEW_LEVELS.find((l) => l.level === progression.level);
-
-  const quests = useQuestStore((s) => s.quests);
-  const mainQuestByDate = useQuestStore((s) => s.mainQuestByDate);
-  const mainQuest = quests.find((q) => q.id === mainQuestByDate[today]);
-
   const now = new Date();
   const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   const year = now.getFullYear();
@@ -221,11 +156,6 @@ function CheckInTabContent({ onOpenGrowth }: { onOpenGrowth: () => void }) {
   const firstDay = new Date(year, month, 1).getDay();
   for (let i = 0; i < firstDay; i++) monthDays.push(null);
   for (let d = 1; d <= daysInMonth; d++) monthDays.push(d);
-
-  const dateDisplay = (() => {
-    const wd = ['日', '一', '二', '三', '四', '五', '六'];
-    return `${year}年${month + 1}月${todayDay}日 週${wd[now.getDay()]}`;
-  })();
 
   const monthTitle = `${year} 年 ${month + 1} 月`;
 
@@ -246,33 +176,19 @@ function CheckInTabContent({ onOpenGrowth }: { onOpenGrowth: () => void }) {
   });
 
   return (
-    <div className="dt-dock-content">
-      <div className="dt-panel-date">{dateDisplay}</div>
-      <div className="dt-panel-time">{timeStr}</div>
-
-      <div className="dt-panel-streak-row" data-testid="report-stats">
-        <div className="dt-panel-streak-card">
-          <span className="dt-panel-streak-num" data-testid="report-streak">{isDone ? Math.max(streak, 1) : streak}</span>
-          <span className="dt-panel-streak-label">連續天數</span>
+    <div className="dt-dock-content dt-checkin-content">
+      {isDone && todayRecord ? (
+        <div className="dt-status-summary" data-testid="report-today-result">
+          <strong>✓ 今日已報備</strong>
+          <time>{todayRecord.clockInAt ? `${String(new Date(todayRecord.clockInAt).getHours()).padStart(2, '0')}:${String(new Date(todayRecord.clockInAt).getMinutes()).padStart(2, '0')}` : '--:--'}</time>
+          <span data-testid="report-streak">連續 {Math.max(streak, isDone ? 1 : 0)} 天</span>
         </div>
-        <div className="dt-panel-streak-card">
-          <span className="dt-panel-streak-num" data-testid="report-monthly">{monthlyChecked}</span>
-          <span className="dt-panel-streak-label">本月報備</span>
+      ) : (
+        <div className="dt-status-summary" data-testid="report-today-pending">
+          <strong>今日未報備</strong><time>{timeStr}</time><span data-testid="report-streak">連續 {Math.max(streak, isDone ? 1 : 0)} 天</span>
+          <button type="button" className="dt-report-btn" onClick={handleReport} disabled={reporting} data-testid="report-action">{reporting ? '報備中…' : '報備'}</button>
         </div>
-        <div className="dt-panel-streak-card">
-          <span className="dt-panel-streak-num" data-testid="report-missed">{missedCount}</span>
-          <span className="dt-panel-streak-label">漏簽天數</span>
-        </div>
-        <div className="dt-panel-streak-card dt-panel-streak-card--dew">
-          <span className="dt-panel-streak-num" data-testid="report-moon-balance">{progression.currentBalance}</span>
-          <span className="dt-panel-streak-label"><i aria-hidden="true" />月印餘額</span>
-        </div>
-      </div>
-
-      <div className="dt-panel-copy" aria-live="polite">
-        {dynamicCopy}
-      </div>
-
+      )}
       {showConsequence && consequenceCopy && (
         <div className="dt-consequence" data-testid="checkin-consequence" role="status">
           <button
@@ -291,58 +207,44 @@ function CheckInTabContent({ onOpenGrowth }: { onOpenGrowth: () => void }) {
         </div>
       )}
 
-      {/* 今日結果 — reward rows never render a “-0” deduction */}
-      {isDone && todayRecord ? (
-        <div className="dt-panel-section" data-testid="report-today-result">
-          <div className="dt-tide-mark" data-testid="daily-tide-mark">
-            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 17c4-7 14-9 19-2-2 8-12 12-19 6"/><path d="m12 17 3 3 6-7"/></svg>
-            <span><strong>今日潮印</strong><small>今天被記下了。</small></span>
-          </div>
-          <div className="dt-panel-section-title">今日報備條</div>
-          <div className="dt-panel-receipt">
-            <div className="dt-receipt-row"><span>日期</span><span>{todayRecord.date}</span></div>
-            <div className="dt-receipt-row">
-              <span>報備時間</span>
-              <span>{todayRecord.clockInAt ? `${String(new Date(todayRecord.clockInAt).getHours()).padStart(2, '0')}:${String(new Date(todayRecord.clockInAt).getMinutes()).padStart(2, '0')}` : '--:--'}</span>
-            </div>
-            <div className="dt-receipt-row">
-              <span>狀態</span>
-              <span className={todayRecord.isLate ? 'dt-text-late' : 'dt-text-ontime'}>{todayRecord.isLate ? '遲到' : '準時'}</span>
-            </div>
-            {progression.todayEarned > 0 && (
-              <div className="dt-receipt-row" data-testid="report-today-earned">
-                <span>獲得</span>
-                <span className="dt-text-ontime">+{progression.todayEarned} 月印</span>
-              </div>
-            )}
-            {progression.todayLost > 0 && (
-              <div className="dt-receipt-row" data-testid="report-today-deducted">
-                <span>今日扣除</span>
-                <span className="dt-text-late">-{progression.todayLost} 月印</span>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="dt-panel-section" data-testid="report-today-pending">
-          <button type="button" className="dt-report-btn" onClick={handleReport} disabled={reporting} data-testid="report-action">
-            {reporting ? '報備中…' : '報備'}
-          </button>
-        </div>
-      )}
-
       <div className="dt-panel-section">
-        <div className="dt-panel-section-title dt-panel-month-title">{monthTitle}</div>
-        <div className="dt-calendar-grid" data-testid="report-calendar">
-          {['日', '一', '二', '三', '四', '五', '六'].map((w) => (
-            <div key={w} className="dt-calendar-weekday">{w}</div>
-          ))}
-          {monthDays.map((d, i) => {
+        <div className="dt-calendar-head">
+          <div className="dt-panel-section-title dt-panel-month-title">{monthTitle}</div>
+          <div className="dt-calendar-metrics" data-testid="report-stats">
+            <span data-testid="report-monthly">本月 {monthlyChecked} 次</span>
+            <span data-testid="report-missed">漏簽 {missedCount} 天</span>
+          </div>
+        </div>
+        {selectedDate && (() => {
+          const selected = records.find((record) => record.kind === 'clock_in' && record.date === selectedDate);
+          const status = monthly[selectedDate];
+          const isSelectedToday = selectedDate === `${year}-${String(month + 1).padStart(2, '0')}-${String(todayDay).padStart(2, '0')}`;
+          const selectedTime = selected?.clockInAt
+            ? `${String(new Date(selected.clockInAt).getHours()).padStart(2, '0')}:${String(new Date(selected.clockInAt).getMinutes()).padStart(2, '0')}`
+            : '--:--';
+          const selectedStatus = isSelectedToday
+            ? status === 'late' ? '遲到' : status === 'completed' ? '已報備' : '未報備'
+            : status === 'late' ? '遲到'
+            : status === 'completed' ? '準時'
+            : selectedDate > `${year}-${String(month + 1).padStart(2, '0')}-${String(todayDay).padStart(2, '0')}` ? '尚未到來' : '漏簽';
+          return <div className="dt-calendar-selection" data-testid="report-selected-date" aria-live="polite"><strong>{isSelectedToday ? '今天' : selectedDate}</strong><time>{selectedTime}</time><span>{selectedStatus}</span></div>;
+        })()}
+        <div className="dt-honeycomb-heatmap" data-testid="report-calendar" aria-label={`${monthTitle}報備熱力圖`}>
+          <div className="dt-honeycomb-weekdays" aria-hidden="true">
+            {['日', '一', '二', '三', '四', '五', '六'].map((w) => (
+              <div key={w} className="dt-calendar-weekday">{w}</div>
+            ))}
+          </div>
+          {Array.from({ length: Math.ceil(monthDays.length / 7) }, (_, week) => (
+            <div className="dt-honeycomb-week" key={week} data-week={week}>
+              {monthDays.slice(week * 7, week * 7 + 7).map((d, weekday) => {
+            const i = week * 7 + weekday;
             if (d === null) return <div key={`e${i}`} className="dt-calendar-cell dt-calendar-cell--empty" />;
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             const status = monthly[dateStr];
             const isToday = d === todayDay;
-            const isChecked = status === 'completed' || status === 'late';
+            const isLate = status === 'late';
+            const isChecked = status === 'completed' || isLate;
             const isMissed = status === 'makeup_required';
             return (
               <CalendarCell
@@ -350,12 +252,17 @@ function CheckInTabContent({ onOpenGrowth }: { onOpenGrowth: () => void }) {
                 day={d}
                 dateKey={dateStr}
                 isToday={isToday}
+                selected={selectedDate === dateStr}
+                onSelect={() => setSelectedDate(dateStr)}
                 isChecked={isChecked}
+                isLate={isLate}
                 isMissed={isMissed}
                 isFuture={d > todayDay}
               />
             );
-          })}
+              })}
+            </div>
+          ))}
         </div>
         <div className="dt-calendar-legend" aria-label="圖例">
           <span className="dt-legend-item">
@@ -366,7 +273,7 @@ function CheckInTabContent({ onOpenGrowth }: { onOpenGrowth: () => void }) {
           </span>
           <span className="dt-legend-item">
             <svg className="dt-legend-svg" viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">
-              <circle cx="7" cy="7" r="4.5" fill="none" stroke="var(--red-mark)" strokeWidth="1.4" strokeLinecap="round" />
+              <circle cx="7" cy="7" r="4.5" fill="none" stroke="var(--dt-term-ok, var(--red-mark))" strokeWidth="1.4" strokeLinecap="round" />
             </svg>
             已報備
           </span>
@@ -379,48 +286,31 @@ function CheckInTabContent({ onOpenGrowth }: { onOpenGrowth: () => void }) {
           </span>
         </div>
       </div>
-
-      {/* 潮階 progression — compact strip, totals derive from the canonical ledger */}
-      <div className="dt-panel-section">
-        <div className="dt-panel-growth" data-testid="report-progression">
-          <div className="dt-panel-growth__head">
-            <span className="dt-panel-growth__label">
-              潮階 · Lv{progression.level} {currentLevel?.title ?? progression.levelTitle}
-            </span>
-            <span className="dt-panel-growth__count">
-              {progression.currentLevelStart}{progression.nextLevelTarget != null ? ` / ${progression.nextLevelTarget}` : ' · MAX'}
-            </span>
-          </div>
-          <div className="moon-dew-progress-bar dt-panel-growth__bar">
-            <div
-              className="moon-dew-progress-bar__fill"
-              style={{ width: `${Math.round(progression.levelProgress * 100)}%` }}
-            />
-          </div>
-          <button type="button" className="dt-panel-growth__more" onClick={onOpenGrowth} data-testid="report-growth-open">
-            查看成長
-          </button>
-        </div>
-      </div>
+      {!isDone && <div className="dt-panel-copy" data-testid="report-note" aria-live="polite">{dynamicCopy}</div>}
+      <DailyMoodBar dateKey={selectedDate ?? toLocalDateString(now)} todayKey={toLocalDateString(now)} />
     </div>
   );
 }
 
-/**
- * 共用日曆格：today 圓環 + checked 紅圈 + missed 紅叉，可疊加
- */
+/** Month heatmap date button; the canonical status and accessible date stay intact. */
 function CalendarCell({
   day,
   dateKey,
   isToday,
+  selected,
+  onSelect,
   isChecked,
+  isLate,
   isMissed,
   isFuture,
 }: {
   day: number;
   dateKey: string;
   isToday: boolean;
+  selected: boolean;
+  onSelect: () => void;
   isChecked: boolean;
+  isLate: boolean;
   isMissed: boolean;
   isFuture: boolean;
 }) {
@@ -428,13 +318,15 @@ function CalendarCell({
   const classes = ['dt-calendar-cell'];
   if (isToday) classes.push('dt-calendar-cell--today');
   if (isChecked) classes.push('dt-calendar-cell--checked');
+  if (isLate) classes.push('dt-calendar-cell--late');
   if (isMissed) classes.push('dt-calendar-cell--missed');
   if (isFuture) classes.push('dt-calendar-cell--future');
   if (isToday && isChecked) classes.push('dt-calendar-cell--today-checked');
   if (isToday && isMissed) classes.push('dt-calendar-cell--today-missed');
 
   return (
-    <div className={classes.join(' ')} data-date-key={dateKey} data-date-state={isFuture ? 'future' : isToday ? 'today' : isChecked ? 'completed' : isMissed ? 'missed' : 'ordinary'} style={{ '--mark-rotate': `${variant.rotation}deg`, '--mark-offset': `${variant.offset}px` } as React.CSSProperties}>
+    <button type="button" className={classes.join(' ')} onClick={onSelect} aria-pressed={selected} aria-label={`${dateKey} ${isFuture ? '尚未到來' : isLate ? '遲到' : isChecked ? '已報備' : isMissed ? '漏簽' : '未報備'}`} data-date-key={dateKey} data-date-state={isFuture ? 'future' : isToday ? 'today' : isLate ? 'late' : isChecked ? 'completed' : isMissed ? 'missed' : 'ordinary'} style={{ '--mark-rotate': `${variant.rotation}deg`, '--mark-offset': `${variant.offset}px` } as React.CSSProperties}>
+      <svg className="dt-honeycomb-frame" viewBox="0 0 48 44" aria-hidden="true"><polygon points="12,1 36,1 47,22 36,43 12,43 1,22" /></svg>
       <span className="dt-calendar-cell-num">{day}</span>
       {isChecked && !isToday && (
         <svg
@@ -449,7 +341,7 @@ function CalendarCell({
             cy="12"
             r="9"
             fill="none"
-            stroke="var(--red-mark, #d34a4a)"
+            stroke="var(--dt-term-ok, var(--red-mark, #d34a4a))"
             strokeWidth="1.6"
             strokeLinecap="round"
             strokeDasharray="55 4"
@@ -481,7 +373,7 @@ function CalendarCell({
             cy="12"
             r="8.4"
             fill="none"
-            stroke="var(--red-mark, #d34a4a)"
+            stroke="var(--dt-term-ok, var(--red-mark, #d34a4a))"
             strokeWidth="1.6"
             strokeLinecap="round"
             strokeDasharray="50 4"
@@ -500,42 +392,103 @@ function CalendarCell({
           <line x1="17" y1="7" x2="7" y2="17" stroke="var(--red-mark, #d34a4a)" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
       )}
-    </div>
+    </button>
   );
 }
 
-export function DailyTideFloatingWindow() {
+export function TodayStatusFloat() {
   // Idempotent day-close reconcile — independent of whether this window is open.
   useCheckInReconcile();
   const isOpen = useTideRailStore((s) => s.isWindowOpen);
-  const tab = useTideRailStore((s) => s.activeTab);
+  const storedTab = useTideRailStore((s) => s.activeTab);
+  const [tab, setTab] = useState<'checkin' | 'hydration' | 'usage'>(storedTab);
+  const [visitedTabs, setVisitedTabs] = useState<Array<'checkin' | 'hydration' | 'usage'>>([storedTab]);
+  const openingTriggerRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
+  useEffect(() => { if (isOpen) setVisitedTabs((previous) => previous.includes(tab) ? previous : [...previous, tab]); }, [isOpen, tab]);
+  useEffect(() => {
+    const onOpen = (event: Event) => {
+      const { tab: initialTab, trigger } = (event as CustomEvent<{ tab: 'checkin' | 'hydration' | 'usage'; trigger: HTMLElement }>).detail;
+      openingTriggerRef.current = trigger;
+      setTab(initialTab);
+    };
+    window.addEventListener('today-status-open', onOpen);
+    return () => window.removeEventListener('today-status-open', onOpen);
+  }, []);
+  useEffect(() => {
+    if (isOpen) {
+      if (!wasOpenRef.current && !openingTriggerRef.current) openingTriggerRef.current = document.activeElement as HTMLElement;
+      wasOpenRef.current = true;
+      return;
+    }
+    if (!wasOpenRef.current) return;
+    wasOpenRef.current = false;
+    const trigger = openingTriggerRef.current;
+    openingTriggerRef.current = null;
+    requestAnimationFrame(() => {
+      if (trigger?.isConnected && trigger.getClientRects().length && !trigger.matches(':disabled') && !trigger.closest('[hidden], [inert], [aria-hidden="true"]')) trigger.focus();
+    });
+  }, [isOpen]);
+  useEffect(() => { if (isOpen && storedTab === 'hydration') setTab('hydration'); }, [isOpen, storedTab]);
   const onClose = useTideRailStore((s) => s.closeWindow);
   const setActiveTab = useTideRailStore((s) => s.setActiveTab);
+  const switchTab = (next: 'checkin' | 'hydration' | 'usage') => { setTab(next); if (next !== 'usage') setActiveTab(next); };
+  const tabContent = <>
+    {visitedTabs.includes('checkin') && <div hidden={tab !== 'checkin'}><CheckInTabContent /></div>}
+    {visitedTabs.includes('hydration') && <div hidden={tab !== 'hydration'}><HydrationTabContent /></div>}
+    {visitedTabs.includes('usage') && <div hidden={tab !== 'usage'}><UsageStatusContent onOpenLockSettings={(trigger) => window.dispatchEvent(new CustomEvent('today-status-lock-settings', { detail: trigger }))} /></div>}
+  </>;
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
-  // Growth secondary surface state lives here so Escape closes the sheet before the window.
-  const [growthOpen, setGrowthOpen] = useState(false);
+  const [size, setSize] = useState<WindowSize>(() => {
+    const saved = typeof window !== 'undefined' ? loadGeometry() : null;
+    return { width: saved?.width ?? DEFAULT_WINDOW_WIDTH, maxHeight: saved?.maxHeight ?? null };
+  });
   const [pos, setPos] = useState<{ x: number; y: number }>(() => {
-    const saved = loadPosition();
-    if (saved) return saved;
+    const saved = loadGeometry();
+    if (saved) return { x: saved.x, y: saved.y };
     const vw = typeof window !== 'undefined' ? window.innerWidth : 1440;
-    const vh = typeof window !== 'undefined' ? window.innerHeight : 900;
-    return { x: clamp(vw - 480, 12, vw - 12), y: clamp(80, 12, vh - 12) };
+    return typeof window !== 'undefined'
+      ? defaultPanelPosition({ width: desktopWidth(vw), height: 360 })
+      : { x: 12, y: 80 };
   });
   const dragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0, px: 0, py: 0 });
+  const dragSize = useRef({ width: 0, height: 0 });
+  const resizing = useRef(false);
+  const resizeStart = useRef({ pointerX: 0, pointerY: 0, x: 0, y: 0, size: { width: DEFAULT_WINDOW_WIDTH, maxHeight: null } as WindowSize });
+  const resizePointerId = useRef<number | null>(null);
+  const resizeHandleRef = useRef<HTMLButtonElement>(null);
+  const cancelResizeRef = useRef<() => void>(() => undefined);
+  /** Latest committed size for pointer/keyboard handlers (assigned during render). */
+  const sizeRef = useRef(size);
+  sizeRef.current = size;
   const windowRef = useRef<HTMLDivElement>(null);
-  // An open growth sheet absorbs the dialog-level Escape/close first.
-  const mobileDialogRef = useAppDialogBehavior(isOpen && isMobile, growthOpen ? () => setGrowthOpen(false) : onClose);
+  const mobileDialogRef = useAppDialogBehavior(isOpen && isMobile, onClose);
+  const hadSavedPosition = useRef(typeof window !== 'undefined' && loadGeometry() !== null);
+  /** The user's size intent, resolved against the current viewport. */
+  const resolveSize = useCallback((next: WindowSize, anchorY: number): WindowSize => ({
+    width: clampWidth(next.width, window.innerWidth),
+    maxHeight: next.maxHeight === null ? null : clampMaxHeight(next.maxHeight, window.innerHeight, anchorY),
+  }), []);
 
-  const dismissTodayCheckIn = useCheckInStore((s) => s.dismissToday);
-  const handleDismissToday = useCallback(() => {
-    dismissTodayCheckIn();
-    onClose();
-  }, [dismissTodayCheckIn, onClose]);
+  /** Live box of the floating window (content-driven height, so never assumed). */
+  const measureWindow = useCallback(() => {
+    const rect = windowRef.current?.getBoundingClientRect();
+    return {
+      width: rect && rect.width > 0 ? rect.width : desktopWidth(window.innerWidth),
+      height: rect && rect.height > 0 ? rect.height : 320,
+    };
+  }, []);
+  const placeInViewport = useCallback((x: number, y: number, size: { width: number; height: number }) => ({
+    x: clamp(x, 12, Math.max(12, window.innerWidth - size.width - 12)),
+    y: clamp(y, 12, Math.max(12, window.innerHeight - size.height - 12)),
+  }), []);
 
-  // Responsive check
+  // Responsive check — the shell type is re-synced on every open so a viewport
+  // change while the float was closed can never leave a stale desktop/mobile shell.
   useEffect(() => {
     if (!isOpen) return;
+    setIsMobile(window.innerWidth < 768);
     const check = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
@@ -545,38 +498,58 @@ export function DailyTideFloatingWindow() {
   useEffect(() => {
     if (!isOpen || isMobile) return;
     const reclamp = () => setPos((p) => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const width = Math.min(460, vw - 24);
-      const height = Math.min(540, vh - 32);
-      const next = { x: clamp(p.x, 12, vw - width - 12), y: clamp(p.y, 12, vh - height - 12) };
-      savePosition(next.x, next.y);
+      const next = placeInViewport(p.x, p.y, measureWindow());
+      persistGeometry({ ...next, width: size.width, maxHeight: size.maxHeight });
       return next;
     });
     window.addEventListener('resize', reclamp);
     return () => window.removeEventListener('resize', reclamp);
-  }, [isOpen, isMobile]);
+  }, [isOpen, isMobile, measureWindow, placeInViewport, size.width, size.maxHeight]);
   useEffect(() => {
     if (!isOpen || isMobile) return;
-    const width = Math.min(460, window.innerWidth - 24);
-    const height = Math.min(540, window.innerHeight - 32);
-    setPos((current) => ({ x: clamp(current.x, 12, window.innerWidth - width - 12), y: clamp(current.y, 12, window.innerHeight - height - 12) }));
-  }, [isOpen, isMobile]);
+    if (!hadSavedPosition.current) {
+      // First entry with no stored position: place the default, clear of the utility rail.
+      const next = defaultPanelPosition(measureWindow());
+      hadSavedPosition.current = true;
+      setPos(next);
+      persistGeometry({ ...next, width: size.width, maxHeight: size.maxHeight });
+      return;
+    }
+    setPos((current) => placeInViewport(current.x, current.y, measureWindow()));
+    // Runs once per open; size changes are handled by the size-clamp effect below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, isMobile, measureWindow, placeInViewport]);
 
-  // Keyboard close — an open growth sheet absorbs Escape first.
+  // A resized shell must stay inside the viewport (right/bottom edges included):
+  // re-run the canonical placement once the DOM reflects the new size.
+  const clampedForSize = useRef('');
+  useEffect(() => {
+    if (!isOpen || isMobile) return;
+    const key = `${size.width}x${size.maxHeight ?? 'auto'}`;
+    if (clampedForSize.current === key) return;
+    clampedForSize.current = key;
+    setPos((current) => {
+      const next = placeInViewport(current.x, current.y, measureWindow());
+      if (next.x !== current.x || next.y !== current.y) persistGeometry({ ...next, width: size.width, maxHeight: size.maxHeight });
+      return next;
+    });
+  }, [isOpen, isMobile, size, measureWindow, placeInViewport]);
+
+  // Keyboard close for the desktop window. Escape during an active resize cancels
+  // the gesture (restores the drag-start geometry) instead of closing the window.
   useEffect(() => {
     if (!isOpen || isMobile) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
-      if (growthOpen) {
-        setGrowthOpen(false);
+      if (resizing.current) {
+        cancelResizeRef.current();
         return;
       }
       onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, isMobile, growthOpen, onClose]);
+  }, [isOpen, isMobile, onClose]);
 
   // The mobile sheet is portalled outside #root, so the application shell can
   // be isolated without making the dialog itself inert.
@@ -599,64 +572,139 @@ export function DailyTideFloatingWindow() {
 
   // Drag handlers
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    // Only drag from header area
+    // Only drag from header area — never from controls or the resize handle.
     const target = e.target as HTMLElement;
-    if (target.closest('button, input, textarea, select, [role="button"], [role="tab"]')) return;
+    if (target.closest('button, input, textarea, select, [role="button"], [role="tab"], [data-dt-resize]')) return;
     dragging.current = true;
+    dragSize.current = measureWindow();
     dragStart.current = { x: e.clientX, y: e.clientY, px: pos.x, py: pos.y };
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     e.preventDefault();
-  }, [pos]);
+  }, [pos, measureWindow]);
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!dragging.current) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const winW = Math.min(460, vw - 24);
-    const winH = Math.min(540, vh - 32);
-    const nx = clamp(dragStart.current.px + dx, 12, vw - winW - 12);
-    const ny = clamp(dragStart.current.py + dy, 12, vh - winH - 12);
-    setPos({ x: nx, y: ny });
-  }, []);
+    const next = placeInViewport(dragStart.current.px + dx, dragStart.current.py + dy, dragSize.current);
+    setPos(next);
+  }, [placeInViewport]);
 
   const onPointerUp = useCallback(() => {
     if (!dragging.current) return;
     dragging.current = false;
-    savePosition(pos.x, pos.y);
-  }, [pos]);
+    persistGeometry({ x: pos.x, y: pos.y, width: size.width, maxHeight: size.maxHeight });
+  }, [pos, size.width, size.maxHeight]);
 
-  const handleResetPosition = useCallback(() => {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const newPos = { x: clamp(vw - 480, 12, vw - 12), y: clamp(80, 12, vh - 12) };
-    setPos(newPos);
-    savePosition(newPos.x, newPos.y);
-  }, []);
+  /* ── Resize (Phase 1: bottom-right handle, desktop only) ──
+     Size is intent-in-state, resolved against the viewport (width clamp 360-720,
+     max-height cap = min(72dvh, viewport - y - 12), floor 300) and written through
+     the single geometry writer. The shell keeps height:auto + body scroll. */
+  const applySize = useCallback((next: WindowSize, anchor: { x: number; y: number } = pos, persist = true) => {
+    const resolved = resolveSize(next, anchor.y);
+    sizeRef.current = resolved;
+    setSize(resolved);
+    if (persist) persistGeometry({ x: anchor.x, y: anchor.y, width: resolved.width, maxHeight: resolved.maxHeight });
+    return resolved;
+  }, [pos, resolveSize]);
+
+  const cancelResize = useCallback(() => {
+    if (!resizing.current) return;
+    resizing.current = false;
+    const handle = resizeHandleRef.current;
+    const pointerId = resizePointerId.current;
+    if (handle && pointerId !== null && handle.hasPointerCapture?.(pointerId)) {
+      try { handle.releasePointerCapture(pointerId); } catch { /* noop */ }
+    }
+    resizePointerId.current = null;
+    applySize(resizeStart.current.size, { x: resizeStart.current.x, y: resizeStart.current.y });
+  }, [applySize]);
+  cancelResizeRef.current = cancelResize;
+
+  const onResizePointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    // Never starts a window drag: separate element, explicit header guard, and the
+    // gesture is captured on the handle itself.
+    e.preventDefault();
+    e.stopPropagation();
+    dragging.current = false;
+    resizing.current = true;
+    resizePointerId.current = e.pointerId;
+    resizeStart.current = {
+      pointerX: e.clientX,
+      pointerY: e.clientY,
+      x: pos.x,
+      y: pos.y,
+      size: { width: size.width, maxHeight: size.maxHeight },
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }, [pos, size]);
+
+  const onResizePointerMove = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!resizing.current) return;
+    const base = resizeStart.current;
+    // A null cap means "the frozen 72dvh default": materialise it so the gesture
+    // has a concrete starting height.
+    const baseMaxHeight = base.size.maxHeight
+      ?? clampMaxHeight(defaultMaxHeightFor(window.innerHeight), window.innerHeight, base.y);
+    applySize({
+      width: base.size.width + (e.clientX - base.pointerX),
+      maxHeight: baseMaxHeight + (e.clientY - base.pointerY),
+    }, { x: base.x, y: base.y });
+  }, [applySize]);
+
+  const onResizePointerUp = useCallback(() => {
+    if (!resizing.current) return;
+    resizing.current = false;
+    resizePointerId.current = null;
+    persistGeometry({ x: pos.x, y: pos.y, ...sizeRef.current });
+  }, [pos.x, pos.y]);
+
+  const onResizePointerCancel = useCallback(() => {
+    cancelResize();
+  }, [cancelResize]);
+
+  const onResizeKeyDown = useCallback((e: React.KeyboardEvent<HTMLButtonElement>) => {
+    const step = e.shiftKey ? KEYBOARD_RESIZE_STEP_LARGE : KEYBOARD_RESIZE_STEP;
+    // Read the committed size from the ref so repeated keys never drop a step.
+    const current = sizeRef.current;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      applySize({ ...current, width: current.width + (e.key === 'ArrowRight' ? step : -step) });
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      const base = current.maxHeight ?? clampMaxHeight(defaultMaxHeightFor(window.innerHeight), window.innerHeight, pos.y);
+      applySize({ ...current, maxHeight: base + (e.key === 'ArrowDown' ? step : -step) });
+    } else {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+  }, [applySize, pos.y]);
+
+  const handleResetWindow = useCallback(() => {
+    const next = defaultPanelPosition({ ...measureWindow(), width: DEFAULT_WINDOW_WIDTH });
+    const reset: WindowSize = { width: DEFAULT_WINDOW_WIDTH, maxHeight: null };
+    setPos(next);
+    sizeRef.current = reset;
+    setSize(reset);
+    persistGeometry({ ...next, ...reset });
+  }, [measureWindow]);
   const handleCenter = useCallback(() => {
-    const width = Math.min(460, window.innerWidth - 24);
-    const height = Math.min(540, window.innerHeight - 32);
-    const next = { x: Math.max(12, (window.innerWidth - width) / 2), y: Math.max(12, (window.innerHeight - height) / 2) };
-    setPos(next); savePosition(next.x, next.y);
-  }, []);
+    const box = measureWindow();
+    const next = placeInViewport(
+      Math.max(12, (window.innerWidth - box.width) / 2),
+      Math.max(12, (window.innerHeight - box.height) / 2),
+      box,
+    );
+    setPos(next);
+    persistGeometry({ ...next, ...sizeRef.current });
+  }, [measureWindow, placeInViewport]);
 
   if (!isOpen) return null;
 
-  const tabs: { key: TideRailTab; label: string; icon: React.ReactNode }[] = [
+  const tabs: { key: TideRailTab | 'usage'; label: string; icon: React.ReactNode }[] = [
     { key: 'checkin', label: '報備', icon: <CheckInIcon /> },
-    { key: 'hydration', label: '今日飲水', icon: <WaterIcon /> },
+    { key: 'hydration', label: '飲水', icon: <WaterIcon /> },
+    { key: 'usage', label: '使用', icon: <span aria-hidden="true">◷</span> },
   ];
-
-  const renderFooter = () => tab === 'checkin' ? <>
-    <button type="button" className="dt-dock-footer-btn dt-dock-footer-btn--ghost" onClick={handleDismissToday}>今天不再顯示</button>
-    <button type="button" className="dt-dock-footer-btn dt-dock-footer-btn--done" onClick={onClose}>完成</button>
-  </> : (
-    <>
-      <span className="dt-dock-footer-note" data-testid="hyd-autosave-note">設定已同步</span>
-      <button type="button" className="dt-dock-footer-btn dt-dock-footer-btn--done" onClick={onClose}>關閉</button>
-    </>
-  );
 
   /* ── Mobile: Bottom Sheet ── */
   if (isMobile) {
@@ -665,33 +713,33 @@ export function DailyTideFloatingWindow() {
         {createPortal(
       <div className="dt-sheet-overlay" onClick={onClose}>
         <div className="dt-sheet-backdrop" />
-        <div ref={mobileDialogRef as React.RefObject<HTMLDivElement>} className="dt-sheet" role="dialog" aria-modal="true" aria-label="報備" tabIndex={-1} onClick={(e) => e.stopPropagation()}>
+        <div ref={mobileDialogRef as React.RefObject<HTMLDivElement>} className="dt-sheet notranslate" translate="no" role="dialog" aria-modal="true" aria-label="今日狀態" tabIndex={-1} onClick={(e) => e.stopPropagation()}>
           <div className="dt-sheet-handle" />
           <div className="dt-dock-header">
-            <div className="dt-dock-tabs">
-              {tabs.map((t) => (
-                <button key={t.key} type="button" className={`dt-dock-tab${tab === t.key ? ' is-active' : ''}`}
-                  onClick={() => setActiveTab(t.key)} aria-label={t.label} title={t.label} aria-pressed={tab === t.key}>
-                  {t.icon}
-                  <span className="dt-dock-tab-label">{t.label}</span>
-                </button>
-              ))}
+            <TerminalChrome />
+            <div className="dt-dock-header-row">
+              <div className="dt-dock-tabs">
+                {tabs.map((t) => (
+                  <button key={t.key} type="button" className={`dt-dock-tab${tab === t.key ? ' is-active' : ''}`}
+                    onClick={() => switchTab(t.key)} aria-label={t.label} title={t.label} aria-pressed={tab === t.key}>
+                    {t.icon}
+                    <span className="dt-dock-tab-label">{t.label}</span>
+                  </button>
+                ))}
+              </div>
+              <button type="button" className="dt-dock-close" onClick={onClose} aria-label="關閉">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
             </div>
-            <button type="button" className="dt-dock-close" onClick={onClose} aria-label="關閉">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-            </button>
           </div>
           <div className="dt-dock-body">
-            {tab === 'checkin' ? <CheckInTabContent onOpenGrowth={() => setGrowthOpen(true)} /> : <HydrationTabContent />}
+            {tabContent}
           </div>
-          <div className="dt-dock-footer">
-            {renderFooter()}
-          </div>
+          <TerminalScanlines />
         </div>
       </div>,
         document.body,
         )}
-        <GrowthSheet open={growthOpen} onClose={() => setGrowthOpen(false)} />
       </>
     );
   }
@@ -700,60 +748,70 @@ export function DailyTideFloatingWindow() {
   return (
     <>
       {createPortal(
-    <div className="dt-window" ref={windowRef}
+    <div className="dt-window notranslate" translate="no" role="dialog" aria-label="今日狀態" ref={windowRef}
+      data-resizable="true"
       style={{
         position: 'fixed',
         zIndex: 120,
         top: pos.y,
         left: pos.x,
-        width: 'clamp(400px, 32vw, 460px)',
-        height: 'min(540px, calc(100vh - 32px))',
-        minHeight: 420,
-        borderRadius: 28,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        backdropFilter: 'blur(18px) saturate(1.2)',
-        WebkitBackdropFilter: 'blur(18px) saturate(1.2)',
-        border: '1px solid color-mix(in srgb, var(--border) 70%, transparent)',
-        boxShadow: '0 8px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06)',
+        ['--dt-window-width' as string]: `${size.width}px`,
+        ...(size.maxHeight === null ? {} : { ['--dt-window-max-height' as string]: `${size.maxHeight}px` }),
       }}
     >
-      {/* Header (drag handle + tabs + close) */}
-      <div className="dt-dock-header" onDoubleClick={handleCenter} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
-        style={{ flexShrink: 0, padding: '10px 14px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'grab', userSelect: 'none' }}>
-        <div className="dt-dock-tabs">
-          {tabs.map((t) => (
-            <button key={t.key} type="button" className={`dt-dock-tab${tab === t.key ? ' is-active' : ''}`}
-              onClick={() => setActiveTab(t.key)} aria-label={t.label} title={t.label} aria-pressed={tab === t.key}>
-              {t.icon}
-              <span className="dt-dock-tab-label">{t.label}</span>
+      {/* Header (drag handle + terminal chrome + tabs + close) */}
+      <div className="dt-dock-header" onDoubleClick={handleCenter} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
+        <TerminalChrome />
+        <div className="dt-dock-header-row">
+          <div className="dt-dock-tabs">
+            {tabs.map((t) => (
+              <button key={t.key} type="button" className={`dt-dock-tab${tab === t.key ? ' is-active' : ''}`}
+                onClick={() => switchTab(t.key)} aria-label={t.label} title={t.label} aria-pressed={tab === t.key}>
+                {t.icon}
+                <span className="dt-dock-tab-label">{t.label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="dt-dock-actions">
+            <button type="button" className="dt-dock-reset" onClick={handleResetWindow} aria-label="重設視窗" title="重設視窗">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12a9 9 0 1 1 9 9" /><path d="M3 3v6h6" /></svg>
             </button>
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          <button type="button" className="dt-dock-reset" onClick={handleResetPosition} aria-label="重置位置" title="重置位置">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12a9 9 0 1 1 9 9" /><path d="M3 3v6h6" /></svg>
-          </button>
-          <button type="button" className="dt-dock-close" onClick={onClose} aria-label="關閉">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-          </button>
+            <button type="button" className="dt-dock-close" onClick={onClose} aria-label="關閉">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Body (scrollable content) */}
-      <div className="dt-dock-body" style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '0 14px' }}>
-        {tab === 'checkin' ? <CheckInTabContent onOpenGrowth={() => setGrowthOpen(true)} /> : <HydrationTabContent />}
+      <div className="dt-dock-body" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        {tabContent}
       </div>
 
-      {/* Footer (fixed) */}
-      <div className="dt-dock-footer" style={{ flexShrink: 0 }}>
-        {renderFooter()}
-      </div>
+      <TerminalScanlines />
+
+      {/* Desktop-only resize handle (bottom-right corner, terminal language). */}
+      <button
+        type="button"
+        className="dt-term-resize"
+        data-dt-resize
+        ref={resizeHandleRef}
+        aria-label="調整視窗大小"
+        title="調整視窗大小"
+        onPointerDown={onResizePointerDown}
+        onPointerMove={onResizePointerMove}
+        onPointerUp={onResizePointerUp}
+        onPointerCancel={onResizePointerCancel}
+        onKeyDown={onResizeKeyDown}
+      >
+        <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+          <path d="M10.5 4.5 4.5 10.5M10.5 8.5l-2 2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </button>
+
     </div>,
       document.body,
       )}
-      <GrowthSheet open={growthOpen} onClose={() => setGrowthOpen(false)} />
     </>
   );
 }
