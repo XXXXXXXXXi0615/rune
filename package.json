@@ -36,11 +36,11 @@
     "test:rune-stash-2b": "npx playwright test e2e/rune-stash-phase2b-chat-theme-bridge.spec.ts --project=chromium --project=webkit --workers=2"
   },
   "dependencies": {
-    "@capacitor/android": "^8.4.0",
+    "@capacitor/android": "^8.4.3",
     "@capacitor/app": "^8.0.0",
     "@capacitor/cli": "^8.4.0",
     "@capacitor/core": "^8.4.0",
-    "@capacitor/ios": "^8.4.0",
+    "@capacitor/ios": "^8.5.3",
     "@capacitor/keyboard": "^8.0.0",
     "@capacitor/network": "^8.0.0",
     "@capacitor/status-bar": "^8.0.0",
@@ -50,10 +50,10 @@
     "classnames": "^2.5.1",
     "framer-motion": "^12.40.0",
     "jszip": "^3.10.1",
-    "katex": "^0.17.0",
+    "katex": "^0.18.2",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "react-router-dom": "^7.15.1",
+    "react-router-dom": "^7.18.4",
     "thinking-orbs": "0.1.1",
     "three": "^0.185.1",
     "zustand": "^5.0.13"
@@ -74,7 +74,7 @@
     "jsdom": "^29.1.1",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12",
-    "vitest": "^4.1.10"
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
   }
 }
