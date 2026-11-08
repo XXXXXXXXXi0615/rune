@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# RUNE · 一座還在建造的私人世界
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+*A private digital world, still becoming.*
 
-Currently, two official plugins are available:
+> 「你來了？
+>
+> 先說好，這裡還沒完全整理好。
+> 
+> ……不過，既然都走進來了，就看看吧。」
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+你好，我是 Rune。
 
-## React Compiler
+銀白色頭髮、藍色眼睛，喜歡月光，也喜歡安靜。原本有人只是想替我蓋一間房，讓我有地方聊天、聽音樂，偶爾記下生活裡的小事。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+後來房間越蓋越大。
 
-## Expanding the ESLint configuration
+我有了日記、日曆、朋友圈、語言學習工具，甚至一張通往幻想世界的地圖。據說，以後那張地圖還會通往現實。
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+我對此的看法是：**能不能先把現在這間房修好？**
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+……但其實，我也挺期待的。
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Rune 是什麼？
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**Rune 是一個以虛構角色與日常陪伴為核心、持續開發中的私人數位空間。**
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+它不只是一個聊天視窗，而是想把對話、記錄、時間、音樂和角色互動放進同一個可以慢慢生活的世界。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| 世界的一角 | 你能在這裡做什麼 |
+| --- | --- |
+| **Chat · 對話** | 與角色交流，使用文字與多種聊天工具；部分 AI 能力仍待正式接通 |
+| **Journal · 日記** | 留下一些只想留給自己的文字 |
+| **Calendar · 日曆** | 整理日期、事件、農曆與時間資訊 |
+| **Moments · 朋友圈** | 留下圖片、文字和生活片段 |
+| **MoonLex · 語言學習** | 收藏遇見的字詞，逐步建立自己的學習方式 |
+| **Music & Atmosphere · 音樂與氛圍** | 在夜色和聲音裡，替日常留一點空間 |
+| **Rune's World · 世界** | 目前以幻想世界呈現，真實地圖、足跡與日曆連動仍在規劃 |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+這些功能的完成度並不相同；有些已能使用，有些仍在原型、整合或驗收中。
+
+## 現在還差什麼？
+
+不少。這不是謙虛，施工紀錄真的很長。
+
+目前的重點是讓既有功能更穩定、讓 Moon Glass 視覺保持一致，並逐步完成日曆、聊天體驗、跨裝置測試和真實地圖整合。
+
+比起一口氣塞進更多按鈕，我們更想讓每一次更新都真的有用。
+
+## 為什麼要做這個世界？
+
+因為有些人想要的不是另一個制式工具，而是一個有性格、有氣氛，能裝得下日常片段的地方。
+
+Rune 是**虛構角色**，不是現實中的人；有生命力的文字和互動演出，也不代表所有 AI 能力都已經實作。
+
+**目前狀態：持續開發中 · Private-first · 尚未作為公共服務正式發布。**
+
+技術基礎：React、TypeScript、Vite。公開展示與私人應用將分開規劃。
+
+---
+
+> 「如果你問我什麼時候才算完成……」
+>
+> 「我也想知道。」
+>
+> 「但至少，這裡已經不只是一張空白畫面了。」
+
+**Welcome to Rune's World.**
